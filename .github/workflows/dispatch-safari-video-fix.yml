@@ -1,4 +1,4 @@
-name: Dispatch Safari video fix preview
+name: Dispatch signed video URL fix preview
 
 on:
   push:
