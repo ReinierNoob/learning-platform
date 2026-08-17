@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getAccessToken, getLearningAccess, getPublishedModuleServerOnly, getSessionUser } from "../../../../lib/platform";
 
+type ChatMessage = { role: string; content: string };
+
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const sourceModuleId = Number(id);
@@ -18,10 +20,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const module = await getPublishedModuleServerOnly(trainingId, sourceModuleId);
   if (!module?.system_instruction || !module.is_published) return NextResponse.json({ error: "module_not_found" }, { status: 404 });
 
-  const messages = Array.isArray(body.messages) ? body.messages.slice(-12) : [];
+  const messages: unknown[] = Array.isArray(body.messages) ? body.messages.slice(-12) : [];
   const safeMessages = messages
-    .filter((item: unknown): item is { role: string; content: string } => Boolean(item && typeof item === "object" && "role" in item && "content" in item))
-    .map((item) => ({ role: item.role === "assistant" ? "assistant" : "user", content: String(item.content).slice(0, 6000) }));
+    .filter((item: unknown): item is ChatMessage => Boolean(item && typeof item === "object" && "role" in item && "content" in item))
+    .map((item: ChatMessage) => ({ role: item.role === "assistant" ? "assistant" : "user", content: String(item.content).slice(0, 6000) }));
   if (!safeMessages.length) return NextResponse.json({ error: "message_required" }, { status: 400 });
 
   const apiKey = process.env.OPENAI_API_KEY?.trim();
