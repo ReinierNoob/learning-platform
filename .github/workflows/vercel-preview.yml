@@ -47,6 +47,13 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel
 
+      - name: Link exact Vercel project in CI
+        shell: bash
+        run: |
+          rm -rf .vercel
+          mkdir -p .vercel
+          printf '{"orgId":"%s","projectId":"%s"}\n' "$VERCEL_ORG_ID" "$VERCEL_PROJECT_ID" > .vercel/project.json
+
       - name: Pull existing preview configuration
         run: vercel pull --yes --environment=preview --token="$VERCEL_TOKEN"
 
