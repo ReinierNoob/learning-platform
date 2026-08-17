@@ -25,7 +25,18 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
       <div><span className="meta">{user.email}</span> <form action="/api/auth/logout" method="post" style={{ display: "inline" }}><button className="button secondary" type="submit">Uitloggen</button></form></div>
     </header>
     <section className="hero"><p className="eyebrow">EAW Leeromgeving</p><h1>{course.title}</h1><p>{course.description}</p><p>Toegang t/m {access.ends_at ? new Date(access.ends_at).toLocaleDateString("nl-NL") : "—"} · Voortgang {Math.round(Number(access.completion_percentage ?? 0))}%</p></section>
-    <section className="card"><h2>Modules</h2><div className="moduleList">{modules.map((module) => <div className="module" key={module.id}><div><span className="badge">Module {module.position} · {module.content_version}</span><h3>{module.title}</h3><p className="meta">{module.level}{module.study_load ? ` · ${module.study_load}` : ""}</p></div><a className="button" href={`/leren/${slug}/module/${module.source_module_id}`}>Open module</a></div>)}</div></section>
+
+    <section className="sectionBlock">
+      <div className="sectionHeading"><div><p className="eyebrow dark">Leerpad</p><h2>Modules</h2></div><p className="meta">Kies een module om de hoofdstukken te bekijken.</p></div>
+      <div className="tileGrid moduleTiles">
+        {modules.map((module) => <a className="learningTile" key={module.id} href={`/leren/${slug}/module/${module.source_module_id}`}>
+          <div className="tileTop"><span className="tileNumber">{String(module.position).padStart(2, "0")}</span><span className="badge">{module.content_version}</span></div>
+          <div className="tileBody"><p className="tileLabel">Module {module.position}</p><h3>{module.title}</h3><p className="meta">{module.level}{module.study_load ? ` · ${module.study_load}` : ""}</p></div>
+          <div className="tileFooter"><span>Bekijk hoofdstukken</span><span aria-hidden="true">→</span></div>
+        </a>)}
+      </div>
+    </section>
+
     <p className="footer">Onafhankelijk ontwikkeld. Een EAW-bewijs van afronding is geen officiële TOGAF-certificering.</p>
   </main>;
 }
