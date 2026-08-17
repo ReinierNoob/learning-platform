@@ -15,7 +15,7 @@ jobs:
   dispatch:
     runs-on: ubuntu-latest
     steps:
-      - name: Dispatch preview-only deployment
+      - name: Dispatch preview-only deployment after AI health route
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
