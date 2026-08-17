@@ -20,7 +20,10 @@ export default async function CoursePage({ params }: { params: Promise<{ slug: s
   const modules = await getPublishedModules(course.id, token);
 
   return <main className="shell">
-    <header className="topbar"><a className="brand" href={process.env.EAW_ACCOUNT_URL ?? "https://enterprisearchitectureworks.nl/account"}>Enterprise Architecture Works</a><span className="meta">{user.email}</span></header>
+    <header className="topbar">
+      <a className="brand" href={process.env.EAW_ACCOUNT_URL ?? "https://enterprisearchitectureworks.nl/account"}>Enterprise Architecture Works</a>
+      <div><span className="meta">{user.email}</span> <form action="/api/auth/logout" method="post" style={{ display: "inline" }}><button className="button secondary" type="submit">Uitloggen</button></form></div>
+    </header>
     <section className="hero"><p className="eyebrow">EAW Leeromgeving</p><h1>{course.title}</h1><p>{course.description}</p><p>Toegang t/m {access.ends_at ? new Date(access.ends_at).toLocaleDateString("nl-NL") : "—"} · Voortgang {Math.round(Number(access.completion_percentage ?? 0))}%</p></section>
     <section className="card"><h2>Modules</h2><div className="moduleList">{modules.map((module) => <div className="module" key={module.id}><div><span className="badge">Module {module.position} · {module.content_version}</span><h3>{module.title}</h3><p className="meta">{module.level}{module.study_load ? ` · ${module.study_load}` : ""}</p></div><a className="button" href={`/leren/${slug}/module/${module.source_module_id}`}>Open module</a></div>)}</div></section>
     <p className="footer">Onafhankelijk ontwikkeld. Een EAW-bewijs van afronding is geen officiële TOGAF-certificering.</p>
