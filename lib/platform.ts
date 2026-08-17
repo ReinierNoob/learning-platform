@@ -2,15 +2,22 @@ import "server-only";
 
 import { cookies } from "next/headers";
 
-export const eawSupabaseUrl =
+const configuredEawSupabaseUrl =
   process.env.EAW_SUPABASE_URL ??
-  process.env.NEXT_PUBLIC_EAW_SUPABASE_URL ??
-  "https://mhjykzrljvtxauaatlom.supabase.co";
+  process.env.NEXT_PUBLIC_EAW_SUPABASE_URL;
 
-export const eawPublishableKey =
+const configuredEawPublishableKey =
   process.env.EAW_SUPABASE_PUBLISHABLE_KEY ??
-  process.env.NEXT_PUBLIC_EAW_SUPABASE_PUBLISHABLE_KEY ??
-  "sb_publishable_qa9v9qDYMzr3Fr3h0N29gg_1Ip6gfb5";
+  process.env.NEXT_PUBLIC_EAW_SUPABASE_PUBLISHABLE_KEY;
+
+if (!configuredEawSupabaseUrl || !configuredEawPublishableKey) {
+  throw new Error(
+    "Missing EAW_SUPABASE_URL or EAW_SUPABASE_PUBLISHABLE_KEY",
+  );
+}
+
+export const eawSupabaseUrl = configuredEawSupabaseUrl;
+export const eawPublishableKey = configuredEawPublishableKey;
 
 export const accessCookieName = "eaw_learning_access_token";
 export const refreshCookieName = "eaw_learning_refresh_token";
