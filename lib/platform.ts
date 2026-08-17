@@ -57,16 +57,20 @@ export type CourseModule = {
   disclaimer: string | null;
   chapters: Array<{ id: string; titel: string; tekst: string; video_url?: string | null }>;
   quiz: Array<{ nr: number; vraag: string; opties: Record<string, string> }>;
+  tutor_instruction: string | null;
 };
 
-export type ServerModule = {
-  id: string;
-  course_id: string;
-  source_module_id: number;
-  title: string;
-  is_published: boolean;
-  system_instruction: string | null;
-  quiz: Array<{ nr: number; vraag: string; opties: Record<string, string> }>;
+export type AssessmentResult = {
+  nr: number;
+  correct: boolean;
+  juisteAntwoord: string;
+  uitleg: string;
+};
+
+export type ProgressResult = {
+  progress: unknown;
+  resultaten: AssessmentResult[] | null;
+  score: number | null;
 };
 
 function authHeaders(token?: string | null) {
@@ -140,6 +144,7 @@ const moduleSelect = [
   "disclaimer",
   "chapters",
   "quiz",
+  "tutor_instruction",
 ].join(",");
 
 export async function getPublishedModules(courseId: string, token: string): Promise<CourseModule[]> {
@@ -170,23 +175,7 @@ export async function getModuleItems(moduleId: string, token: string) {
   return response.json() as Promise<Array<{ id: string; item_type: string; title: string; position: number; is_required: boolean }>>;
 }
 
-function serviceHeaders() {
-  const key = process.env.EAW_SUPABASE_SERVICE_ROLE_KEY?.trim();
-  if (!key) throw new Error("Missing EAW_SUPABASE_SERVICE_ROLE_KEY");
-  return { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json" };
-}
-
-export async function getPublishedModuleServerOnly(courseId: string, sourceModuleId: number): Promise<ServerModule | null> {
-  const response = await fetch(
-    `${eawSupabaseUrl}/rest/v1/course_modules?course_id=eq.${encodeURIComponent(courseId)}&source_module_id=eq.${sourceModuleId}&is_published=eq.true&select=id,course_id,source_module_id,title,is_published,system_instruction,quiz&limit=1`,
-    { headers: serviceHeaders(), cache: "no-store" },
-  );
-  if (!response.ok) throw new Error(`module_server:${response.status}`);
-  const rows = await response.json();
-  return rows[0] ?? null;
-}
-
-export async function recordProgress(token: string, payload: Record<string, unknown>) {
+export async function recordProgress(token: string, payload: Record<string, unknown>): Promise<ProgressResult> {
   const response = await fetch(`${eawSupabaseUrl}/functions/v1/record-progress`, {
     method: "POST",
     headers: authHeaders(token),
@@ -195,13 +184,5 @@ export async function recordProgress(token: string, payload: Record<string, unkn
   });
   const result = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(result.error ?? `record_progress:${response.status}`);
-  return result;
-}
-
-export function parseAnswerKey(systemInstruction: string) {
-  const answers = new Map<number, { answer: string; explanation: string }>();
-  for (const match of systemInstruction.matchAll(/(?:^|\n)\s*(\d+)\s*=\s*([A-D])\s*\(([^\n]+)\)/g)) {
-    answers.set(Number(match[1]), { answer: match[2], explanation: match[3] });
-  }
-  return answers;
+  return result as ProgressResult;
 }
