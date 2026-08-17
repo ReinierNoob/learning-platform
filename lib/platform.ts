@@ -107,11 +107,11 @@ export async function rpc<T>(name: string, body: Record<string, unknown>, token:
 }
 
 export async function getLearningAccess(trainingId: string, token: string) {
-  return rpc<LearningAccess>("get_my_learning_access", { p_training_id: trainingId }, token);
+  return rpc<LearningAccess>("get_my_learning_access", { p_course_id: trainingId }, token);
 }
 
 export async function startCourse(trainingId: string, token: string) {
-  return rpc<Record<string, unknown>>("start_my_course", { p_training_id: trainingId }, token);
+  return rpc<Record<string, unknown>>("start_my_course", { p_course_id: trainingId }, token);
 }
 
 export async function getCourseBySlug(slug: string, token?: string | null): Promise<Course | null> {
