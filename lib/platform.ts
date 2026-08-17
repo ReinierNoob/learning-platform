@@ -33,6 +33,19 @@ export type LearningAccess = {
   completed_at: string | null;
 };
 
+export type CourseStart = {
+  training_id: string;
+  entitlement_id: string;
+  enrollment_id: string;
+  entitlement_status: string;
+  enrollment_status: string;
+  starts_at: string;
+  ends_at: string;
+  first_opened_at: string | null;
+  completion_percentage: number | string | null;
+  last_activity_at: string | null;
+};
+
 export type Course = {
   id: string;
   slug: string;
@@ -110,12 +123,28 @@ export async function rpc<T>(name: string, body: Record<string, unknown>, token:
   return response.json();
 }
 
-export async function getLearningAccess(trainingId: string, token: string) {
-  return rpc<LearningAccess>("get_my_learning_access", { p_course_id: trainingId }, token);
+function firstRpcRow<T>(value: T | T[], name: string): T {
+  const row = Array.isArray(value) ? value[0] : value;
+  if (!row) throw new Error(`${name}:empty_result`);
+  return row;
 }
 
-export async function startCourse(trainingId: string, token: string) {
-  return rpc<Record<string, unknown>>("start_my_course", { p_course_id: trainingId }, token);
+export async function getLearningAccess(trainingId: string, token: string): Promise<LearningAccess> {
+  const result = await rpc<LearningAccess | LearningAccess[]>(
+    "get_my_learning_access",
+    { p_course_id: trainingId },
+    token,
+  );
+  return firstRpcRow(result, "get_my_learning_access");
+}
+
+export async function startCourse(trainingId: string, token: string): Promise<CourseStart> {
+  const result = await rpc<CourseStart | CourseStart[]>(
+    "start_my_course",
+    { p_course_id: trainingId },
+    token,
+  );
+  return firstRpcRow(result, "start_my_course");
 }
 
 export async function getCourseBySlug(slug: string, token?: string | null): Promise<Course | null> {
