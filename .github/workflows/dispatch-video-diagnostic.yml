@@ -1,0 +1,29 @@
+name: Dispatch video diagnostic preview
+
+on:
+  push:
+    branches:
+      - agent/eaw-shared-auth-entitlements
+    paths:
+      - .github/workflows/dispatch-video-diagnostic.yml
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch protected preview workflow
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          curl --fail-with-body --silent --show-error \
+            --request POST \
+            --url "https://api.github.com/repos/${REPO}/actions/workflows/vercel-preview.yml/dispatches" \
+            --header "Authorization: Bearer ${GH_TOKEN}" \
+            --header "Accept: application/vnd.github+json" \
+            --header "X-GitHub-Api-Version: 2022-11-28" \
+            --data '{"ref":"agent/eaw-shared-auth-entitlements","inputs":{"confirm_preview":"DEPLOY_PREVIEW"}}'
