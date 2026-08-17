@@ -15,7 +15,7 @@ jobs:
   dispatch:
     runs-on: ubuntu-latest
     steps:
-      - name: Dispatch preview-only deployment for Anthropic build verification
+      - name: Dispatch final clean preview-only deployment
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
