@@ -7,6 +7,11 @@ on:
         description: 'Type DEPLOY_PREVIEW to create a non-production Vercel preview'
         required: true
         type: string
+  push:
+    branches:
+      - agent/eaw-shared-auth-entitlements
+    paths:
+      - '.github/workflows/vercel-preview.yml'
 
 permissions:
   contents: read
@@ -17,7 +22,7 @@ concurrency:
 
 jobs:
   preview:
-    if: ${{ inputs.confirm_preview == 'DEPLOY_PREVIEW' }}
+    if: ${{ github.event_name == 'push' || inputs.confirm_preview == 'DEPLOY_PREVIEW' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
