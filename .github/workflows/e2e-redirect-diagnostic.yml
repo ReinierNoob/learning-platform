@@ -1,0 +1,59 @@
+name: EAW redirect diagnostic
+
+on:
+  push:
+    branches:
+      - agent/eaw-shared-auth-entitlements
+    paths:
+      - '.github/workflows/e2e-redirect-diagnostic.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      SUPABASE_URL: https://mhjykzrljvtxauaatlom.supabase.co
+      SUPABASE_KEY: sb_publishable_qa9v9qDYMzr3Fr3h0N29gg_1Ip6gfb5
+      EAW_BASE: https://enterprise-architecture-works-git-2668d7-reiniernoobs-projects.vercel.app
+      BOOTSTRAP_URL: https://mhjykzrljvtxauaatlom.supabase.co/functions/v1/e2e-learning-bootstrap
+    steps:
+      - name: Inspect sanitized launch redirect
+        shell: bash
+        run: |
+          set -euo pipefail
+          cleanup() {
+            curl --silent --show-error --fail --request POST "$BOOTSTRAP_URL" \
+              --header "Authorization: Bearer $VERCEL_TOKEN" \
+              --header 'Content-Type: application/json' \
+              --data '{"action":"cleanup"}' >/dev/null || true
+          }
+          trap cleanup EXIT
+          BOOTSTRAP="$(curl --silent --show-error --fail --request POST "$BOOTSTRAP_URL" \
+            --header "Authorization: Bearer $VERCEL_TOKEN" \
+            --header 'Content-Type: application/json' \
+            --data '{"action":"bootstrap"}')"
+          TOKEN_HASH="$(BOOTSTRAP="$BOOTSTRAP" node -e "const d=JSON.parse(process.env.BOOTSTRAP);process.stdout.write(d.token_hash||'')")"
+          ENTITLEMENT_ID="$(BOOTSTRAP="$BOOTSTRAP" node -e "const d=JSON.parse(process.env.BOOTSTRAP);process.stdout.write(d.entitlement_id||'')")"
+          VERIFY_PAYLOAD="$(TOKEN_HASH="$TOKEN_HASH" node -e "process.stdout.write(JSON.stringify({token_hash:process.env.TOKEN_HASH,type:'email'}))")"
+          SESSION="$(curl --silent --show-error --fail --request POST "$SUPABASE_URL/auth/v1/verify" \
+            --header "apikey: $SUPABASE_KEY" --header 'Content-Type: application/json' --data "$VERIFY_PAYLOAD")"
+          ACCESS_TOKEN="$(SESSION="$SESSION" node -e "const d=JSON.parse(process.env.SESSION);process.stdout.write(d.access_token||'')")"
+          STATUS="$(curl --silent --show-error --output /tmp/body --dump-header /tmp/headers --write-out '%{http_code}' \
+            --cookie "eaw_access_token=$ACCESS_TOKEN" "$EAW_BASE/api/learning/launch?entitlement=$ENTITLEMENT_ID")"
+          LOCATION="$(awk 'BEGIN{IGNORECASE=1} /^location:/ {sub(/^[^:]*:[[:space:]]*/,""); sub(/\r$/,""); print; exit}' /tmp/headers)"
+          STATUS="$STATUS" LOCATION="$LOCATION" node <<'NODE'
+          const raw = process.env.LOCATION || '';
+          let safe = raw;
+          try {
+            const u = new URL(raw, 'https://placeholder.invalid');
+            safe = `${u.origin}${u.pathname}`;
+            const keys = [...u.searchParams.keys()];
+            if (keys.length) safe += `?${keys.map(k => `${k}=<redacted>`).join('&')}`;
+          } catch {}
+          console.log(`EAW_STATUS=${process.env.STATUS}`);
+          console.log(`SANITIZED_LOCATION=${safe}`);
+          NODE
