@@ -56,50 +56,9 @@ jobs:
             exit 1
           fi
 
-      - name: Align preview environment configuration
+      - name: Configure preview environment
         shell: bash
         run: |
-          STATUS="$(curl --silent --show-error --output /tmp/vercel-env.json --write-out '%{http_code}' \
-            --header "Authorization: Bearer $VERCEL_TOKEN" \
-            "https://api.vercel.com/v10/projects/$VERCEL_PROJECT_ID/env?teamId=$VERCEL_TEAM_ID")"
-          if [ "$STATUS" != '200' ]; then
-            echo "::error::Unable to inspect Vercel environment keys (HTTP $STATUS)."
-            exit 1
-          fi
-
-          node <<'NODE'
-          const fs = require('fs');
-          const data = JSON.parse(fs.readFileSync('/tmp/vercel-env.json', 'utf8'));
-          const envs = Array.isArray(data.envs) ? data.envs : [];
-          const hasTarget = (env, target) => Array.isArray(env.target) && env.target.includes(target);
-          const previewOpenAI = envs.find((env) => env.key === 'OPENAI_API_KEY' && hasTarget(env, 'preview'));
-          if (!previewOpenAI) {
-            const productionOpenAI = envs.find((env) => env.key === 'OPENAI_API_KEY' && hasTarget(env, 'production') && !env.gitBranch);
-            if (!productionOpenAI?.id) {
-              console.error('::error::OPENAI_API_KEY is not configured for Production, so it cannot be safely enabled for Preview.');
-              process.exit(1);
-            }
-            const targets = Array.from(new Set([...(productionOpenAI.target || []), 'preview']));
-            fs.writeFileSync('/tmp/openai-env-id', productionOpenAI.id);
-            fs.writeFileSync('/tmp/openai-env-patch.json', JSON.stringify({ target: targets }));
-          }
-          NODE
-
-          if [ -f /tmp/openai-env-id ]; then
-            ENV_ID="$(cat /tmp/openai-env-id)"
-            STATUS="$(curl --silent --show-error --output /tmp/openai-patch-response.json --write-out '%{http_code}' \
-              --request PATCH \
-              --url "https://api.vercel.com/v9/projects/$VERCEL_PROJECT_ID/env/$ENV_ID?teamId=$VERCEL_TEAM_ID" \
-              --header "Authorization: Bearer $VERCEL_TOKEN" \
-              --header 'Content-Type: application/json' \
-              --data-binary @/tmp/openai-env-patch.json)"
-            if [ "$STATUS" != '200' ]; then
-              echo "::error::Unable to enable the existing OPENAI_API_KEY for Preview (HTTP $STATUS)."
-              exit 1
-            fi
-            echo 'Existing OPENAI_API_KEY enabled for Preview without exposing or copying its value.'
-          fi
-
           node <<'NODE'
           const fs = require('fs');
           const vars = [
@@ -139,7 +98,7 @@ jobs:
           const envs = Array.isArray(data.envs) ? data.envs : [];
           const preview = envs.filter((env) => Array.isArray(env.target) && env.target.includes('preview'));
           const keys = new Set(preview.map((env) => env.key));
-          const required = ['OPENAI_API_KEY', 'EAW_SUPABASE_URL', 'EAW_SUPABASE_PUBLISHABLE_KEY', 'EAW_ACCOUNT_URL', 'VIDEO_SUPABASE_URL'];
+          const required = ['EAW_SUPABASE_URL', 'EAW_SUPABASE_PUBLISHABLE_KEY', 'EAW_ACCOUNT_URL', 'VIDEO_SUPABASE_URL'];
           const missing = required.filter((key) => !keys.has(key));
           if (!keys.has('VIDEO_SUPABASE_SERVICE_ROLE_KEY') && !keys.has('SUPABASE_SERVICE_ROLE_KEY')) {
             missing.push('VIDEO_SUPABASE_SERVICE_ROLE_KEY or SUPABASE_SERVICE_ROLE_KEY');
@@ -148,7 +107,10 @@ jobs:
             console.error(`::error::Missing Vercel Preview environment configuration: ${missing.join(', ')}`);
             process.exit(1);
           }
-          console.log('Required Vercel Preview environment keys are present.');
+          if (!keys.has('OPENAI_API_KEY')) {
+            console.log('::warning::OPENAI_API_KEY is not configured for Preview. Alexander will return ai_not_configured until the key is added.');
+          }
+          console.log('Required non-AI Vercel Preview environment keys are present.');
           NODE
 
       - name: Verify application build independently
