@@ -23,15 +23,24 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   if (!serviceKey) return new NextResponse("Video storage not configured", { status: 503 });
 
   const objectPath = `module${sourceModuleId}/${chapter}.mp4`;
+  const expiresIn = 1800;
   const signed = await fetch(`${videoUrl}/storage/v1/object/sign/cursus-videos/${objectPath}`, {
     method: "POST",
     headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ expiresIn: 1800 }),
+    body: JSON.stringify({ expiresIn }),
     cache: "no-store",
   });
 
   const result = await signed.json().catch(() => ({}));
   if (!signed.ok || !result.signedURL) return new NextResponse("Video unavailable", { status: 404 });
   const target = result.signedURL.startsWith("http") ? result.signedURL : `${videoUrl}${result.signedURL}`;
+
+  if (request.nextUrl.searchParams.get("format") === "json") {
+    return NextResponse.json(
+      { url: target, expiresIn },
+      { headers: { "Cache-Control": "private, no-store" } },
+    );
+  }
+
   return NextResponse.redirect(target, 307);
 }
