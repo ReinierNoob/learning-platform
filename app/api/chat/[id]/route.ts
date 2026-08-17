@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { generateTutorReply, hasConfiguredAiProvider } from "../../../../lib/ai";
 import { getAccessToken, getLearningAccess, getPublishedModule, getSessionUser } from "../../../../lib/platform";
 
 type ChatMessage = { role: string; content: string };
@@ -29,30 +30,15 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const safeMessages = messages
     .filter((item: unknown): item is ChatMessage => Boolean(item && typeof item === "object" && "role" in item && "content" in item))
     .map((item: ChatMessage) => ({
-      role: item.role === "assistant" ? "assistant" : "user",
+      role: item.role === "assistant" ? ("assistant" as const) : ("user" as const),
       content: String(item.content).slice(0, 6000),
     }));
 
   if (!safeMessages.length) return NextResponse.json({ error: "message_required" }, { status: 400 });
+  if (!hasConfiguredAiProvider()) return NextResponse.json({ error: "ai_not_configured" }, { status: 503 });
 
-  const apiKey = process.env.OPENAI_API_KEY?.trim();
-  const model = process.env.OPENAI_MODEL?.trim() || "gpt-5-mini";
-  if (!apiKey) return NextResponse.json({ error: "ai_not_configured" }, { status: 503 });
+  const result = await generateTutorReply(module.tutor_instruction, safeMessages);
+  if (!result) return NextResponse.json({ error: "ai_unavailable" }, { status: 503 });
 
-  const response = await fetch("https://api.openai.com/v1/responses", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model,
-      instructions: module.tutor_instruction,
-      input: safeMessages.map((message) => ({ role: message.role, content: message.content })),
-      max_output_tokens: 700,
-    }),
-    cache: "no-store",
-  });
-
-  const result = await response.json().catch(() => ({}));
-  if (!response.ok) return NextResponse.json({ error: "ai_unavailable" }, { status: 503 });
-  const reply = result.output_text ?? result.output?.flatMap((item: any) => item.content ?? []).map((item: any) => item.text ?? "").join("") ?? "";
-  return NextResponse.json({ reply: String(reply).trim() });
+  return NextResponse.json({ reply: result.reply });
 }
