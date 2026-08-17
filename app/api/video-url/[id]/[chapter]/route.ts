@@ -33,7 +33,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   const result = await signed.json().catch(() => ({}));
   if (!signed.ok || !result.signedURL) return new NextResponse("Video unavailable", { status: 404 });
-  const target = result.signedURL.startsWith("http") ? result.signedURL : `${videoUrl}${result.signedURL}`;
+
+  const baseUrl = videoUrl.replace(/\/+$/, "");
+  const signedPath = result.signedURL.startsWith("/") ? result.signedURL : `/${result.signedURL}`;
+  const storagePrefix = signedPath.startsWith("/storage/v1/") ? "" : "/storage/v1";
+  const target = result.signedURL.startsWith("http") ? result.signedURL : `${baseUrl}${storagePrefix}${signedPath}`;
 
   if (request.nextUrl.searchParams.get("format") === "json") {
     return NextResponse.json(
