@@ -7,11 +7,6 @@ on:
         description: 'Type DEPLOY_PREVIEW to create a non-production Vercel preview'
         required: true
         type: string
-  push:
-    branches:
-      - agent/eaw-shared-auth-entitlements
-    paths:
-      - '.github/workflows/vercel-preview.yml'
 
 permissions:
   contents: read
@@ -22,7 +17,7 @@ concurrency:
 
 jobs:
   preview:
-    if: ${{ github.event_name == 'push' || inputs.confirm_preview == 'DEPLOY_PREVIEW' }}
+    if: ${{ inputs.confirm_preview == 'DEPLOY_PREVIEW' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
@@ -37,11 +32,18 @@ jobs:
         with:
           node-version: '24'
 
-      - name: Require Vercel deployment token
+      - name: Validate Vercel deployment token
         shell: bash
         run: |
           if [ -z "$VERCEL_TOKEN" ]; then
             echo '::error::GitHub secret VERCEL_TOKEN is missing. No deployment was attempted.'
+            exit 1
+          fi
+          STATUS="$(curl --silent --show-error --output /tmp/vercel-user.json --write-out '%{http_code}' \
+            --header "Authorization: Bearer $VERCEL_TOKEN" \
+            https://api.vercel.com/v2/user)"
+          if [ "$STATUS" != '200' ]; then
+            echo "::error::VERCEL_TOKEN is not a valid Vercel personal authentication token (user endpoint HTTP $STATUS). No deployment was attempted."
             exit 1
           fi
 
