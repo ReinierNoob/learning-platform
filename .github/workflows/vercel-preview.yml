@@ -1,6 +1,8 @@
 name: Deploy learning preview
 
 on:
+  push:
+    branches: [agent/eaw-shared-auth-entitlements]
   workflow_dispatch:
     inputs:
       confirm_preview:
@@ -17,7 +19,7 @@ concurrency:
 
 jobs:
   preview:
-    if: ${{ inputs.confirm_preview == 'DEPLOY_PREVIEW' }}
+    if: ${{ github.event_name == 'push' || inputs.confirm_preview == 'DEPLOY_PREVIEW' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
