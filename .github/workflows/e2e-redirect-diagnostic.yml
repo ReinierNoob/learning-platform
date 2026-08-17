@@ -1,4 +1,4 @@
-name: EAW handoff diagnostic
+name: EAW protected preview E2E runner
 
 on:
   push:
@@ -11,26 +11,27 @@ permissions:
   contents: read
 
 jobs:
-  diagnose:
+  e2e:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     env:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-      DIAGNOSTIC_URL: https://mhjykzrljvtxauaatlom.supabase.co/functions/v1/e2e-handoff-diagnostic
+      RUNNER_URL: https://mhjykzrljvtxauaatlom.supabase.co/functions/v1/e2e-learning-runner
     steps:
-      - name: Call handoff with the existing preview user
+      - name: Execute protected preview integration chain
         shell: bash
         run: |
           set -euo pipefail
           STATUS="$(curl --silent --show-error \
-            --request POST "$DIAGNOSTIC_URL" \
+            --request POST "$RUNNER_URL" \
             --header "Authorization: Bearer $VERCEL_TOKEN" \
             --header 'Content-Type: application/json' \
             --data '{}' \
-            --output /tmp/result.json \
+            --output /tmp/e2e.json \
             --write-out '%{http_code}')"
-          cat /tmp/result.json
+          cat /tmp/e2e.json
           if [ "$STATUS" != '200' ]; then
-            echo "::error::Handoff diagnostic returned HTTP $STATUS"
+            echo "::error::Protected E2E runner returned HTTP $STATUS"
             exit 1
           fi
+          node -e "const d=require('/tmp/e2e.json'); if(d.ok!==true) process.exit(1); console.log('E2E_RESULT=PASS'); console.log('CHECKS='+d.checks.join(',')); console.log('PROGRESS_PERCENTAGE='+d.progress_percentage); console.log('AI_STATUS='+d.ai_status);"
