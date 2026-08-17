@@ -59,6 +59,16 @@ export type CourseModule = {
   quiz: Array<{ nr: number; vraag: string; opties: Record<string, string> }>;
 };
 
+export type ServerModule = {
+  id: string;
+  course_id: string;
+  source_module_id: number;
+  title: string;
+  is_published: boolean;
+  system_instruction: string | null;
+  quiz: Array<{ nr: number; vraag: string; opties: Record<string, string> }>;
+};
+
 function authHeaders(token?: string | null) {
   return {
     apikey: eawPublishableKey,
@@ -134,7 +144,7 @@ const moduleSelect = [
 
 export async function getPublishedModules(courseId: string, token: string): Promise<CourseModule[]> {
   const response = await fetch(
-    `${eawSupabaseUrl}/rest/v1/course_modules?course_id=eq.${courseId}&is_published=eq.true&select=${moduleSelect}&order=position.asc`,
+    `${eawSupabaseUrl}/rest/v1/course_modules?course_id=eq.${encodeURIComponent(courseId)}&is_published=eq.true&select=${moduleSelect}&order=position.asc`,
     { headers: authHeaders(token), cache: "no-store" },
   );
   if (!response.ok) throw new Error(`course_modules:${response.status}`);
@@ -143,7 +153,7 @@ export async function getPublishedModules(courseId: string, token: string): Prom
 
 export async function getPublishedModule(courseId: string, sourceModuleId: number, token: string): Promise<CourseModule | null> {
   const response = await fetch(
-    `${eawSupabaseUrl}/rest/v1/course_modules?course_id=eq.${courseId}&source_module_id=eq.${sourceModuleId}&is_published=eq.true&select=${moduleSelect}&limit=1`,
+    `${eawSupabaseUrl}/rest/v1/course_modules?course_id=eq.${encodeURIComponent(courseId)}&source_module_id=eq.${sourceModuleId}&is_published=eq.true&select=${moduleSelect}&limit=1`,
     { headers: authHeaders(token), cache: "no-store" },
   );
   if (!response.ok) return null;
@@ -153,7 +163,7 @@ export async function getPublishedModule(courseId: string, sourceModuleId: numbe
 
 export async function getModuleItems(moduleId: string, token: string) {
   const response = await fetch(
-    `${eawSupabaseUrl}/rest/v1/module_items?module_id=eq.${moduleId}&select=id,item_type,title,position,is_required&order=position.asc`,
+    `${eawSupabaseUrl}/rest/v1/module_items?module_id=eq.${encodeURIComponent(moduleId)}&select=id,item_type,title,position,is_required&order=position.asc`,
     { headers: authHeaders(token), cache: "no-store" },
   );
   if (!response.ok) throw new Error(`module_items:${response.status}`);
@@ -166,19 +176,9 @@ function serviceHeaders() {
   return { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json" };
 }
 
-export async function getModuleServerOnly(moduleId: string) {
+export async function getPublishedModuleServerOnly(courseId: string, sourceModuleId: number): Promise<ServerModule | null> {
   const response = await fetch(
-    `${eawSupabaseUrl}/rest/v1/course_modules?id=eq.${moduleId}&select=id,course_id,source_module_id,title,system_instruction,quiz&limit=1`,
-    { headers: serviceHeaders(), cache: "no-store" },
-  );
-  if (!response.ok) throw new Error(`module_server:${response.status}`);
-  const rows = await response.json();
-  return rows[0] ?? null;
-}
-
-export async function getModuleServerOnlyBySource(courseId: string, sourceModuleId: number) {
-  const response = await fetch(
-    `${eawSupabaseUrl}/rest/v1/course_modules?course_id=eq.${courseId}&source_module_id=eq.${sourceModuleId}&select=id,course_id,source_module_id,title,system_instruction,quiz&limit=1`,
+    `${eawSupabaseUrl}/rest/v1/course_modules?course_id=eq.${encodeURIComponent(courseId)}&source_module_id=eq.${sourceModuleId}&is_published=eq.true&select=id,course_id,source_module_id,title,is_published,system_instruction,quiz&limit=1`,
     { headers: serviceHeaders(), cache: "no-store" },
   );
   if (!response.ok) throw new Error(`module_server:${response.status}`);
