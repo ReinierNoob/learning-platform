@@ -1,0 +1,56 @@
+name: Verify Anthropic preview key once
+
+on:
+  push:
+    branches:
+      - agent/eaw-shared-auth-entitlements
+    paths:
+      - '.github/workflows/verify-anthropic-once.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_TEAM_ID: team_ZY5Sxra8t5DhA4S9zRTLmRnq
+      VERCEL_PROJECT_ID: prj_ULEAHWZ1J4r1GDmzxDU1sGJ3uXaA
+    steps:
+      - name: Load masked Preview Anthropic key and call Messages API
+        shell: bash
+        run: |
+          test -n "$VERCEL_TOKEN" || { echo '::error::VERCEL_TOKEN missing'; exit 1; }
+          STATUS="$(curl --silent --show-error --output /tmp/envs.json --write-out '%{http_code}' \
+            --header "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v10/projects/$VERCEL_PROJECT_ID/env?decrypt=true&teamId=$VERCEL_TEAM_ID")"
+          test "$STATUS" = '200' || { echo "::error::Cannot read Preview env (HTTP $STATUS)"; exit 1; }
+          KEY="$(node <<'NODE'
+          const fs=require('fs');
+          const envs=JSON.parse(fs.readFileSync('/tmp/envs.json','utf8')).envs ?? [];
+          const match=envs.find(e => Array.isArray(e.target) && e.target.includes('preview') && (e.key==='ANTHROPIC_API_KEY' || e.key==='anthropic_API_KEY'));
+          process.stdout.write(match?.value || '');
+          NODE
+          )"
+          test -n "$KEY" || { echo '::error::No Anthropic Preview key found'; exit 1; }
+          echo "::add-mask::$KEY"
+          cat >/tmp/anthropic.json <<'JSON'
+          {"model":"claude-sonnet-5","max_tokens":16,"system":"This is a connectivity check. Reply only with OK.","messages":[{"role":"user","content":"Check the connection."}]}
+          JSON
+          HTTP="$(curl --silent --show-error --output /tmp/anthropic-response.json --write-out '%{http_code}' \
+            --request POST \
+            --url 'https://api.anthropic.com/v1/messages' \
+            --header "x-api-key: $KEY" \
+            --header 'anthropic-version: 2023-06-01' \
+            --header 'content-type: application/json' \
+            --data-binary @/tmp/anthropic.json)"
+          if [ "$HTTP" != '200' ]; then
+            TYPE="$(node -e "const d=require('/tmp/anthropic-response.json');process.stdout.write(d?.error?.type||'unknown_error')")"
+            echo "::error::Anthropic API rejected the Preview key (HTTP $HTTP, type $TYPE)"
+            exit 1
+          fi
+          MODEL="$(node -e "const d=require('/tmp/anthropic-response.json');process.stdout.write(d.model||'unknown')")"
+          HAS_TEXT="$(node -e "const d=require('/tmp/anthropic-response.json');process.stdout.write(String((d.content||[]).some(x=>x.type==='text'&&x.text)))")"
+          echo "Anthropic Preview verification: HTTP 200, model=$MODEL, text=$HAS_TEXT"
