@@ -1,4 +1,4 @@
-name: Dispatch video diagnostic preview
+name: Dispatch final video playback preview
 
 on:
   push:
