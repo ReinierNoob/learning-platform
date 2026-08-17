@@ -1,4 +1,4 @@
-name: EAW redirect diagnostic
+name: EAW protected preview E2E runner
 
 on:
   push:
@@ -11,49 +11,27 @@ permissions:
   contents: read
 
 jobs:
-  diagnose:
+  e2e:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     env:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-      SUPABASE_URL: https://mhjykzrljvtxauaatlom.supabase.co
-      SUPABASE_KEY: sb_publishable_qa9v9qDYMzr3Fr3h0N29gg_1Ip6gfb5
-      EAW_BASE: https://enterprise-architecture-works-git-2668d7-reiniernoobs-projects.vercel.app
-      BOOTSTRAP_URL: https://mhjykzrljvtxauaatlom.supabase.co/functions/v1/e2e-learning-bootstrap
+      RUNNER_URL: https://mhjykzrljvtxauaatlom.supabase.co/functions/v1/e2e-learning-runner
     steps:
-      - name: Inspect sanitized launch redirect
+      - name: Execute protected preview integration chain
         shell: bash
         run: |
           set -euo pipefail
-          cleanup() {
-            curl --silent --show-error --fail --request POST "$BOOTSTRAP_URL" \
-              --header "Authorization: Bearer $VERCEL_TOKEN" \
-              --header 'Content-Type: application/json' \
-              --data '{"action":"cleanup"}' >/dev/null || true
-          }
-          trap cleanup EXIT
-          BOOTSTRAP="$(curl --silent --show-error --fail --request POST "$BOOTSTRAP_URL" \
+          STATUS="$(curl --silent --show-error \
+            --request POST "$RUNNER_URL" \
             --header "Authorization: Bearer $VERCEL_TOKEN" \
             --header 'Content-Type: application/json' \
-            --data '{"action":"bootstrap"}')"
-          TOKEN_HASH="$(BOOTSTRAP="$BOOTSTRAP" node -e "const d=JSON.parse(process.env.BOOTSTRAP);process.stdout.write(d.token_hash||'')")"
-          ENTITLEMENT_ID="$(BOOTSTRAP="$BOOTSTRAP" node -e "const d=JSON.parse(process.env.BOOTSTRAP);process.stdout.write(d.entitlement_id||'')")"
-          VERIFY_PAYLOAD="$(TOKEN_HASH="$TOKEN_HASH" node -e "process.stdout.write(JSON.stringify({token_hash:process.env.TOKEN_HASH,type:'email'}))")"
-          SESSION="$(curl --silent --show-error --fail --request POST "$SUPABASE_URL/auth/v1/verify" \
-            --header "apikey: $SUPABASE_KEY" --header 'Content-Type: application/json' --data "$VERIFY_PAYLOAD")"
-          ACCESS_TOKEN="$(SESSION="$SESSION" node -e "const d=JSON.parse(process.env.SESSION);process.stdout.write(d.access_token||'')")"
-          STATUS="$(curl --silent --show-error --output /tmp/body --dump-header /tmp/headers --write-out '%{http_code}' \
-            --cookie "eaw_access_token=$ACCESS_TOKEN" "$EAW_BASE/api/learning/launch?entitlement=$ENTITLEMENT_ID")"
-          LOCATION="$(awk 'BEGIN{IGNORECASE=1} /^location:/ {sub(/^[^:]*:[[:space:]]*/,""); sub(/\r$/,""); print; exit}' /tmp/headers)"
-          STATUS="$STATUS" LOCATION="$LOCATION" node <<'NODE'
-          const raw = process.env.LOCATION || '';
-          let safe = raw;
-          try {
-            const u = new URL(raw, 'https://placeholder.invalid');
-            safe = `${u.origin}${u.pathname}`;
-            const keys = [...u.searchParams.keys()];
-            if (keys.length) safe += `?${keys.map(k => `${k}=<redacted>`).join('&')}`;
-          } catch {}
-          console.log(`EAW_STATUS=${process.env.STATUS}`);
-          console.log(`SANITIZED_LOCATION=${safe}`);
-          NODE
+            --data '{}' \
+            --output /tmp/e2e.json \
+            --write-out '%{http_code}')"
+          cat /tmp/e2e.json
+          if [ "$STATUS" != '200' ]; then
+            echo "::error::Protected E2E runner returned HTTP $STATUS"
+            exit 1
+          fi
+          node -e "const d=require('/tmp/e2e.json'); if(d.ok!==true) process.exit(1); console.log('E2E_RESULT=PASS'); console.log('CHECKS='+d.checks.join(',')); console.log('PROGRESS_PERCENTAGE='+d.progress_percentage); console.log('AI_STATUS='+d.ai_status);"
