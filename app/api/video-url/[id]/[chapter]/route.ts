@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAccessToken, getLearningAccess, getPublishedModuleServerOnly, getSessionUser } from "../../../../../lib/platform";
+import { getAccessToken, getLearningAccess, getPublishedModule, getSessionUser } from "../../../../../lib/platform";
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string; chapter: string }> }) {
   const { id, chapter } = await params;
@@ -11,9 +11,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   const token = await getAccessToken();
   if (!token || !(await getSessionUser(token))) return new NextResponse("Unauthorized", { status: 401 });
+
   const access = await getLearningAccess(trainingId, token);
   if (!access.can_access || access.training_id !== trainingId) return new NextResponse("Forbidden", { status: 403 });
-  const module = await getPublishedModuleServerOnly(trainingId, sourceModuleId);
+
+  const module = await getPublishedModule(trainingId, sourceModuleId, token);
   if (!module?.is_published) return new NextResponse("Not found", { status: 404 });
 
   const videoUrl = process.env.VIDEO_SUPABASE_URL ?? process.env.SUPABASE_URL ?? "https://jtdcinvkpprgnwvtwvms.supabase.co";
@@ -27,6 +29,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     body: JSON.stringify({ expiresIn: 1800 }),
     cache: "no-store",
   });
+
   const result = await signed.json().catch(() => ({}));
   if (!signed.ok || !result.signedURL) return new NextResponse("Video unavailable", { status: 404 });
   const target = result.signedURL.startsWith("http") ? result.signedURL : `${videoUrl}${result.signedURL}`;
