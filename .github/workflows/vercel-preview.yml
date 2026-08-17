@@ -151,7 +151,7 @@ jobs:
                   'commitRef': os.environ.get('GITHUB_REF_NAME', 'agent/eaw-shared-auth-entitlements'),
                   'commitSha': os.environ.get('GITHUB_SHA', ''),
                   'commitMessage': 'EAW learning-platform preview',
-                  'ci': 'true',
+                  'ci': True,
                   'ciType': 'github-actions',
                   'ciGitRepoVisibility': 'public'
               },
