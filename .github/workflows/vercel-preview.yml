@@ -30,6 +30,10 @@ jobs:
       VERCEL_TEAM_ID: team_ZY5Sxra8t5DhA4S9zRTLmRnq
       VERCEL_PROJECT_ID: prj_ULEAHWZ1J4r1GDmzxDU1sGJ3uXaA
       VERCEL_PROJECT_NAME: learning-platform
+      EAW_PREVIEW_URL: https://enterprise-architecture-works-git-2668d7-reiniernoobs-projects.vercel.app
+      EAW_SUPABASE_URL: https://mhjykzrljvtxauaatlom.supabase.co
+      EAW_SUPABASE_PUBLISHABLE_KEY: sb_publishable_qa9v9qDYMzr3Fr3h0N29gg_1Ip6gfb5
+      VIDEO_SUPABASE_URL: https://jtdcinvkpprgnwvtwvms.supabase.co
     steps:
       - uses: actions/checkout@v4
 
@@ -52,38 +56,105 @@ jobs:
             exit 1
           fi
 
-      - name: Verify required preview environment keys exist
+      - name: Align preview environment configuration
         shell: bash
         run: |
           STATUS="$(curl --silent --show-error --output /tmp/vercel-env.json --write-out '%{http_code}' \
             --header "Authorization: Bearer $VERCEL_TOKEN" \
             "https://api.vercel.com/v10/projects/$VERCEL_PROJECT_ID/env?teamId=$VERCEL_TEAM_ID")"
           if [ "$STATUS" != '200' ]; then
-            echo "::error::Unable to inspect Vercel preview environment keys (HTTP $STATUS)."
+            echo "::error::Unable to inspect Vercel environment keys (HTTP $STATUS)."
             exit 1
           fi
+
           node <<'NODE'
           const fs = require('fs');
           const data = JSON.parse(fs.readFileSync('/tmp/vercel-env.json', 'utf8'));
           const envs = Array.isArray(data.envs) ? data.envs : [];
-          const appliesToPreview = (env) => Array.isArray(env.target) && env.target.includes('preview');
-          const keys = new Set(envs.filter(appliesToPreview).map((env) => env.key));
-          const missing = [];
-          if (!keys.has('OPENAI_API_KEY')) missing.push('OPENAI_API_KEY');
+          const hasTarget = (env, target) => Array.isArray(env.target) && env.target.includes(target);
+          const previewOpenAI = envs.find((env) => env.key === 'OPENAI_API_KEY' && hasTarget(env, 'preview'));
+          if (!previewOpenAI) {
+            const productionOpenAI = envs.find((env) => env.key === 'OPENAI_API_KEY' && hasTarget(env, 'production') && !env.gitBranch);
+            if (!productionOpenAI?.id) {
+              console.error('::error::OPENAI_API_KEY is not configured for Production, so it cannot be safely enabled for Preview.');
+              process.exit(1);
+            }
+            const targets = Array.from(new Set([...(productionOpenAI.target || []), 'preview']));
+            fs.writeFileSync('/tmp/openai-env-id', productionOpenAI.id);
+            fs.writeFileSync('/tmp/openai-env-patch.json', JSON.stringify({ target: targets }));
+          }
+          NODE
+
+          if [ -f /tmp/openai-env-id ]; then
+            ENV_ID="$(cat /tmp/openai-env-id)"
+            STATUS="$(curl --silent --show-error --output /tmp/openai-patch-response.json --write-out '%{http_code}' \
+              --request PATCH \
+              --url "https://api.vercel.com/v9/projects/$VERCEL_PROJECT_ID/env/$ENV_ID?teamId=$VERCEL_TEAM_ID" \
+              --header "Authorization: Bearer $VERCEL_TOKEN" \
+              --header 'Content-Type: application/json' \
+              --data-binary @/tmp/openai-env-patch.json)"
+            if [ "$STATUS" != '200' ]; then
+              echo "::error::Unable to enable the existing OPENAI_API_KEY for Preview (HTTP $STATUS)."
+              exit 1
+            fi
+            echo 'Existing OPENAI_API_KEY enabled for Preview without exposing or copying its value.'
+          fi
+
+          node <<'NODE'
+          const fs = require('fs');
+          const vars = [
+            { key: 'EAW_SUPABASE_URL', value: process.env.EAW_SUPABASE_URL, type: 'plain', target: ['preview'], comment: 'EAW shared Supabase preview' },
+            { key: 'EAW_SUPABASE_PUBLISHABLE_KEY', value: process.env.EAW_SUPABASE_PUBLISHABLE_KEY, type: 'plain', target: ['preview'], comment: 'EAW shared Supabase preview publishable key' },
+            { key: 'EAW_ACCOUNT_URL', value: `${process.env.EAW_PREVIEW_URL}/account`, type: 'plain', target: ['preview'], comment: 'Return route to EAW feature preview' },
+            { key: 'VIDEO_SUPABASE_URL', value: process.env.VIDEO_SUPABASE_URL, type: 'plain', target: ['preview'], comment: 'Existing media-only Supabase project' },
+            { key: 'OPENAI_MODEL', value: 'gpt-5-mini', type: 'plain', target: ['preview'], comment: 'Learning tutor preview model' }
+          ];
+          fs.writeFileSync('/tmp/public-preview-env.json', JSON.stringify(vars));
+          NODE
+
+          STATUS="$(curl --silent --show-error --output /tmp/public-env-response.json --write-out '%{http_code}' \
+            --request POST \
+            --url "https://api.vercel.com/v10/projects/$VERCEL_PROJECT_ID/env?upsert=true&teamId=$VERCEL_TEAM_ID" \
+            --header "Authorization: Bearer $VERCEL_TOKEN" \
+            --header 'Content-Type: application/json' \
+            --data-binary @/tmp/public-preview-env.json)"
+          if [ "$STATUS" != '200' ] && [ "$STATUS" != '201' ]; then
+            echo "::error::Unable to configure public Preview environment variables (HTTP $STATUS)."
+            exit 1
+          fi
+
+      - name: Verify required preview environment keys exist
+        shell: bash
+        run: |
+          STATUS="$(curl --silent --show-error --output /tmp/vercel-env-after.json --write-out '%{http_code}' \
+            --header "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v10/projects/$VERCEL_PROJECT_ID/env?teamId=$VERCEL_TEAM_ID")"
+          if [ "$STATUS" != '200' ]; then
+            echo "::error::Unable to verify Vercel preview environment keys (HTTP $STATUS)."
+            exit 1
+          fi
+          node <<'NODE'
+          const fs = require('fs');
+          const data = JSON.parse(fs.readFileSync('/tmp/vercel-env-after.json', 'utf8'));
+          const envs = Array.isArray(data.envs) ? data.envs : [];
+          const preview = envs.filter((env) => Array.isArray(env.target) && env.target.includes('preview'));
+          const keys = new Set(preview.map((env) => env.key));
+          const required = ['OPENAI_API_KEY', 'EAW_SUPABASE_URL', 'EAW_SUPABASE_PUBLISHABLE_KEY', 'EAW_ACCOUNT_URL', 'VIDEO_SUPABASE_URL'];
+          const missing = required.filter((key) => !keys.has(key));
           if (!keys.has('VIDEO_SUPABASE_SERVICE_ROLE_KEY') && !keys.has('SUPABASE_SERVICE_ROLE_KEY')) {
             missing.push('VIDEO_SUPABASE_SERVICE_ROLE_KEY or SUPABASE_SERVICE_ROLE_KEY');
           }
           if (missing.length) {
-            console.error(`::error::Missing Vercel preview environment configuration: ${missing.join(', ')}`);
+            console.error(`::error::Missing Vercel Preview environment configuration: ${missing.join(', ')}`);
             process.exit(1);
           }
-          console.log('Required Vercel preview environment keys are present.');
+          console.log('Required Vercel Preview environment keys are present.');
           NODE
 
       - name: Verify application build independently
         env:
-          EAW_SUPABASE_URL: https://mhjykzrljvtxauaatlom.supabase.co
-          EAW_SUPABASE_PUBLISHABLE_KEY: sb_publishable_qa9v9qDYMzr3Fr3h0N29gg_1Ip6gfb5
+          EAW_SUPABASE_URL: ${{ env.EAW_SUPABASE_URL }}
+          EAW_SUPABASE_PUBLISHABLE_KEY: ${{ env.EAW_SUPABASE_PUBLISHABLE_KEY }}
         run: |
           npm install --no-audit --no-fund
           npm run build
