@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import { getAccessToken, getCourseBySlug, getLearningAccess, getPublishedModule, getSessionUser, startCourse } from "../../../../../../../lib/platform";
 import { ChatClient } from "../../learning-client";
+import { VideoPlayer } from "./video-player";
 
 export default async function ChapterPage({ params }: { params: Promise<{ slug: string; id: string; chapter: string }> }) {
   const { slug, id, chapter: chapterId } = await params;
@@ -56,7 +57,7 @@ export default async function ChapterPage({ params }: { params: Promise<{ slug: 
 
         <article className="lessonContent">
           <div className="lessonIntro"><span className="badge">Hoofdstuk {chapterIndex + 1}</span><h2>{chapter.titel}</h2></div>
-          <video controls preload="metadata" src={`/api/video-url/${module.source_module_id}/${encodeURIComponent(chapter.id)}?training_id=${encodeURIComponent(course.id)}`} />
+          <VideoPlayer trainingId={course.id} moduleId={module.source_module_id} chapterId={String(chapter.id)} />
           <div className="markdownBody"><ReactMarkdown>{chapter.tekst}</ReactMarkdown></div>
         </article>
       </div>
