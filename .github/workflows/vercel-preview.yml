@@ -29,6 +29,7 @@ jobs:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       VERCEL_ORG_ID: team_ZY5Sxra8t5DhA4S9zRTLmRnq
       VERCEL_PROJECT_ID: prj_ULEAHWZ1J4r1GDmzxDU1sGJ3uXaA
+      VERCEL_SCOPE: reiniernoobs-projects
     steps:
       - uses: actions/checkout@v4
 
@@ -55,7 +56,7 @@ jobs:
           printf '{"orgId":"%s","projectId":"%s"}\n' "$VERCEL_ORG_ID" "$VERCEL_PROJECT_ID" > .vercel/project.json
 
       - name: Pull existing preview configuration
-        run: vercel pull --yes --environment=preview --token="$VERCEL_TOKEN"
+        run: vercel pull --yes --environment=preview --scope="$VERCEL_SCOPE" --token="$VERCEL_TOKEN"
 
       - name: Verify required runtime secrets exist
         shell: bash
@@ -80,13 +81,13 @@ jobs:
         run: npm install --no-audit --no-fund
 
       - name: Build preview
-        run: vercel build --token="$VERCEL_TOKEN"
+        run: vercel build --scope="$VERCEL_SCOPE" --token="$VERCEL_TOKEN"
 
       - name: Deploy preview only
         id: deploy
         shell: bash
         run: |
-          URL="$(vercel deploy --prebuilt --token="$VERCEL_TOKEN")"
+          URL="$(vercel deploy --prebuilt --scope="$VERCEL_SCOPE" --token="$VERCEL_TOKEN")"
           echo "url=$URL" >> "$GITHUB_OUTPUT"
           echo "### Learning preview" >> "$GITHUB_STEP_SUMMARY"
           echo "$URL" >> "$GITHUB_STEP_SUMMARY"
