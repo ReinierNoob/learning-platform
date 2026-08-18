@@ -1,0 +1,27 @@
+name: Learning platform CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [agent/eaw-shared-auth-entitlements]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Build
+        run: npm run build
+        env:
+          EAW_SUPABASE_URL: https://mhjykzrljvtxauaatlom.supabase.co
+          EAW_SUPABASE_PUBLISHABLE_KEY: sb_publishable_qa9v9qDYMzr3Fr3h0N29gg_1Ip6gfb5
