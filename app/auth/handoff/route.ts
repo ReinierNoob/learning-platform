@@ -4,6 +4,7 @@ import {
   eawPublishableKey,
   eawSupabaseUrl,
   getLearningAccess,
+  getSessionUser,
   refreshCookieName,
 } from "../../../lib/platform";
 
@@ -16,6 +17,8 @@ function failureRedirect(request: NextRequest, reason: string) {
   const target = new URL("/", request.url);
   target.searchParams.set("handoff", reason);
   const response = NextResponse.redirect(target);
+  response.cookies.delete(accessCookieName);
+  response.cookies.delete(refreshCookieName);
   response.headers.set("Cache-Control", "private, no-store");
   response.headers.set("Referrer-Policy", "no-referrer");
   return response;
@@ -23,10 +26,15 @@ function failureRedirect(request: NextRequest, reason: string) {
 
 export async function GET(request: NextRequest) {
   const tokenHash = request.nextUrl.searchParams.get("token_hash")?.trim() ?? "";
+  const verificationType = request.nextUrl.searchParams.get("type")?.trim() || "magiclink";
   const trainingId = request.nextUrl.searchParams.get("training_id")?.trim() ?? "";
   const next = safeLocalPath(request.nextUrl.searchParams.get("next"));
 
-  if (!tokenHash || !/^[0-9a-f-]{36}$/i.test(trainingId)) {
+  if (
+    !tokenHash ||
+    verificationType !== "magiclink" ||
+    !/^[0-9a-f-]{36}$/i.test(trainingId)
+  ) {
     return failureRedirect(request, "invalid");
   }
 
@@ -36,36 +44,20 @@ export async function GET(request: NextRequest) {
       apikey: eawPublishableKey,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ token_hash: tokenHash, type: "email" }),
+    body: JSON.stringify({ token_hash: tokenHash, type: verificationType }),
     cache: "no-store",
   });
 
   const verified = await verifyResponse.json().catch(() => ({}));
-  const verifiedAccessToken = String(verified.access_token ?? "");
-  const verifiedRefreshToken = String(verified.refresh_token ?? "");
-  if (!verifyResponse.ok || !verifiedAccessToken || !verifiedRefreshToken) {
+  const accessToken = String(verified.access_token ?? "");
+  if (!verifyResponse.ok || !accessToken) {
     return failureRedirect(request, "expired-or-used");
   }
 
-  // Refresh the newly verified session before calling the Data API. The token returned
-  // directly by /verify can be accepted by Auth while the immediately following
-  // PostgREST request is rejected. Persist the rotated refresh token, not the old one.
-  const refreshResponse = await fetch(`${eawSupabaseUrl}/auth/v1/token?grant_type=refresh_token`, {
-    method: "POST",
-    headers: {
-      apikey: eawPublishableKey,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ refresh_token: verifiedRefreshToken }),
-    cache: "no-store",
-  });
-
-  const refreshed = await refreshResponse.json().catch(() => ({}));
-  const accessToken = String(refreshed.access_token ?? "");
-  const refreshToken = String(refreshed.refresh_token ?? "");
-  if (!refreshResponse.ok || !accessToken || !refreshToken) {
-    console.error("Learning handoff session refresh failed", refreshResponse.status);
-    return failureRedirect(request, "session-refresh-failed");
+  const user = await getSessionUser(accessToken);
+  if (!user) {
+    console.error("Learning handoff Auth session validation failed");
+    return failureRedirect(request, "invalid-session");
   }
 
   try {
@@ -82,15 +74,13 @@ export async function GET(request: NextRequest) {
   }
 
   const response = NextResponse.redirect(new URL(next, request.url));
-  const cookieBase = {
+  response.cookies.set(accessCookieName, accessToken, {
     httpOnly: true,
     secure: true,
-    sameSite: "lax" as const,
+    sameSite: "lax",
     path: "/",
-  };
-  const expiresIn = Math.max(60, Number(refreshed.expires_in ?? 3600) - 60);
-  response.cookies.set(accessCookieName, accessToken, { ...cookieBase, maxAge: expiresIn });
-  response.cookies.set(refreshCookieName, refreshToken, { ...cookieBase, maxAge: 30 * 24 * 60 * 60 });
+  });
+  response.cookies.delete(refreshCookieName);
   response.headers.set("Cache-Control", "private, no-store");
   response.headers.set("Referrer-Policy", "no-referrer");
   return response;

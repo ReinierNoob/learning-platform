@@ -22,6 +22,14 @@ export const eawPublishableKey = configuredEawPublishableKey;
 export const accessCookieName = "eaw_learning_access_token";
 export const refreshCookieName = "eaw_learning_refresh_token";
 
+export function getEawLoginUrl(nextPath = "/account") {
+  const safeNext = nextPath.startsWith("/") && !nextPath.startsWith("//") ? nextPath : "/account";
+  const accountUrl = process.env.EAW_ACCOUNT_URL ?? "https://enterprisearchitectureworks.nl/account";
+  const loginUrl = new URL("/account/inloggen", accountUrl);
+  loginUrl.searchParams.set("next", safeNext);
+  return loginUrl.toString();
+}
+
 export type SessionUser = { id: string; email?: string | null };
 export type LearningAccess = {
   training_id: string;
