@@ -26,31 +26,35 @@ function failureRedirect(request: NextRequest, reason: string) {
 
 export async function GET(request: NextRequest) {
   const tokenHash = request.nextUrl.searchParams.get("token_hash")?.trim() ?? "";
-  const verificationType = request.nextUrl.searchParams.get("type")?.trim() || "magiclink";
+  const handoffType = request.nextUrl.searchParams.get("type")?.trim() || "magiclink";
   const trainingId = request.nextUrl.searchParams.get("training_id")?.trim() ?? "";
   const next = safeLocalPath(request.nextUrl.searchParams.get("next"));
 
   if (
     !tokenHash ||
-    verificationType !== "magiclink" ||
+    handoffType !== "magiclink" ||
     !/^[0-9a-f-]{36}$/i.test(trainingId)
   ) {
     return failureRedirect(request, "invalid");
   }
 
+  // Supabase admin.generateLink uses the action type "magiclink", but a
+  // generated magic-link token_hash is verified through verifyOtp as type
+  // "email". Keep these two type vocabularies separate.
   const verifyResponse = await fetch(`${eawSupabaseUrl}/auth/v1/verify`, {
     method: "POST",
     headers: {
       apikey: eawPublishableKey,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ token_hash: tokenHash, type: verificationType }),
+    body: JSON.stringify({ token_hash: tokenHash, type: "email" }),
     cache: "no-store",
   });
 
   const verified = await verifyResponse.json().catch(() => ({}));
   const accessToken = String(verified.access_token ?? "");
   if (!verifyResponse.ok || !accessToken) {
+    console.error("Learning handoff OTP verification failed", verifyResponse.status);
     return failureRedirect(request, "expired-or-used");
   }
 
