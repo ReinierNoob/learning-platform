@@ -24,6 +24,9 @@ function failureRedirect(request: NextRequest, reason: string) {
   return response;
 }
 
+// Temporary compatibility route for zero-downtime rollout. Once the OAuth
+// Authorization Code + PKCE flow has been proven in production, remove this
+// route together with the create-learning-handoff Edge Function.
 export async function GET(request: NextRequest) {
   const tokenHash = request.nextUrl.searchParams.get("token_hash")?.trim() ?? "";
   const handoffType = request.nextUrl.searchParams.get("type")?.trim() || "magiclink";
@@ -38,9 +41,6 @@ export async function GET(request: NextRequest) {
     return failureRedirect(request, "invalid");
   }
 
-  // Supabase admin.generateLink uses the action type "magiclink", but a
-  // generated magic-link token_hash is verified through verifyOtp as type
-  // "email". Keep these two type vocabularies separate.
   const verifyResponse = await fetch(`${eawSupabaseUrl}/auth/v1/verify`, {
     method: "POST",
     headers: {
