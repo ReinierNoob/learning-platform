@@ -1,12 +1,12 @@
 import { redirect } from "next/navigation";
-import { getAccessToken, getCourseBySlug, getLearningAccess, getPublishedModules, getSessionUser, startCourse } from "../../../lib/platform";
+import { getAccessToken, getCourseBySlug, getEawLoginUrl, getLearningAccess, getPublishedModules, getSessionUser, startCourse } from "../../../lib/platform";
 
 export default async function CoursePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const token = await getAccessToken();
-  if (!token) redirect(`/`);
+  if (!token) redirect(getEawLoginUrl("/account"));
   const user = await getSessionUser(token);
-  if (!user) redirect(`/api/auth/refresh?next=${encodeURIComponent(`/leren/${slug}`)}`);
+  if (!user) redirect(getEawLoginUrl("/account"));
 
   const course = await getCourseBySlug(slug, token);
   if (!course) return <main className="shell"><section className="hero"><h1>Training niet gevonden.</h1></section></main>;
