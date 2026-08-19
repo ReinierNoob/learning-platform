@@ -9,10 +9,11 @@ export default async function ModulePage({ params }: { params: Promise<{ slug: s
     return <main className="shell"><section className="hero"><h1>Module niet gevonden.</h1></section></main>;
   }
 
+  const currentPath = `/leren/${encodeURIComponent(slug)}/module/${sourceModuleId}`;
   const token = await getAccessToken();
   if (!token) redirect(getEawLoginUrl("/account"));
   const user = await getSessionUser(token);
-  if (!user) redirect(getEawLoginUrl("/account"));
+  if (!user) redirect(`/api/auth/refresh?next=${encodeURIComponent(currentPath)}`);
 
   const course = await getCourseBySlug(slug, token);
   if (!course) return <main className="shell"><section className="hero"><h1>Training niet gevonden.</h1></section></main>;

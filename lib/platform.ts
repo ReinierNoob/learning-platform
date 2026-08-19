@@ -120,11 +120,31 @@ export async function getRefreshToken() {
 export async function getSessionUser(token?: string | null): Promise<SessionUser | null> {
   const accessToken = token ?? (await getAccessToken());
   if (!accessToken) return null;
-  const response = await fetch(`${eawSupabaseUrl}/auth/v1/user`, {
+
+  // OAuth 2.1 access tokens issued to the learning client must be validated
+  // through the OIDC UserInfo endpoint. This is the standards-based identity
+  // endpoint for Supabase OAuth clients. During the zero-downtime migration we
+  // keep the legacy /user check as a fallback for the temporary magic-link
+  // handoff token, which is a normal Supabase Auth session token.
+  const userInfoResponse = await fetch(`${eawSupabaseUrl}/auth/v1/oauth/userinfo`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+    cache: "no-store",
+  });
+  if (userInfoResponse.ok) {
+    const info = (await userInfoResponse.json()) as {
+      sub?: string;
+      email?: string | null;
+    };
+    if (typeof info.sub === "string" && info.sub.length > 0) {
+      return { id: info.sub, email: info.email ?? null };
+    }
+  }
+
+  const legacyResponse = await fetch(`${eawSupabaseUrl}/auth/v1/user`, {
     headers: authHeaders(accessToken),
     cache: "no-store",
   });
-  return response.ok ? response.json() : null;
+  return legacyResponse.ok ? legacyResponse.json() : null;
 }
 
 export async function rpc<T>(name: string, body: Record<string, unknown>, token: string): Promise<T> {

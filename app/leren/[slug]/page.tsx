@@ -3,10 +3,11 @@ import { getAccessToken, getCourseBySlug, getEawLoginUrl, getLearningAccess, get
 
 export default async function CoursePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  const currentPath = `/leren/${encodeURIComponent(slug)}`;
   const token = await getAccessToken();
   if (!token) redirect(getEawLoginUrl("/account"));
   const user = await getSessionUser(token);
-  if (!user) redirect(getEawLoginUrl("/account"));
+  if (!user) redirect(`/api/auth/refresh?next=${encodeURIComponent(currentPath)}`);
 
   const course = await getCourseBySlug(slug, token);
   if (!course) return <main className="shell"><section className="hero"><h1>Training niet gevonden.</h1></section></main>;
