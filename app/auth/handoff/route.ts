@@ -41,10 +41,31 @@ export async function GET(request: NextRequest) {
   });
 
   const verified = await verifyResponse.json().catch(() => ({}));
-  const accessToken = String(verified.access_token ?? "");
-  const refreshToken = String(verified.refresh_token ?? "");
-  if (!verifyResponse.ok || !accessToken || !refreshToken) {
+  const verifiedAccessToken = String(verified.access_token ?? "");
+  const verifiedRefreshToken = String(verified.refresh_token ?? "");
+  if (!verifyResponse.ok || !verifiedAccessToken || !verifiedRefreshToken) {
     return failureRedirect(request, "expired-or-used");
+  }
+
+  // Refresh the newly verified session before calling the Data API. The token returned
+  // directly by /verify can be accepted by Auth while the immediately following
+  // PostgREST request is rejected. Persist the rotated refresh token, not the old one.
+  const refreshResponse = await fetch(`${eawSupabaseUrl}/auth/v1/token?grant_type=refresh_token`, {
+    method: "POST",
+    headers: {
+      apikey: eawPublishableKey,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ refresh_token: verifiedRefreshToken }),
+    cache: "no-store",
+  });
+
+  const refreshed = await refreshResponse.json().catch(() => ({}));
+  const accessToken = String(refreshed.access_token ?? "");
+  const refreshToken = String(refreshed.refresh_token ?? "");
+  if (!refreshResponse.ok || !accessToken || !refreshToken) {
+    console.error("Learning handoff session refresh failed", refreshResponse.status);
+    return failureRedirect(request, "session-refresh-failed");
   }
 
   try {
@@ -52,7 +73,11 @@ export async function GET(request: NextRequest) {
     if (!access.can_access || access.training_id !== trainingId) {
       return failureRedirect(request, "no-access");
     }
-  } catch {
+  } catch (error) {
+    console.error(
+      "Learning handoff access check failed",
+      error instanceof Error ? error.message : "unknown",
+    );
     return failureRedirect(request, "no-access");
   }
 
@@ -63,7 +88,7 @@ export async function GET(request: NextRequest) {
     sameSite: "lax" as const,
     path: "/",
   };
-  const expiresIn = Math.max(60, Number(verified.expires_in ?? 3600) - 60);
+  const expiresIn = Math.max(60, Number(refreshed.expires_in ?? 3600) - 60);
   response.cookies.set(accessCookieName, accessToken, { ...cookieBase, maxAge: expiresIn });
   response.cookies.set(refreshCookieName, refreshToken, { ...cookieBase, maxAge: 30 * 24 * 60 * 60 });
   response.headers.set("Cache-Control", "private, no-store");
