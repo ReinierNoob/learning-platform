@@ -1,0 +1,104 @@
+name: Deploy learning production
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: learning-platform-production
+  cancel-in-progress: false
+
+jobs:
+  production:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_TEAM_ID: team_ZY5Sxra8t5DhA4S9zRTLmRnq
+      VERCEL_PROJECT_ID: prj_ULEAHWZ1J4r1GDmzxDU1sGJ3uXaA
+      VERCEL_PROJECT_NAME: learning-platform
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate project-scoped Vercel token
+        shell: bash
+        run: |
+          test -n "$VERCEL_TOKEN" || { echo '::error::VERCEL_TOKEN missing'; exit 1; }
+          STATUS="$(curl --silent --show-error --output /tmp/project.json --write-out '%{http_code}' \
+            --header "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v9/projects/$VERCEL_PROJECT_ID?teamId=$VERCEL_TEAM_ID")"
+          test "$STATUS" = '200' || { echo "::error::Token cannot access learning-platform (HTTP $STATUS)"; exit 1; }
+
+      - name: Prepare production deployment payload
+        shell: bash
+        run: |
+          python3 <<'PY'
+          import base64, json, os
+          from pathlib import Path
+          excluded = {'.git', '.next', 'node_modules', '.vercel'}
+          files = []
+          for path in Path('.').rglob('*'):
+              if not path.is_file() or any(part in excluded for part in path.parts):
+                  continue
+              if path.as_posix().startswith('.github/'):
+                  continue
+              files.append({
+                  'file': path.as_posix(),
+                  'data': base64.b64encode(path.read_bytes()).decode(),
+                  'encoding': 'base64',
+              })
+          payload = {
+              'name': os.environ['VERCEL_PROJECT_NAME'],
+              'project': os.environ['VERCEL_PROJECT_ID'],
+              'target': 'production',
+              'files': files,
+              'gitMetadata': {
+                  'remoteUrl': 'https://github.com/ReinierNoob/learning-platform',
+                  'commitRef': os.environ.get('GITHUB_REF_NAME', 'main'),
+                  'commitSha': os.environ.get('GITHUB_SHA', ''),
+                  'commitMessage': 'EAW learning-platform production deploy',
+                  'ci': True,
+                  'ciType': 'github-actions',
+                  'ciGitRepoVisibility': 'public',
+              },
+              'projectSettings': {'framework': 'nextjs', 'nodeVersion': '24.x'},
+          }
+          Path('/tmp/deployment.json').write_text(json.dumps(payload))
+          PY
+
+      - name: Deploy production
+        id: deploy
+        shell: bash
+        run: |
+          STATUS="$(curl --silent --show-error --output /tmp/deploy.json --write-out '%{http_code}' \
+            --request POST \
+            --url "https://api.vercel.com/v13/deployments?teamId=$VERCEL_TEAM_ID" \
+            --header "Authorization: Bearer $VERCEL_TOKEN" \
+            --header 'Content-Type: application/json' \
+            --data-binary @/tmp/deployment.json)"
+          case "$STATUS" in 200|201) ;; *) echo "::error::Production deployment failed (HTTP $STATUS)"; exit 1 ;; esac
+          URL="$(node -e "const d=require('/tmp/deploy.json');process.stdout.write(d.url||'')")"
+          ID="$(node -e "const d=require('/tmp/deploy.json');process.stdout.write(d.id||d.uid||'')")"
+          test -n "$URL" -a -n "$ID" || { echo '::error::Deployment URL/ID missing'; exit 1; }
+          echo "url=https://$URL" >> "$GITHUB_OUTPUT"
+          echo "deployment_id=$ID" >> "$GITHUB_OUTPUT"
+
+      - name: Confirm production READY
+        shell: bash
+        run: |
+          ID='${{ steps.deploy.outputs.deployment_id }}'
+          for attempt in $(seq 1 40); do
+            STATUS="$(curl --silent --show-error --output /tmp/status.json --write-out '%{http_code}' \
+              --header "Authorization: Bearer $VERCEL_TOKEN" \
+              "https://api.vercel.com/v13/deployments/$ID?teamId=$VERCEL_TEAM_ID")"
+            test "$STATUS" = '200' || exit 1
+            STATE="$(node -e "const d=require('/tmp/status.json');process.stdout.write(d.readyState||'')")"
+            if [ "$STATE" = 'READY' ]; then echo 'Learning production READY.'; exit 0; fi
+            if [ "$STATE" = 'ERROR' ] || [ "$STATE" = 'CANCELED' ] || [ "$STATE" = 'BLOCKED' ]; then exit 1; fi
+            sleep 10
+          done
+          echo '::error::Production deployment did not become READY'; exit 1
