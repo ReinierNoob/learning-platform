@@ -8,6 +8,11 @@ export const oauthStateCookieName = "eaw_oauth_state";
 export const oauthTrainingCookieName = "eaw_oauth_training_id";
 export const oauthNextCookieName = "eaw_oauth_next";
 
+// Public OAuth client IDs are identifiers, not secrets. Keep the registered
+// production client as the safe default while allowing an environment-specific
+// override for preview/staging clients.
+const defaultEawOAuthClientId = "a9e1ab6e-562e-4ddc-8ba6-853ed840fbe6";
+
 export type OAuthTokenResponse = {
   access_token: string;
   refresh_token?: string;
@@ -28,8 +33,7 @@ export function createPkceTransaction() {
 }
 
 export function getOAuthClientConfig(origin: string) {
-  const clientId = process.env.EAW_OAUTH_CLIENT_ID?.trim();
-  if (!clientId) throw new Error("Missing EAW_OAUTH_CLIENT_ID");
+  const clientId = process.env.EAW_OAUTH_CLIENT_ID?.trim() || defaultEawOAuthClientId;
   const redirectUri =
     process.env.EAW_OAUTH_REDIRECT_URI?.trim() ||
     new URL("/auth/callback", origin).toString();
