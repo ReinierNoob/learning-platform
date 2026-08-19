@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import ReactMarkdown from "react-markdown";
-import { getAccessToken, getCourseBySlug, getLearningAccess, getPublishedModule, getSessionUser, startCourse } from "../../../../../../../lib/platform";
+import { getAccessToken, getCourseBySlug, getEawLoginUrl, getLearningAccess, getPublishedModule, getSessionUser, startCourse } from "../../../../../../../lib/platform";
 import { ChatClient } from "../../learning-client";
 import { VideoPlayer } from "./video-player";
 
@@ -11,11 +11,10 @@ export default async function ChapterPage({ params }: { params: Promise<{ slug: 
     return <main className="shell"><section className="hero"><h1>Module niet gevonden.</h1></section></main>;
   }
 
-  const chapterPath = `/leren/${slug}/module/${sourceModuleId}/hoofdstuk/${encodeURIComponent(chapterId)}`;
   const token = await getAccessToken();
-  if (!token) redirect("/");
+  if (!token) redirect(getEawLoginUrl("/account"));
   const user = await getSessionUser(token);
-  if (!user) redirect(`/api/auth/refresh?next=${encodeURIComponent(chapterPath)}`);
+  if (!user) redirect(getEawLoginUrl("/account"));
 
   const course = await getCourseBySlug(slug, token);
   if (!course) return <main className="shell"><section className="hero"><h1>Training niet gevonden.</h1></section></main>;
