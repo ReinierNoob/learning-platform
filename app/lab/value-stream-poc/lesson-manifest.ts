@@ -51,7 +51,8 @@ export const valueStreamContent: InteractiveTutorContentV1 = {
       speaker: "alexander",
       title: "Van trigger naar uitkomst",
       transcript: "Een value stream laat zien hoe waarde wordt gerealiseerd voor een stakeholder. We starten bij een trigger en eindigen bij een gewenste uitkomst.",
-      durationMs: 10500,
+      durationMs: 9456,
+      media: { assetId: "heygen:7f989484231d48ffbb12c141f41fbfff" },
       visualCues: [{ atMs: 0, visibleStages: 0, showCapabilities: false }],
     },
     {
