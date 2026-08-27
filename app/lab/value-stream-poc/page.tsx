@@ -19,7 +19,9 @@ export default async function ValueStreamPocPage() {
   if (!user) redirect(`/api/auth/refresh?next=${encodeURIComponent(currentPath)}`);
 
   const access = await getLearningAccess(TOGAF_TRAINING_ID, token).catch(() => null);
-  if (!access?.can_access) redirect("/account");
+  if (!access?.can_access) {
+    return <main className="shell"><section className="hero"><p className="eyebrow">Learning Lab</p><h1>Deze PoC is alleen beschikbaar met toegang tot de training.</h1><a className="button" href="/">Terug naar de leeromgeving</a></section></main>;
+  }
 
   return <InteractiveTutorPoc />;
 }
