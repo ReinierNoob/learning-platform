@@ -42,8 +42,9 @@ export const valueStreamContent: InteractiveTutorContentV1 = {
       id: "question",
       speaker: "interviewer",
       title: "De kernvraag",
-      transcript: "Wat is een value stream eigenlijk, en waarom is het niet gewoon een proces?",
-      durationMs: 7000,
+      transcript: "Wat is een value stream precies, en wat maakt het anders dan een proces?",
+      durationMs: 4152,
+      media: { assetId: "heygen:b619670112cc412ea240fcfcf12b0d96" },
       visualCues: [{ atMs: 0, visibleStages: 0, showCapabilities: false }],
     },
     {
@@ -120,7 +121,8 @@ export const valueStreamContent: InteractiveTutorContentV1 = {
       speaker: "interviewer",
       title: "Maar dit lijkt toch op een proces?",
       transcript: "Waar zit dan precies het verschil met een procesmodel?",
-      durationMs: 6500,
+      durationMs: 3000,
+      media: { assetId: "heygen:1e27463d47724c2c93611ef07c22be2b" },
       visualCues: [{ atMs: 0, visibleStages: 5, showCapabilities: false }],
     },
     {
