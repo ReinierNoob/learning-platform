@@ -96,10 +96,11 @@ export const valueStreamContent: InteractiveTutorContentV1 = {
       speaker: "alexander",
       title: "Value stage 4",
       transcript: "In de volgende value stage ontvangt de stakeholder de geplande zorg.",
-      durationMs: 7000,
+      durationMs: 4536,
+      media: { assetId: "heygen:d4d40085a2264e00ac543b62a30f58e6" },
       visualCues: [
         { atMs: 0, visibleStages: 3, showCapabilities: false },
-        { atMs: 2500, visibleStages: 4, showCapabilities: false },
+        { atMs: 1400, visibleStages: 4, showCapabilities: false },
       ],
     },
     {
