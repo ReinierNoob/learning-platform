@@ -44,7 +44,7 @@ export const valueStreamContent: InteractiveTutorContentV1 = {
       title: "De kernvraag",
       transcript: "Wat is een value stream precies, en wat maakt het anders dan een proces?",
       durationMs: 4152,
-      media: { assetId: "heygen:b619670112cc412ea240fcfcf12b0d96" },
+      media: { assetId: "eaw-storage:interactive-tutor-poc/value-stream/question-eva.mp4" },
       visualCues: [{ atMs: 0, visibleStages: 0, showCapabilities: false }],
     },
     {
@@ -53,7 +53,7 @@ export const valueStreamContent: InteractiveTutorContentV1 = {
       title: "Van trigger naar uitkomst",
       transcript: "Een value stream laat zien hoe waarde wordt gerealiseerd voor een stakeholder. We starten bij een trigger en eindigen bij een gewenste uitkomst.",
       durationMs: 9456,
-      media: { assetId: "heygen:7f989484231d48ffbb12c141f41fbfff" },
+      media: { assetId: "eaw-storage:interactive-tutor-poc/value-stream/definition-alexander.mp4" },
       visualCues: [{ atMs: 0, visibleStages: 0, showCapabilities: false }],
     },
     {
@@ -62,7 +62,7 @@ export const valueStreamContent: InteractiveTutorContentV1 = {
       title: "Value stage 1",
       transcript: "Na de trigger moet de stakeholder toegang tot passende zorg kunnen verkrijgen. Dat is onze eerste value stage.",
       durationMs: 7920,
-      media: { assetId: "heygen:2ae5e57088234491bc1d9c213b8aa2d4" },
+      media: { assetId: "eaw-storage:interactive-tutor-poc/value-stream/stage-1-alexander.mp4" },
       visualCues: [
         { atMs: 0, visibleStages: 0, showCapabilities: false },
         { atMs: 2600, visibleStages: 1, showCapabilities: false },
@@ -74,7 +74,7 @@ export const valueStreamContent: InteractiveTutorContentV1 = {
       title: "Value stage 2",
       transcript: "Vervolgens wordt de zorgvraag beoordeeld, zodat duidelijk wordt welke behoefte daadwerkelijk moet worden geadresseerd.",
       durationMs: 6768,
-      media: { assetId: "heygen:9871459e3f5a419c83b1f3d4622b90a3" },
+      media: { assetId: "eaw-storage:interactive-tutor-poc/value-stream/stage-2-alexander.mp4" },
       visualCues: [
         { atMs: 0, visibleStages: 1, showCapabilities: false },
         { atMs: 1700, visibleStages: 2, showCapabilities: false },
@@ -86,7 +86,7 @@ export const valueStreamContent: InteractiveTutorContentV1 = {
       title: "Value stage 3",
       transcript: "Daarna wordt de passende zorg gepland. We blijven op waardestroomniveau en modelleren dus nog geen procesactiviteiten.",
       durationMs: 8088,
-      media: { assetId: "heygen:7b9c0f4012ad4fb6b1fc74742f373718" },
+      media: { assetId: "eaw-storage:interactive-tutor-poc/value-stream/stage-3-alexander.mp4" },
       visualCues: [
         { atMs: 0, visibleStages: 2, showCapabilities: false },
         { atMs: 1800, visibleStages: 3, showCapabilities: false },
@@ -98,7 +98,7 @@ export const valueStreamContent: InteractiveTutorContentV1 = {
       title: "Value stage 4",
       transcript: "In de volgende value stage ontvangt de stakeholder de geplande zorg.",
       durationMs: 4536,
-      media: { assetId: "heygen:d4d40085a2264e00ac543b62a30f58e6" },
+      media: { assetId: "eaw-storage:interactive-tutor-poc/value-stream/stage-4-alexander.mp4" },
       visualCues: [
         { atMs: 0, visibleStages: 3, showCapabilities: false },
         { atMs: 1400, visibleStages: 4, showCapabilities: false },
@@ -110,7 +110,7 @@ export const valueStreamContent: InteractiveTutorContentV1 = {
       title: "Value stage 5",
       transcript: "Tot slot wordt de bereikte uitkomst geëvalueerd. Daarmee kunnen we bepalen of de beoogde waarde daadwerkelijk is gerealiseerd.",
       durationMs: 8376,
-      media: { assetId: "heygen:f04beeb9e6274dd7b1c0dfbf91a98d16" },
+      media: { assetId: "eaw-storage:interactive-tutor-poc/value-stream/stage-5-alexander.mp4" },
       visualCues: [
         { atMs: 0, visibleStages: 4, showCapabilities: false },
         { atMs: 1800, visibleStages: 5, showCapabilities: false },
@@ -122,7 +122,7 @@ export const valueStreamContent: InteractiveTutorContentV1 = {
       title: "Maar dit lijkt toch op een proces?",
       transcript: "Waar zit dan precies het verschil met een procesmodel?",
       durationMs: 3000,
-      media: { assetId: "heygen:1e27463d47724c2c93611ef07c22be2b" },
+      media: { assetId: "eaw-storage:interactive-tutor-poc/value-stream/challenge-eva.mp4" },
       visualCues: [{ atMs: 0, visibleStages: 5, showCapabilities: false }],
     },
     {
@@ -131,7 +131,7 @@ export const valueStreamContent: InteractiveTutorContentV1 = {
       title: "Koppel capabilities",
       transcript: "De value stream beschrijft de waardecreatie. Capabilities beschrijven wat de organisatie moet kunnen om iedere value stage mogelijk te maken.",
       durationMs: 9576,
-      media: { assetId: "heygen:d7a59f04bfca45a49a46eb0f1b3c34fc" },
+      media: { assetId: "eaw-storage:interactive-tutor-poc/value-stream/capabilities-alexander.mp4" },
       visualCues: [
         { atMs: 0, visibleStages: 5, showCapabilities: false },
         { atMs: 3000, visibleStages: 5, showCapabilities: true },
@@ -143,7 +143,7 @@ export const valueStreamContent: InteractiveTutorContentV1 = {
       title: "Nu jij",
       transcript: "Welke formulering beschrijft het beste de trigger voor deze illustratieve waardestroom?",
       durationMs: 5496,
-      media: { assetId: "heygen:62e989f32d48483e93f2932c6ac268da" },
+      media: { assetId: "eaw-storage:interactive-tutor-poc/value-stream/exercise-alexander.mp4" },
       visualCues: [{ atMs: 0, visibleStages: 5, showCapabilities: true }],
       exercise: triggerExercise,
     },
