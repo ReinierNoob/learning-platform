@@ -60,10 +60,11 @@ export const valueStreamContent: InteractiveTutorContentV1 = {
       speaker: "alexander",
       title: "Value stage 1",
       transcript: "Na de trigger moet de stakeholder toegang tot passende zorg kunnen verkrijgen. Dat is onze eerste value stage.",
-      durationMs: 9500,
+      durationMs: 7920,
+      media: { assetId: "heygen:2ae5e57088234491bc1d9c213b8aa2d4" },
       visualCues: [
         { atMs: 0, visibleStages: 0, showCapabilities: false },
-        { atMs: 3600, visibleStages: 1, showCapabilities: false },
+        { atMs: 2600, visibleStages: 1, showCapabilities: false },
       ],
     },
     {
