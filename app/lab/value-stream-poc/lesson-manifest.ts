@@ -72,10 +72,11 @@ export const valueStreamContent: InteractiveTutorContentV1 = {
       speaker: "alexander",
       title: "Value stage 2",
       transcript: "Vervolgens wordt de zorgvraag beoordeeld, zodat duidelijk wordt welke behoefte daadwerkelijk moet worden geadresseerd.",
-      durationMs: 9000,
+      durationMs: 6768,
+      media: { assetId: "heygen:9871459e3f5a419c83b1f3d4622b90a3" },
       visualCues: [
         { atMs: 0, visibleStages: 1, showCapabilities: false },
-        { atMs: 3300, visibleStages: 2, showCapabilities: false },
+        { atMs: 1700, visibleStages: 2, showCapabilities: false },
       ],
     },
     {
@@ -83,10 +84,11 @@ export const valueStreamContent: InteractiveTutorContentV1 = {
       speaker: "alexander",
       title: "Value stage 3",
       transcript: "Daarna wordt de passende zorg gepland. We blijven op waardestroomniveau en modelleren dus nog geen procesactiviteiten.",
-      durationMs: 10000,
+      durationMs: 8088,
+      media: { assetId: "heygen:7b9c0f4012ad4fb6b1fc74742f373718" },
       visualCues: [
         { atMs: 0, visibleStages: 2, showCapabilities: false },
-        { atMs: 3300, visibleStages: 3, showCapabilities: false },
+        { atMs: 1800, visibleStages: 3, showCapabilities: false },
       ],
     },
     {
@@ -105,10 +107,11 @@ export const valueStreamContent: InteractiveTutorContentV1 = {
       speaker: "alexander",
       title: "Value stage 5",
       transcript: "Tot slot wordt de bereikte uitkomst geëvalueerd. Daarmee kunnen we bepalen of de beoogde waarde daadwerkelijk is gerealiseerd.",
-      durationMs: 10000,
+      durationMs: 8376,
+      media: { assetId: "heygen:f04beeb9e6274dd7b1c0dfbf91a98d16" },
       visualCues: [
         { atMs: 0, visibleStages: 4, showCapabilities: false },
-        { atMs: 3200, visibleStages: 5, showCapabilities: false },
+        { atMs: 1800, visibleStages: 5, showCapabilities: false },
       ],
     },
     {
@@ -136,7 +139,8 @@ export const valueStreamContent: InteractiveTutorContentV1 = {
       speaker: "alexander",
       title: "Nu jij",
       transcript: "Welke formulering beschrijft het beste de trigger voor deze illustratieve waardestroom?",
-      durationMs: 7000,
+      durationMs: 5496,
+      media: { assetId: "heygen:62e989f32d48483e93f2932c6ac268da" },
       visualCues: [{ atMs: 0, visibleStages: 5, showCapabilities: true }],
       exercise: triggerExercise,
     },
