@@ -124,10 +124,11 @@ export const valueStreamContent: InteractiveTutorContentV1 = {
       speaker: "alexander",
       title: "Koppel capabilities",
       transcript: "De value stream beschrijft de waardecreatie. Capabilities beschrijven wat de organisatie moet kunnen om iedere value stage mogelijk te maken.",
-      durationMs: 10500,
+      durationMs: 9576,
+      media: { assetId: "heygen:d7a59f04bfca45a49a46eb0f1b3c34fc" },
       visualCues: [
         { atMs: 0, visibleStages: 5, showCapabilities: false },
-        { atMs: 4500, visibleStages: 5, showCapabilities: true },
+        { atMs: 3000, visibleStages: 5, showCapabilities: true },
       ],
     },
     {
