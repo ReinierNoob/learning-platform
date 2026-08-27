@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { valueStages, valueStreamLesson, type Speaker, type VisualState } from "./lesson-manifest";
+import { valueStages, valueStreamContent, valueStreamLesson, type Speaker, type VisualState } from "./lesson-manifest";
 import styles from "./poc.module.css";
 
 const DEFAULT_VISUAL_STATE: VisualState = {
@@ -97,8 +97,8 @@ export default function InteractiveTutorPoc() {
     <div className={styles.shell}>
       <aside className={styles.sidebar}>
         <p className={styles.kicker}>EAW Learning Lab</p>
-        <h1>Value Streams</h1>
-        <p className={styles.meta}>Interactieve tutor · timeline PoC · illustratief zorgvoorbeeld</p>
+        <h1>{valueStreamContent.title}</h1>
+        <p className={styles.meta}>Interactieve tutor · timeline PoC · {valueStreamContent.exampleLabel}</p>
         <div className={styles.progress} aria-label={`Lesvoortgang ${progress}%`}>
           <span style={{ width: `${progress}%` }} />
         </div>
@@ -141,8 +141,8 @@ export default function InteractiveTutorPoc() {
           </div>
 
           <div className={styles.canvas}>
-            <p className={styles.exampleLabel}>Illustratief voorbeeld</p>
-            <div className={styles.trigger}>Trigger · zorgbehoefte ontstaat</div>
+            <p className={styles.exampleLabel}>{valueStreamContent.exampleLabel}</p>
+            <div className={styles.trigger}>Trigger · {valueStreamContent.triggerLabel}</div>
             <div className={styles.flow}>
               {valueStages.map((stage, index) => (
                 <div
@@ -151,11 +151,11 @@ export default function InteractiveTutorPoc() {
                 >
                   <small>Value stage {index + 1}</small>
                   <strong>{stage.name}</strong>
-                  {visualState.showCapabilities ? <span>{stage.capability}</span> : null}
+                  {visualState.showCapabilities && stage.capability ? <span>{stage.capability}</span> : null}
                 </div>
               ))}
             </div>
-            <div className={styles.outcome}>Gewenste uitkomst · passende zorg ontvangen</div>
+            <div className={styles.outcome}>Gewenste uitkomst · {valueStreamContent.outcomeLabel}</div>
           </div>
         </section>
 
