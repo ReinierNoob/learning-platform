@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getAccessToken, getEawLoginUrl, getLearningAccess, getSessionUser } from "../../../lib/platform";
+import { getAccessToken, getLearningAccess, getSessionUser } from "../../../lib/platform";
 import InteractiveTutorPoc from "./InteractiveTutorPoc";
 
 const TOGAF_TRAINING_ID = "87ca0f96-3cb3-4d12-84bd-94cb77a3e603";
@@ -10,10 +10,15 @@ export const metadata = {
   robots: { index: false, follow: false },
 };
 
+function getPocLaunchUrl() {
+  const accountBase = process.env.EAW_ACCOUNT_URL ?? "https://enterprisearchitectureworks.nl/account";
+  return new URL("/api/learning/lab/value-stream-poc", accountBase).toString();
+}
+
 export default async function ValueStreamPocPage() {
   const currentPath = "/lab/value-stream-poc";
   const token = await getAccessToken();
-  if (!token) redirect(getEawLoginUrl(currentPath));
+  if (!token) redirect(getPocLaunchUrl());
 
   const user = await getSessionUser(token);
   if (!user) redirect(`/api/auth/refresh?next=${encodeURIComponent(currentPath)}`);
