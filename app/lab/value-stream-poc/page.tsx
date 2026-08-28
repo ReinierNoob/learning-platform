@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
-import { getAccessToken, getLearningAccess, getSessionUser } from "../../../lib/platform";
+import { getAccessToken, getCourseBySlug, getLearningAccess, getSessionUser } from "../../../lib/platform";
 import InteractiveTutorPoc from "./InteractiveTutorPoc";
 
-const TOGAF_TRAINING_ID = "87ca0f96-3cb3-4d12-84bd-94cb77a3e603";
+const TOGAF_COURSE_SLUG = "togaf-business-architecture-readiness";
 
 export const metadata = {
   title: "EAW Learning Lab — Value Stream PoC",
@@ -23,7 +23,12 @@ export default async function ValueStreamPocPage() {
   const user = await getSessionUser(token);
   if (!user) redirect(`/api/auth/refresh?next=${encodeURIComponent(currentPath)}`);
 
-  const access = await getLearningAccess(TOGAF_TRAINING_ID, token).catch(() => null);
+  const course = await getCourseBySlug(TOGAF_COURSE_SLUG, token).catch(() => null);
+  if (!course) {
+    return <main className="shell"><section className="hero"><p className="eyebrow">Learning Lab</p><h1>De training kon niet worden gevonden.</h1><a className="button" href="/">Terug naar de leeromgeving</a></section></main>;
+  }
+
+  const access = await getLearningAccess(course.id, token).catch(() => null);
   if (!access?.can_access) {
     return <main className="shell"><section className="hero"><p className="eyebrow">Learning Lab</p><h1>Deze PoC is alleen beschikbaar met toegang tot de training.</h1><a className="button" href="/">Terug naar de leeromgeving</a></section></main>;
   }
