@@ -2,10 +2,6 @@ import { redirect } from "next/navigation";
 import { getAccessToken, getSessionUser } from "../lib/platform";
 
 export default async function Home() {
-  if (process.env.VERCEL_ENV === "preview") {
-    redirect("/lab/value-stream-poc");
-  }
-
   const token = await getAccessToken();
   const user = token ? await getSessionUser(token) : null;
   if (!token) {
