@@ -46,6 +46,18 @@ export type AdaptiveDecisionInput = {
   learnerOverride?: boolean;
 };
 
+export type AdaptiveTransitionInput = {
+  profile: AdaptiveProfileInput;
+  evidence: Array<Omit<AdaptiveEvidenceInput, "userId" | "courseId">>;
+  decision: Omit<AdaptiveDecisionInput, "userId" | "courseId" | "evidenceIds">;
+};
+
+export type AdaptiveTransitionResult = {
+  profile_id: string;
+  evidence_ids: string[];
+  decision_id: string;
+};
+
 export type AdaptiveState = {
   enrollment_id: string;
   profile: null | {
@@ -97,6 +109,47 @@ function assertEvidenceStrength(value: number) {
   }
 }
 
+/**
+ * Preferred persistence operation for a learning step. Profile mutation,
+ * evidence append and route decision are committed in one database transaction.
+ */
+export async function recordAdaptiveTransition(input: AdaptiveTransitionInput): Promise<AdaptiveTransitionResult> {
+  for (const evidence of input.evidence) assertEvidenceStrength(evidence.evidenceStrength);
+
+  return serviceRpc<AdaptiveTransitionResult>("adaptive_record_transition", {
+    p_user_id: input.profile.userId,
+    p_course_id: input.profile.courseId,
+    p_schema_version: input.profile.schemaVersion,
+    p_classifier_version: input.profile.classifierVersion,
+    p_concept_mastery: input.profile.conceptMastery,
+    p_misconception_signals: input.profile.misconceptionSignals ?? {},
+    p_route_state: input.profile.routeState ?? {},
+    p_preferences: input.profile.preferences ?? {},
+    p_evidence: input.evidence.map((evidence) => ({
+      module_id: evidence.moduleId,
+      objective_id: evidence.objectiveId,
+      evidence_type: evidence.evidenceType,
+      source_ref: evidence.sourceRef,
+      result: evidence.result,
+      evidence_strength: evidence.evidenceStrength,
+      classifier_version: evidence.classifierVersion,
+    })),
+    p_decision: {
+      module_id: input.decision.moduleId,
+      objective_id: input.decision.objectiveId ?? null,
+      action: input.decision.action,
+      route_id: input.decision.routeId ?? null,
+      selected_content_ids: input.decision.selectedContentIds,
+      reason_code: input.decision.reasonCode,
+      rationale: input.decision.rationale ?? null,
+      orchestrator_version: input.decision.orchestratorVersion,
+      learner_override: input.decision.learnerOverride ?? false,
+    },
+  });
+}
+
+// Low-level operations are kept for migrations, support tooling and controlled
+// recovery. Runtime learning flows should prefer recordAdaptiveTransition().
 export async function upsertAdaptiveProfile(input: AdaptiveProfileInput): Promise<string> {
   return serviceRpc<string>("adaptive_upsert_profile", {
     p_user_id: input.userId,
