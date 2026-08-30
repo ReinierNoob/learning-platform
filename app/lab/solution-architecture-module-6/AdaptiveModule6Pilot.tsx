@@ -28,6 +28,7 @@ type AssessmentResult = {
   correct: number;
   total: number;
   passed: boolean;
+  remediationSequence: string[];
   profileUpdate: Record<string, string>;
 };
 
@@ -45,8 +46,10 @@ function speakerName(speaker: "interviewer" | "alexander") {
 
 export default function AdaptiveModule6Pilot() {
   const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [diagnosticIndex, setDiagnosticIndex] = useState(0);
   const [diagnosis, setDiagnosis] = useState<Diagnosis | null>(null);
   const [routeOverride, setRouteOverride] = useState<RouteId | null>(null);
+  const [customSequence, setCustomSequence] = useState<string[] | null>(null);
   const [stepIndex, setStepIndex] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -54,7 +57,7 @@ export default function AdaptiveModule6Pilot() {
   const [assessment, setAssessment] = useState<AssessmentResult | null>(null);
 
   const activeRoute = routeOverride ?? diagnosis?.route ?? null;
-  const sequence = activeRoute ? routeSequences[activeRoute] : [];
+  const sequence = customSequence ?? (activeRoute ? routeSequences[activeRoute] : []);
   const intervention = sequence.length ? interventions[sequence[Math.min(stepIndex, sequence.length - 1)]] : null;
   const visual = intervention?.visual ?? emptyVisual;
   const profile = useMemo(() => ({
@@ -75,8 +78,10 @@ export default function AdaptiveModule6Pilot() {
       const data = await response.json() as Diagnosis;
       setDiagnosis(data);
       setRouteOverride(null);
+      setCustomSequence(null);
       setStepIndex(0);
       setAssessment(null);
+      setAssessmentAnswers({});
     } catch {
       setError("De diagnostiek kon niet worden uitgevoerd.");
     } finally {
@@ -102,49 +107,86 @@ export default function AdaptiveModule6Pilot() {
     }
   }
 
+  function resetRouteState() {
+    setCustomSequence(null);
+    setStepIndex(0);
+    setAssessment(null);
+    setAssessmentAnswers({});
+  }
+
+  function startRemediation() {
+    if (!assessment?.remediationSequence.length) return;
+    setCustomSequence([...assessment.remediationSequence, "m6-adr-beoordelen-assessment-v1"]);
+    setRouteOverride(null);
+    setStepIndex(0);
+    setAssessment(null);
+    setAssessmentAnswers({});
+  }
+
   if (!diagnosis) {
+    const currentQuestion = diagnosticQuestions[diagnosticIndex];
+    const currentAnswer = answers[currentQuestion.id] ?? "";
+    const finalQuestion = diagnosticIndex === diagnosticQuestions.length - 1;
+
     return <main className={styles.diagnosticShell}>
       <section className={styles.intro}>
         <p className={styles.kicker}>EAW Learning Lab · preview only</p>
         <h1>Module 6 — Ontwerpkeuzes en trade-offs</h1>
-        <p>Eva stelt vier korte diagnostische vragen. Je antwoorden worden server-side geïnterpreteerd om een leerroute te kiezen. De casus Gemeente Middelveen is fictief.</p>
+        <p>Eva stelt vier korte diagnostische vragen, één voor één. Je antwoorden worden server-side geïnterpreteerd om een leerroute te kiezen. De casus Gemeente Middelveen is fictief.</p>
       </section>
       <section className={styles.diagnosticCard}>
         <div className={styles.persona}><span>E</span><div><small>Interviewer</small><strong>Eva</strong></div></div>
-        {diagnosticQuestions.map((item, index) => <label className={styles.question} key={item.id}>
-          <span>{String(index + 1).padStart(2, "0")}</span>
-          <strong>{item.question}</strong>
-          <textarea value={answers[item.id] ?? ""} onChange={(event) => setAnswers((current) => ({ ...current, [item.id]: event.target.value }))} rows={3} />
-        </label>)}
+        <div className={styles.diagnosticProgress}>
+          <span>Vraag {diagnosticIndex + 1} van {diagnosticQuestions.length}</span>
+          <div><i style={{ width: `${((diagnosticIndex + 1) / diagnosticQuestions.length) * 100}%` }} /></div>
+        </div>
+        <label className={styles.question} key={currentQuestion.id}>
+          <span>{String(diagnosticIndex + 1).padStart(2, "0")}</span>
+          <strong>{currentQuestion.question}</strong>
+          <textarea autoFocus value={currentAnswer} onChange={(event) => setAnswers((current) => ({ ...current, [currentQuestion.id]: event.target.value }))} rows={5} />
+        </label>
         {error ? <p className={styles.error}>{error}</p> : null}
-        <button className={styles.primary} disabled={submitting || diagnosticQuestions.some((item) => !(answers[item.id] ?? "").trim())} onClick={diagnose} type="button">
-          {submitting ? "Route bepalen…" : "Bepaal mijn leerroute"}
-        </button>
+        <div className={styles.diagnosticActions}>
+          <button className={styles.secondary} disabled={diagnosticIndex === 0 || submitting} onClick={() => setDiagnosticIndex((current) => Math.max(0, current - 1))} type="button">Vorige</button>
+          {finalQuestion ? (
+            <button className={styles.primary} disabled={submitting || !currentAnswer.trim()} onClick={diagnose} type="button">
+              {submitting ? "Route bepalen…" : "Bepaal mijn leerroute"}
+            </button>
+          ) : (
+            <button className={styles.primary} disabled={!currentAnswer.trim()} onClick={() => setDiagnosticIndex((current) => Math.min(diagnosticQuestions.length - 1, current + 1))} type="button">Volgende vraag</button>
+          )}
+        </div>
       </section>
     </main>;
   }
 
   if (!intervention || !activeRoute) return null;
   const progress = Math.round(((stepIndex + 1) / sequence.length) * 100);
+  const decisionCode = customSequence ? "ASSESSMENT_REMEDIATION" : routeOverride ? "LEARNER_OVERRIDE" : diagnosis.reasonCode;
+  const routeTitle = customSequence ? "Gerichte herstelroute" : `${activeRoute} · ${routeMetadata[activeRoute].name}`;
+  const routeDescription = customSequence
+    ? "De eindcheck heeft een of meer zwakke concepten aangewezen. Alleen de bijbehorende herstelinterventies worden opnieuw aangeboden, gevolgd door dezelfde verplichte eindcheck."
+    : routeMetadata[activeRoute].description;
 
   return <div className={styles.shell}>
     <aside className={styles.sidebar}>
       <p className={styles.kicker}>Adaptive Learning v2 · Module 6</p>
       <h1>Solution Architecture</h1>
       <div className={styles.routeCard}>
-        <small>Gekozen route</small>
-        <strong>{activeRoute} · {routeMetadata[activeRoute].name}</strong>
-        <p>{routeMetadata[activeRoute].description}</p>
-        <code>{routeOverride ? "LEARNER_OVERRIDE" : diagnosis.reasonCode}</code>
+        <small>Actieve leerroute</small>
+        <strong>{routeTitle}</strong>
+        <p>{routeDescription}</p>
+        <code>{decisionCode}</code>
       </div>
       <div className={styles.progress}><span style={{ width: `${progress}%` }} /></div>
       <nav className={styles.stepNav} aria-label="Adaptieve route">
-        {sequence.map((id, index) => <button className={index === stepIndex ? styles.active : ""} key={`${activeRoute}-${id}`} onClick={() => setStepIndex(index)} type="button">
+        {sequence.map((id, index) => <button className={index === stepIndex ? styles.active : ""} key={`${decisionCode}-${id}-${index}`} onClick={() => setStepIndex(index)} type="button">
           <small>{String(index + 1).padStart(2, "0")}</small><span>{interventions[id].title}</span>
         </button>)}
       </nav>
-      {activeRoute !== "A" ? <button className={styles.fullRoute} onClick={() => { setRouteOverride("A"); setStepIndex(0); setAssessment(null); }} type="button">Toon volledige basisroute</button> : null}
-      {routeOverride ? <button className={styles.fullRoute} onClick={() => { setRouteOverride(null); setStepIndex(0); setAssessment(null); }} type="button">Terug naar geadviseerde route</button> : null}
+      {!customSequence && activeRoute !== "A" ? <button className={styles.fullRoute} onClick={() => { setRouteOverride("A"); resetRouteState(); }} type="button">Toon volledige basisroute</button> : null}
+      {!customSequence && routeOverride ? <button className={styles.fullRoute} onClick={() => { setRouteOverride(null); resetRouteState(); }} type="button">Terug naar geadviseerde route</button> : null}
+      {customSequence ? <button className={styles.fullRoute} onClick={() => { setCustomSequence(null); setRouteOverride(null); setStepIndex(0); setAssessment(null); setAssessmentAnswers({}); }} type="button">Terug naar geadviseerde route</button> : null}
     </aside>
 
     <main className={styles.main}>
@@ -160,10 +202,11 @@ export default function AdaptiveModule6Pilot() {
             <div className={styles.matrixHeader}><span>Alternatief</span>{attributes.slice(0, visual.visibleAttributes).map((attribute) => <strong key={attribute}>{attribute}</strong>)}</div>
             {alternatives.slice(0, visual.visibleAlternatives).map((alternative, row) => <div className={styles.matrixRow} key={alternative}>
               <span>{row + 1}. {alternative}</span>
-              {attributes.slice(0, visual.visibleAttributes).map((attribute) => <em key={attribute}>{visual.showTradeoffs ? "afwegen" : "—"}</em>)}
+              {attributes.slice(0, visual.visibleAttributes).map((attribute) => <em key={attribute}>{visual.showTradeoffs ? "te beoordelen" : "—"}</em>)}
             </div>)}
             {visual.visibleAlternatives === 0 ? <div className={styles.emptyState}>De afweging wordt tijdens de interventie opgebouwd.</div> : null}
           </div>
+          {visual.showTradeoffs ? <p className={styles.validationNote}>Pilotstructuur: de bron ondersteunt welke alternatieven en kwaliteitsattributen moeten worden afgewogen, maar niet een gevalideerde win/verlieswaardering voor iedere matrixcel. Die waarden worden daarom hier niet verzonnen.</p> : null}
           <div className={styles.adrCard}>
             <small>ADR-kaart</small>
             {adrSections.map((section) => <div className={`${styles.adrSection} ${visual.adrSectionsVisible.includes(section) ? styles.visible : ""} ${visual.highlightWeakLink === section ? styles.weak : ""}`} key={section}>
@@ -184,13 +227,17 @@ export default function AdaptiveModule6Pilot() {
               {question.options.map((option, optionIndex) => <label key={option}><input type="radio" name={question.id} checked={assessmentAnswers[question.id] === optionIndex} onChange={() => setAssessmentAnswers((current) => ({ ...current, [question.id]: optionIndex }))} /> {option}</label>)}
             </div>)}
             <button className={styles.primary} disabled={submitting || assessmentQuestions.some((item) => assessmentAnswers[item.id] === undefined)} onClick={submitAssessment} type="button">Beoordeel eindcheck</button>
-            {assessment ? <div className={assessment.passed ? styles.pass : styles.remediate}><strong>{assessment.correct}/{assessment.total} correct</strong><p>{assessment.passed ? "De drie gecontroleerde concepten zijn aangetoond." : "Minstens één concept vraagt nog gerichte remediation; het learner model is bijgewerkt."}</p></div> : null}
+            {assessment ? <div className={assessment.passed ? styles.pass : styles.remediate}>
+              <strong>{assessment.correct}/{assessment.total} correct</strong>
+              <p>{assessment.passed ? "De drie gecontroleerde concepten zijn aangetoond." : "Minstens één concept vraagt nog gerichte remediation; het learner model is bijgewerkt."}</p>
+              {!assessment.passed && assessment.remediationSequence.length > 0 ? <button className={styles.primary} onClick={startRemediation} type="button">Start gerichte herstelroute</button> : null}
+            </div> : null}
           </section> : null}
         </div>
       </section>
 
       <section className={styles.evidencePanel}>
-        <div><small>Decision log</small><strong>{diagnosis.reasonCode}</strong><p>{diagnosis.evidence.map((item) => `${item.id}:${item.passed ? "pass" : "uncertain"}`).join(" · ")}</p></div>
+        <div><small>Decision log</small><strong>{decisionCode}</strong><p>{diagnosis.evidence.map((item) => `${item.id}:${item.passed ? "pass" : "uncertain"}`).join(" · ")}</p></div>
         <div><small>Misconcepties</small><strong>{diagnosis.misconceptions.length || 0}</strong><p>{diagnosis.misconceptions.join(" · ") || "geen actieve misconceptie gedetecteerd"}</p></div>
         <div><small>Learner model</small><strong>session-only</strong><p>{Object.entries(profile).map(([key, value]) => `${key}: ${value}`).join(" · ")}</p></div>
       </section>
