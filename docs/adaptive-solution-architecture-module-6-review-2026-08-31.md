@@ -197,7 +197,7 @@ Niet toegevoegd als inhoudelijk feit:
 | Server-side antwoordkey | PASS |
 | Assessment → remediation loop | PASS in code; browserreview open |
 | Productie-isolatie | PASS in code/build |
-| Preview build | opnieuw te bevestigen na laatste UX-commit |
+| Preview build | PASS — final branch build READY op 2026-08-31 |
 | Persistente learner data | NOT IMPLEMENTED |
 | Entitlement op adaptive endpoints | NOT IMPLEMENTED |
 | HeyGen-media | NOT PRODUCED |
@@ -207,7 +207,7 @@ Niet toegevoegd als inhoudelijk feit:
 
 ## 10. Advies
 
-Behandel deze versie als **Adaptive Learning v2 pilot baseline** zodra de laatste preview-build groen is. Daarna:
+Behandel deze versie als **Adaptive Learning v2 pilot baseline**. De laatste preview-build is groen. Daarna:
 
 1. browser-/persona-review op route A, B, C en een assessment-remediation-cyclus;
 2. pas de vier generieke adaptive-learning skills aan met bovenstaande retrospective-lessen;
