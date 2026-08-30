@@ -4,7 +4,8 @@
 **Doelomgeving:** tijdelijke Supabase development branch  
 **Branchnaam:** `adaptive-learning-v2-persistence-test`  
 **Project ref:** `bcirrkofoycbuyalqlvk`  
-**Productie gewijzigd:** nee
+**Productie gewijzigd:** nee  
+**Testbranch na validatie verwijderd:** ja
 
 ## Uitgevoerde migraties
 
@@ -68,6 +69,16 @@ Na het afvangen van de fout zijn gecontroleerd:
 
 Hiermee is aangetoond dat `adaptive_record_transition(...)` geen half opgeslagen adaptieve overgang achterlaat.
 
+### Volledige write-path als `service_role`
+
+Na de hardening naar `SECURITY INVOKER` is een volledige `adaptive_record_transition(...)` uitgevoerd onder de daadwerkelijke Postgresrol `service_role`, binnen een rollbacktransactie.
+
+De call leverde succesvol een profile id, evidence id en decision id op. Daarna is de transactie teruggedraaid, zodat deze laatste verificatie geen blijvende testdata achterliet.
+
+**Resultaat: PASS.**
+
+Hiermee is bevestigd dat de productiebedoelde serverrol ook na het verwijderen van `SECURITY DEFINER` de volledige persistenceketen kan uitvoeren.
+
 ## Supabase advisors
 
 ### Security
@@ -92,13 +103,21 @@ De Supabase branchlijst rapporteerde `MIGRATIONS_FAILED` als branchstatus, terwi
 
 Daarom is dit **niet als fout van de adaptive migraties geclassificeerd**, maar als een aparte EAW/Supabase branching-housekeeping observatie. Automatische branch-migrationstatus moet worden opgeschoond voordat deze als harde CI-gate wordt gebruikt.
 
+## Kostenbeheersing
+
+De tijdelijke development branch is na afronding van alle migratie-, security-, advisor- en gedragstests verwijderd. Daarmee loopt de expliciet goedgekeurde branchkost van **$0,01344 per uur** voor deze testbranch niet verder door.
+
+Andere reeds bestaande Supabase development branches zijn niet gewijzigd of verwijderd.
+
 ## Gate
 
 **Database persistence design:** PASS  
 **Development-branch migration:** PASS  
 **Entitlement enforcement:** PASS  
 **Atomicity:** PASS  
+**Service-role write path:** PASS  
 **Adaptive advisor findings:** PASS  
+**Testbranch cleanup:** PASS  
 **Production release:** NO-GO
 
 Volgende stap is end-to-end integratie van de Module 6-preview met de persistence-service in een niet-productieomgeving, gevolgd door browser/persona/accessibilityreview. Productie blijft tot die gates ongewijzigd.
