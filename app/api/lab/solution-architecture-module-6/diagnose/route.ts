@@ -1,4 +1,18 @@
 import { NextResponse } from "next/server";
+import {
+  adaptiveAccessStatus,
+  adaptiveModule6ClassifierVersion,
+  adaptiveModule6CourseSlug,
+  adaptiveModule6OrchestratorVersion,
+  adaptiveModule6SourceModuleId,
+  adaptiveSchemaVersion,
+  isAdaptivePersistenceEnabled,
+} from "../../../../../lib/adaptive-pilot-runtime";
+import {
+  AdaptiveAccessError,
+  persistAdaptiveTransitionForLearner,
+  requireAdaptiveLearningContext,
+} from "../../../../../lib/adaptive-service";
 import { routeSequences, type RouteId } from "../../../../../lib/solution-architecture-module-6";
 
 function unavailableInProduction() {
@@ -88,6 +102,57 @@ export async function POST(request: Request) {
     if (misconception === "sa.mc.adr-achteraf") mastery["sa.m06.waarom-alternatieven"] = "misconception";
   }
 
+  let persistence = "preview-session-only";
+  let transitionIds: { profileId: string; evidenceIds: string[]; decisionId: string } | null = null;
+
+  if (isAdaptivePersistenceEnabled()) {
+    try {
+      const context = await requireAdaptiveLearningContext(adaptiveModule6CourseSlug, adaptiveModule6SourceModuleId);
+      const persisted = await persistAdaptiveTransitionForLearner(context, {
+        profile: {
+          schemaVersion: adaptiveSchemaVersion,
+          classifierVersion: adaptiveModule6ClassifierVersion,
+          conceptMastery: mastery,
+          misconceptionSignals: Object.fromEntries(misconceptions.map((id) => [id, true])),
+          routeState: { module: adaptiveModule6SourceModuleId, route, reasonCode, phase: "diagnosis" },
+          preferences: {},
+        },
+        evidence: evidence.map((item) => ({
+          moduleId: context.module.id,
+          objectiveId: item.objectiveId,
+          evidenceType: "diagnostic" as const,
+          sourceRef: item.id,
+          result: { passed: item.passed },
+          evidenceStrength: item.passed ? 0.85 : 0.55,
+          classifierVersion: adaptiveModule6ClassifierVersion,
+        })),
+        decision: {
+          moduleId: context.module.id,
+          objectiveId: null,
+          action: route === "A" ? "full_route" : route === "B" ? "accelerated_route" : "targeted_remediation",
+          routeId: route,
+          selectedContentIds: routeSequences[route],
+          reasonCode,
+          rationale: `Module 6 diagnosis selected route ${route}`,
+          orchestratorVersion: adaptiveModule6OrchestratorVersion,
+          learnerOverride: false,
+        },
+      });
+      persistence = "supabase-preview";
+      transitionIds = {
+        profileId: persisted.profile_id,
+        evidenceIds: persisted.evidence_ids,
+        decisionId: persisted.decision_id,
+      };
+    } catch (error) {
+      if (error instanceof AdaptiveAccessError) {
+        return NextResponse.json({ error: error.code }, { status: adaptiveAccessStatus(error.code) });
+      }
+      console.error("adaptive_diagnosis_persistence_failed", error);
+      return NextResponse.json({ error: "adaptive_persistence_failed" }, { status: 500 });
+    }
+  }
+
   return NextResponse.json({
     route,
     reasonCode,
@@ -97,8 +162,9 @@ export async function POST(request: Request) {
     profile: {
       module: 6,
       conceptMastery: mastery,
-      routeHistory: [{ route, reasonCode, evidenceIds: evidence.map((item) => item.id) }],
-      persistence: "preview-session-only",
+      routeHistory: [{ route, reasonCode, evidenceIds: transitionIds?.evidenceIds ?? evidence.map((item) => item.id) }],
+      persistence,
+      transitionIds,
     },
   });
 }
