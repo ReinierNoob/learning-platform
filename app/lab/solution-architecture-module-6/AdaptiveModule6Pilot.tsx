@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   adrSections,
   alternatives,
@@ -21,7 +21,12 @@ type Diagnosis = {
   sequence: string[];
   evidence: { id: string; objectiveId: string; passed: boolean }[];
   misconceptions: string[];
-  profile: { conceptMastery: Record<string, string>; routeHistory: unknown[]; persistence: string };
+  profile: {
+    conceptMastery: Record<string, string>;
+    routeHistory: unknown[];
+    persistence: string;
+    transitionIds?: unknown;
+  };
 };
 
 type AssessmentResult = {
@@ -30,6 +35,8 @@ type AssessmentResult = {
   passed: boolean;
   remediationSequence: string[];
   profileUpdate: Record<string, string>;
+  persistence?: string;
+  transitionIds?: unknown;
 };
 
 const emptyVisual: VisualState = {
@@ -52,9 +59,32 @@ export default function AdaptiveModule6Pilot() {
   const [customSequence, setCustomSequence] = useState<string[] | null>(null);
   const [stepIndex, setStepIndex] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+  const [restoring, setRestoring] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [assessmentAnswers, setAssessmentAnswers] = useState<Record<string, number>>({});
   const [assessment, setAssessment] = useState<AssessmentResult | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    async function restoreState() {
+      try {
+        const response = await fetch("/api/lab/solution-architecture-module-6/state", { cache: "no-store" });
+        if (!response.ok) return;
+        const data = await response.json() as { enabled?: boolean; state?: Diagnosis | null };
+        if (active && data.state?.route) {
+          setDiagnosis(data.state);
+          setStepIndex(0);
+        }
+      } catch {
+        // State restore is best-effort while persistence is disabled. When it is
+        // enabled, diagnose/assessment endpoints remain fail-closed on errors.
+      } finally {
+        if (active) setRestoring(false);
+      }
+    }
+    void restoreState();
+    return () => { active = false; };
+  }, []);
 
   const activeRoute = routeOverride ?? diagnosis?.route ?? null;
   const sequence = customSequence ?? (activeRoute ? routeSequences[activeRoute] : []);
@@ -74,7 +104,12 @@ export default function AdaptiveModule6Pilot() {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ answers }),
       });
-      if (!response.ok) throw new Error("diagnose_failed");
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({})) as { error?: string };
+        if (response.status === 401) throw new Error("authentication_required");
+        if (response.status === 403) throw new Error("entitlement_required");
+        throw new Error(payload.error ?? "diagnose_failed");
+      }
       const data = await response.json() as Diagnosis;
       setDiagnosis(data);
       setRouteOverride(null);
@@ -82,8 +117,13 @@ export default function AdaptiveModule6Pilot() {
       setStepIndex(0);
       setAssessment(null);
       setAssessmentAnswers({});
-    } catch {
-      setError("De diagnostiek kon niet worden uitgevoerd.");
+    } catch (caught) {
+      const code = caught instanceof Error ? caught.message : "diagnose_failed";
+      setError(code === "authentication_required"
+        ? "Voor de persistente preview moet je eerst als testcursist zijn ingelogd."
+        : code === "entitlement_required"
+          ? "Deze testcursist heeft geen actieve toegang tot de Solution Architecture-preview."
+          : "De diagnostiek kon niet worden uitgevoerd.");
     } finally {
       setSubmitting(false);
     }
@@ -101,7 +141,7 @@ export default function AdaptiveModule6Pilot() {
       if (!response.ok) throw new Error("assessment_failed");
       setAssessment(await response.json() as AssessmentResult);
     } catch {
-      setError("De eindcheck kon niet worden beoordeeld.");
+      setError("De eindcheck kon niet worden beoordeeld of opgeslagen.");
     } finally {
       setSubmitting(false);
     }
@@ -114,6 +154,27 @@ export default function AdaptiveModule6Pilot() {
     setAssessmentAnswers({});
   }
 
+  async function chooseRouteOverride(route: RouteId | null) {
+    if (!diagnosis) return;
+    const targetRoute = route ?? diagnosis.route;
+    setSubmitting(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/lab/solution-architecture-module-6/override", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ route: targetRoute }),
+      });
+      if (!response.ok) throw new Error("override_failed");
+      setRouteOverride(route);
+      resetRouteState();
+    } catch {
+      setError("De gekozen leerroute kon niet worden vastgelegd.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   function startRemediation() {
     if (!assessment?.remediationSequence.length) return;
     setCustomSequence([...assessment.remediationSequence, "m6-adr-beoordelen-assessment-v1"]);
@@ -121,6 +182,16 @@ export default function AdaptiveModule6Pilot() {
     setStepIndex(0);
     setAssessment(null);
     setAssessmentAnswers({});
+  }
+
+  if (restoring && !diagnosis) {
+    return <main className={styles.diagnosticShell}>
+      <section className={styles.intro}>
+        <p className={styles.kicker}>EAW Learning Lab · preview only</p>
+        <h1>Module 6 — Ontwerpkeuzes en trade-offs</h1>
+        <p>Bestaande adaptieve leerstatus controleren…</p>
+      </section>
+    </main>;
   }
 
   if (!diagnosis) {
@@ -184,8 +255,8 @@ export default function AdaptiveModule6Pilot() {
           <small>{String(index + 1).padStart(2, "0")}</small><span>{interventions[id].title}</span>
         </button>)}
       </nav>
-      {!customSequence && activeRoute !== "A" ? <button className={styles.fullRoute} onClick={() => { setRouteOverride("A"); resetRouteState(); }} type="button">Toon volledige basisroute</button> : null}
-      {!customSequence && routeOverride ? <button className={styles.fullRoute} onClick={() => { setRouteOverride(null); resetRouteState(); }} type="button">Terug naar geadviseerde route</button> : null}
+      {!customSequence && activeRoute !== "A" ? <button className={styles.fullRoute} disabled={submitting} onClick={() => void chooseRouteOverride("A")} type="button">Toon volledige basisroute</button> : null}
+      {!customSequence && routeOverride ? <button className={styles.fullRoute} disabled={submitting} onClick={() => void chooseRouteOverride(null)} type="button">Terug naar geadviseerde route</button> : null}
       {customSequence ? <button className={styles.fullRoute} onClick={() => { setCustomSequence(null); setRouteOverride(null); setStepIndex(0); setAssessment(null); setAssessmentAnswers({}); }} type="button">Terug naar geadviseerde route</button> : null}
     </aside>
 
@@ -239,7 +310,7 @@ export default function AdaptiveModule6Pilot() {
       <section className={styles.evidencePanel}>
         <div><small>Decision log</small><strong>{decisionCode}</strong><p>{diagnosis.evidence.map((item) => `${item.id}:${item.passed ? "pass" : "uncertain"}`).join(" · ")}</p></div>
         <div><small>Misconcepties</small><strong>{diagnosis.misconceptions.length || 0}</strong><p>{diagnosis.misconceptions.join(" · ") || "geen actieve misconceptie gedetecteerd"}</p></div>
-        <div><small>Learner model</small><strong>session-only</strong><p>{Object.entries(profile).map(([key, value]) => `${key}: ${value}`).join(" · ")}</p></div>
+        <div><small>Learner model</small><strong>{assessment?.persistence ?? diagnosis.profile.persistence}</strong><p>{Object.entries(profile).map(([key, value]) => `${key}: ${value}`).join(" · ")}</p></div>
       </section>
 
       {error ? <p className={styles.error}>{error}</p> : null}
