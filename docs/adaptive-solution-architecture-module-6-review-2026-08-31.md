@@ -23,7 +23,7 @@ Gerealiseerd:
 - server-side evidence-classificatie;
 - server-side misconceptiedetectie;
 - drie routes met reason code en evidence ids;
-- session-only learner model;
+- session-only learner model in de actieve pilot;
 - cursist kan vanuit een verkorte route de volledige basisroute kiezen;
 - inhoudelijke interventies zijn gekoppeld aan expliciete objective ids;
 - native afwegingsbord en ADR-kaart reageren op de interventie;
@@ -31,8 +31,18 @@ Gerealiseerd:
 - fouten in de eindcheck genereren een gerichte remediation sequence;
 - na remediation volgt opnieuw de verplichte eindcheck;
 - labpagina en lab-API's geven in productie 404;
-- geen databasewijzigingen;
+- geen productie-databasewijzigingen;
 - geen nieuwe avatarvideo's geproduceerd.
+
+Daarnaast is de **persistente Adaptive Learning v2-laag ontworpen maar nog niet toegepast**:
+
+- `adaptive_learner_profiles` 1-op-1 met bestaande enrollment;
+- append-only `learning_evidence`;
+- append-only `adaptive_decisions`;
+- service-role-only mutaties;
+- dubbele entitlementcontrole in applicatie én database;
+- transactionele `adaptive_record_transition(...)` voor profiel + evidence + besluit;
+- automatische schema/security-checks voor een toekomstige Supabase development branch.
 
 ## 3. Routecontract
 
@@ -108,22 +118,25 @@ De eerste classifier-versie gebruikte te brede tekstpatronen en kon correcte ont
 - diagnostische scoring gebeurt server-side;
 - geen service-role of andere secrets aan de browser toegevoegd;
 - geen productie-DB gewijzigd;
-- learner model is tijdelijk en niet persistent;
+- actieve pilot gebruikt nog session-only learner data;
 - preview-lab is expliciet 404 in `VERCEL_ENV=production`;
 - preview staat achter Vercel-bescherming;
-- standaard `/leren` routes zijn niet aangepast.
+- standaard `/leren` routes zijn niet aangepast;
+- persistence-ontwerp hergebruikt bestaande `courses`, `entitlements`, `enrollments` en `course_modules`;
+- browserrollen krijgen in het migratieontwerp geen directe adaptive CRUD-rechten;
+- de server-side repository vereist een aparte service-role key en is niet client-safe;
+- `adaptive_record_transition(...)` voorkomt partiële opslag van profiel/evidence/besluit.
 
 ### Open voor productie
 
-Voor een echte productieversie zijn minimaal nodig:
-
-1. persistente `learner_profiles`, `learning_evidence` en `adaptive_decisions` met passende RLS;
-2. server-side authorization op alle adaptive endpoints op basis van training entitlement;
-3. valideerbare evidence-strength in plaats van alleen `pass/uncertain`;
-4. auditbare versie van classifier/orchestratorregels;
-5. bescherming tegen prompt-/tekstmanipulatie zodra LLM-gebaseerde interpretatie wordt toegevoegd;
-6. retentie- en privacykeuzes voor learner evidence;
-7. integratie in de bestaande `/leren` renderer zonder parallelle auth- of progressielaag.
+1. migraties eerst toepassen op een Supabase development branch;
+2. RLS/grants/RPC's daar technisch testen;
+3. service-role secret uitsluitend in server-side Preview configureren;
+4. valideerbare evidence-strength operationeel bepalen;
+5. auditbare versie van classifier/orchestratorregels blijven vastleggen;
+6. bescherming tegen prompt-/tekstmanipulatie zodra LLM-gebaseerde interpretatie wordt toegevoegd;
+7. retentie- en privacykeuzes voor learner evidence formaliseren;
+8. integratie in de bestaande `/leren` renderer zonder parallelle auth- of progressielaag.
 
 ## 7. Contentreview
 
@@ -150,14 +163,17 @@ Niet toegevoegd als inhoudelijk feit:
 - routekeuze via expliciete objective ids maakt de runtime testbaar en uitlegbaar;
 - server-side antwoord- en diagnosecontract houdt didactische geheimen uit de browser;
 - een preview-only lab maakt snelle validatie mogelijk zonder entitlement-, catalogus- of productierisico;
-- eerst runtime valideren en pas daarna HeyGen-video's maken voorkomt verspilling en te vroege contentfixatie.
+- eerst runtime valideren en pas daarna HeyGen-video's maken voorkomt verspilling en te vroege contentfixatie;
+- koppelen van persistence aan bestaande enrollment voorkomt een tweede leeridentiteit;
+- één atomische transition-write is robuuster dan drie losse persistence-calls.
 
 ### Wat moest worden aangepast
 
 - interviewer-UX van formulier naar één vraag per beurt;
 - classifier van keyword-matching naar negatiebewuste regels;
 - assessment van alleen meten naar meten + gerichte vervolginterventie;
-- visualisatie van schijnzekerheid naar expliciete `nog te valideren`-toestand.
+- visualisatie van schijnzekerheid naar expliciete `nog te valideren`-toestand;
+- persistence-ontwerp van losse writes naar een transactionele transition-write.
 
 ### Verbeteringen voor de generieke Adaptive Learning skills
 
@@ -170,14 +186,16 @@ Niet toegevoegd als inhoudelijk feit:
 **elearning-learner-model**
 - mastery-status minimaal: `uncertain`, `demonstrated`, `misconception`, `needs_remediation`;
 - elke statuswijziging koppelen aan evidence ids en classifier version;
-- learner override apart loggen van systeemadvies.
+- learner override apart loggen van systeemadvies;
+- persistente profielen koppelen aan enrollment, niet aan een parallel usermodel.
 
 **elearning-adaptive-orchestrator**
 - verplichte leerdoelen nooit volledig overslaan;
 - verkorten alleen bij aantoonbaar bewijs;
 - eindcheck kan een nieuwe, kleinere remediation sequence genereren;
 - na remediation opnieuw dezelfde of equivalente mastery-check uitvoeren;
-- routebeslissing moet uitlegbaar zijn met reason code + evidence.
+- routebeslissing moet uitlegbaar zijn met reason code + evidence;
+- profiel/evidence/besluit per adaptieve overgang atomisch opslaan.
 
 **elearning-adaptive-tutor**
 - interventies krijgen stabiele id + objective id + type;
@@ -197,9 +215,13 @@ Niet toegevoegd als inhoudelijk feit:
 | Server-side antwoordkey | PASS |
 | Assessment → remediation loop | PASS in code; browserreview open |
 | Productie-isolatie | PASS in code/build |
-| Preview build | PASS — final branch build READY op 2026-08-31 |
-| Persistente learner data | NOT IMPLEMENTED |
-| Entitlement op adaptive endpoints | NOT IMPLEMENTED |
+| Preview build | PASS |
+| Persistente learner-data datamodel | PASS als ontwerp; niet toegepast |
+| Append-only evidence/decision auditmodel | PASS als ontwerp; niet toegepast |
+| Atomic transition RPC | PASS als ontwerp; niet toegepast |
+| Entitlement-gated adaptive service | PASS in TypeScript/build; DB-test open |
+| Schema/security testscript | READY; nog uitvoeren op dev branch |
+| Supabase development-branch migratietest | OPEN — vereist expliciete kostenbevestiging |
 | HeyGen-media | NOT PRODUCED |
 | Integratie standaard `/leren` | NOT IMPLEMENTED |
 | Volledige UX/accessibility browsertest | OPEN |
@@ -207,12 +229,16 @@ Niet toegevoegd als inhoudelijk feit:
 
 ## 10. Advies
 
-Behandel deze versie als **Adaptive Learning v2 pilot baseline**. De laatste preview-build is groen. Daarna:
+De pilotruntime en het persistence-ontwerp vormen nu samen de **Adaptive Learning v2 technical baseline**.
 
-1. browser-/persona-review op route A, B, C en een assessment-remediation-cyclus;
-2. pas de vier generieke adaptive-learning skills aan met bovenstaande retrospective-lessen;
-3. ontwerp daarna de persistente learner/evidence/decision-laag;
-4. produceer pas daarna de geselecteerde Eva/Alexander-mediainterventies;
-5. integreer pas na die gates in de standaard `/leren` flow.
+Volgende gates:
+
+1. Supabase development branch maken na expliciete kostenbevestiging;
+2. migraties + `supabase/tests/adaptive_learning_v2_schema_checks.sql` uitvoeren;
+3. negatieve securitytests en transaction rollback testen;
+4. daarna pas Module 6 preview op persistente storage aansluiten;
+5. browser/persona/accessibilityreview uitvoeren;
+6. geselecteerde Eva/Alexander-media produceren;
+7. uiteindelijk integreren in standaard `/leren`.
 
 Niet mergen naar productie vóór deze stappen zijn uitgevoerd.
