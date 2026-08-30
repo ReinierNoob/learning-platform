@@ -48,9 +48,24 @@ export async function POST(request: Request) {
   ];
 
   const misconceptions: string[] = [];
-  if (includesAny(q2, [/trade.?off.*fout/, /gewoon.*beste kiezen/, /altijd.*beste optie/])) misconceptions.push("sa.mc.trade-off-is-fout");
-  if (includesAny(q3, [/voldoende/, /prima/, /alleen.*voordeel.*genoeg/, /nadelen.*niet/])) misconceptions.push("sa.mc.consequenties-alleen-positief");
-  if (includesAny(q4, [/achteraf/, /erna/, /na de bouw/, /na implement/, /als.*klaar/])) misconceptions.push("sa.mc.adr-achteraf");
+  const tradeoffMisconception = includesAny(q2, [
+    /trade.?off is een fout/,
+    /trade.?off betekent een fout/,
+    /gewoon de beste kiezen/,
+    /altijd de beste optie/,
+  ]);
+  const consequenceMisconception = includesAny(q3, [
+    /dit is voldoende/,
+    /dit is prima/,
+    /alleen voordelen? (zijn|is) genoeg/,
+    /nadelen? (hoeven|hoort|horen) niet/,
+  ]);
+  const timingMisconception = includesAny(q4, [/achteraf/, /erna/, /na de bouw/, /na implement/, /als .*klaar/])
+    && !includesAny(q4, [/niet achteraf/, /niet erna/, /vooraf/, /voordat/, /voor de bouw/, /voor het bouwen/]);
+
+  if (tradeoffMisconception) misconceptions.push("sa.mc.trade-off-is-fout");
+  if (consequenceMisconception) misconceptions.push("sa.mc.consequenties-alleen-positief");
+  if (timingMisconception) misconceptions.push("sa.mc.adr-achteraf");
 
   const passedCount = evidence.filter((item) => item.passed).length;
   let route: RouteId = "A";
