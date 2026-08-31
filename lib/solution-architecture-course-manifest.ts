@@ -59,17 +59,18 @@ function moduleToManifest(runtime: AdaptiveServerModuleContract) {
   }
 
   const quiz = definition.assessment.map((question, index) => {
-    if (question.options.length !== 4) {
-      throw new Error(`solution_architecture_manifest_requires_four_options:${definition.sourceModuleId}:${question.id}`);
+    if (question.options.length < 2 || question.options.length > optionKeys.length) {
+      throw new Error(`solution_architecture_manifest_option_count_out_of_range:${definition.sourceModuleId}:${question.id}:${question.options.length}`);
     }
     const answerIndex = answerKey[question.id];
-    if (!Number.isInteger(answerIndex) || answerIndex < 0 || answerIndex > 3) {
+    if (!Number.isInteger(answerIndex) || answerIndex < 0 || answerIndex >= question.options.length) {
       throw new Error(`solution_architecture_manifest_answer_key_mismatch:${definition.sourceModuleId}:${question.id}`);
     }
+    const keys = optionKeys.slice(0, question.options.length);
     return {
       nr: index + 1,
       vraag: question.question,
-      opties: Object.fromEntries(optionKeys.map((key, optionIndex) => [key, question.options[optionIndex]])),
+      opties: Object.fromEntries(keys.map((key, optionIndex) => [key, question.options[optionIndex]])),
     };
   });
 
