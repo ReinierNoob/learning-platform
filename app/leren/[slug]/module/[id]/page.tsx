@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { isAdaptiveModule6LearningEnabled } from "../../../../../lib/adaptive-pilot-runtime";
+import { isAdaptiveModule6LearningEnabled } from "../../../../../lib/adaptive-runtime";
 import { getAccessToken, getCourseBySlug, getEawLoginUrl, getLearningAccess, getPublishedModule, getSessionUser, startCourse } from "../../../../../lib/platform";
 import { AdaptiveModule6LearningExperience } from "./adaptive-module6-experience";
 import { QuizClient } from "./learning-client";
