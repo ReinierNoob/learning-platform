@@ -35,7 +35,7 @@ export default async function ModulePage({ params }: { params: Promise<{ slug: s
     return <AdaptiveModule6LearningExperience
       courseTitle={course.title}
       courseSlug={slug}
-      userEmail={user.email}
+      userEmail={user.email ?? "ingelogde cursist"}
     />;
   }
 
