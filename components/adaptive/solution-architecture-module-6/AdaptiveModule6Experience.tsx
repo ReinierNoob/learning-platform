@@ -8,12 +8,12 @@ import {
   attributes,
   diagnosticQuestions,
   interventions,
-  routeMetadata,
   routeSequences,
   type RouteId,
   type VisualState,
 } from "../../../lib/solution-architecture-module-6";
 import styles from "./experience.module.css";
+import uxStyles from "./learner-experience.module.css";
 
 const apiBase = "/api/adaptive/solution-architecture-module-6";
 
@@ -52,6 +52,11 @@ type TutorObservation = {
   transitionIds?: unknown;
 };
 
+type AdaptiveModule6ExperienceProps = {
+  courseHref?: string;
+  showReviewDetails?: boolean;
+};
+
 const emptyVisual: VisualState = {
   visibleAlternatives: 0,
   visibleAttributes: 0,
@@ -68,11 +73,29 @@ const kindLabel = {
   assessment: "Eindcheck",
 } as const;
 
+const learnerRouteCopy: Record<RouteId, { name: string; description: string }> = {
+  A: {
+    name: "Uitgebreide route",
+    description: "We bouwen de belangrijkste begrippen stap voor stap op en controleren tussendoor of ze duidelijk zijn.",
+  },
+  B: {
+    name: "Verkorte route",
+    description: "Je laat zien dat je de basis al beheerst. Daarom slaan we bekende uitleg over en oefenen we vooral met toepassen en beoordelen.",
+  },
+  C: {
+    name: "Focusroute",
+    description: "Je hebt al relevante ervaring. We zoomen in op een paar punten die extra aandacht verdienen en gaan daarna snel naar toepassing.",
+  },
+};
+
 function speakerName(speaker: "interviewer" | "alexander") {
   return speaker === "interviewer" ? "Eva" : "Alexander";
 }
 
-export default function AdaptiveModule6Experience() {
+export default function AdaptiveModule6Experience({
+  courseHref,
+  showReviewDetails = false,
+}: AdaptiveModule6ExperienceProps) {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [diagnosticIndex, setDiagnosticIndex] = useState(0);
   const [diagnosis, setDiagnosis] = useState<Diagnosis | null>(null);
@@ -88,6 +111,7 @@ export default function AdaptiveModule6Experience() {
   const [error, setError] = useState<string | null>(null);
   const [assessmentAnswers, setAssessmentAnswers] = useState<Record<string, number>>({});
   const [assessment, setAssessment] = useState<AssessmentResult | null>(null);
+  const [routeStepsOpen, setRouteStepsOpen] = useState(false);
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
@@ -110,6 +134,14 @@ export default function AdaptiveModule6Experience() {
     }
     void restoreState();
     return () => { active = false; };
+  }, []);
+
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 760px)");
+    const sync = () => setRouteStepsOpen(!media.matches);
+    sync();
+    media.addEventListener("change", sync);
+    return () => media.removeEventListener("change", sync);
   }, []);
 
   const activeRoute = routeOverride ?? diagnosis?.route ?? null;
@@ -142,14 +174,14 @@ export default function AdaptiveModule6Experience() {
     setObservations({});
   }
 
-  async function diagnose() {
+  async function diagnose(inputAnswers: Record<string, string> = answers) {
     setSubmitting(true);
     setError(null);
     try {
       const response = await fetch(`${apiBase}/diagnose`, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ answers }),
+        body: JSON.stringify({ answers: inputAnswers }),
       });
       if (!response.ok) {
         const payload = await response.json().catch(() => ({})) as { error?: string };
@@ -290,11 +322,22 @@ export default function AdaptiveModule6Experience() {
     const finalQuestion = diagnosticIndex === diagnosticQuestions.length - 1;
     const progress = Math.round(((diagnosticIndex + 1) / diagnosticQuestions.length) * 100);
 
+    function continueWithoutKnowing() {
+      const nextAnswers = { ...answers, [currentQuestion.id]: "Ik weet dit nog niet." };
+      setAnswers(nextAnswers);
+      if (finalQuestion) {
+        void diagnose(nextAnswers);
+      } else {
+        setDiagnosticIndex((current) => Math.min(diagnosticQuestions.length - 1, current + 1));
+      }
+    }
+
     return <main className={styles.diagnosticShell}>
       <section className={styles.intro}>
         <p className={styles.kicker}>Solution Architecture · Module 6</p>
         <h1>Ontwerpkeuzes en trade-offs</h1>
-        <p>Eva stelt vier korte vragen, één voor één. Op basis van je antwoorden krijg je meer uitleg, een verkorte route of gericht herstel waar dat nodig is.</p>
+        <p>Eva stelt vier korte vragen, één voor één. Op basis van je antwoorden krijg je precies de uitleg en oefening die het beste aansluit.</p>
+        <p className={uxStyles.caseIntro}><strong>De casus:</strong> je werkt voor de fictieve Gemeente Middelveen. De gemeente wil statusinformatie rond keuringsgegevens goed organiseren en moet daarbij verschillende oplossingsrichtingen afwegen.</p>
         <p className={styles.privacyNote}>Je vrije intake-antwoorden worden niet als leerbewijs bewaard; alleen het afgeleide leerresultaat kan worden opgeslagen.</p>
       </section>
       <section className={styles.diagnosticCard} aria-labelledby="eva-heading">
@@ -308,13 +351,14 @@ export default function AdaptiveModule6Experience() {
         <label className={styles.question} key={currentQuestion.id}>
           <span aria-hidden="true">{String(diagnosticIndex + 1).padStart(2, "0")}</span>
           <strong>{currentQuestion.question}</strong>
-          <textarea autoFocus value={currentAnswer} onChange={(event) => setAnswers((current) => ({ ...current, [currentQuestion.id]: event.target.value }))} rows={5} maxLength={1000} />
+          <textarea autoFocus value={currentAnswer} onChange={(event) => setAnswers((current) => ({ ...current, [currentQuestion.id]: event.target.value }))} rows={5} maxLength={1000} placeholder="Schrijf kort wat je denkt. Je hoeft het nog niet zeker te weten." />
         </label>
+        <button className={`${styles.secondary} ${uxStyles.unknownAction}`} disabled={submitting} onClick={continueWithoutKnowing} type="button">Ik weet dit nog niet</button>
         {error ? <p className={styles.error} role="alert">{error}</p> : null}
         <div className={styles.diagnosticActions}>
           <button className={styles.secondary} disabled={diagnosticIndex === 0 || submitting} onClick={() => setDiagnosticIndex((current) => Math.max(0, current - 1))} type="button">Vorige vraag</button>
           {finalQuestion ? (
-            <button className={styles.primary} disabled={submitting || !currentAnswer.trim()} onClick={diagnose} type="button">
+            <button className={styles.primary} disabled={submitting || !currentAnswer.trim()} onClick={() => void diagnose()} type="button">
               {submitting ? "Leerroute bepalen…" : "Bepaal mijn leerroute"}
             </button>
           ) : (
@@ -329,10 +373,10 @@ export default function AdaptiveModule6Experience() {
 
   const progress = Math.round(((stepIndex + 1) / sequence.length) * 100);
   const decisionCode = customSequence ? "ASSESSMENT_REMEDIATION" : routeOverride ? "LEARNER_OVERRIDE" : diagnosis.reasonCode;
-  const routeTitle = customSequence ? "Gerichte herstelroute" : routeMetadata[activeRoute].name;
+  const routeTitle = customSequence ? "Extra oefenroute" : learnerRouteCopy[activeRoute].name;
   const routeDescription = customSequence
-    ? "Je eindcheck wees één of meer zwakke concepten aan. Je herhaalt alleen wat nodig is en doet daarna opnieuw de eindcheck."
-    : routeMetadata[activeRoute].description;
+    ? "Je eindcheck laat zien dat een paar onderdelen nog aandacht nodig hebben. Je oefent alleen die onderdelen en doet daarna opnieuw de eindcheck."
+    : learnerRouteCopy[activeRoute].description;
   const promptAnswer = intervention.prompt ? (promptResponses[intervention.id] ?? "") : "";
   const observation = intervention.prompt ? observations[intervention.id] : undefined;
   const promptComplete = !intervention.prompt || observation?.canProceed === true;
@@ -341,17 +385,17 @@ export default function AdaptiveModule6Experience() {
 
   return <div className={styles.shell}>
     <aside className={styles.sidebar}>
-      <p className={styles.kicker}>Module 6 · Adaptieve leerroute</p>
+      <p className={styles.kicker}>Module 6 · Jouw leerroute</p>
       <h1>Solution Architecture</h1>
       <div className={styles.routeCard}>
-        <small>Jouw route</small>
+        <small>Voor jou geselecteerd</small>
         <strong>{routeTitle}</strong>
         <p>{routeDescription}</p>
       </div>
       <div className={styles.progressTrack} role="progressbar" aria-label="Voortgang leerroute" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress}>
         <i style={{ width: `${progress}%` }} />
       </div>
-      <details className={styles.routeSteps} open>
+      <details className={styles.routeSteps} open={routeStepsOpen} onToggle={(event) => setRouteStepsOpen(event.currentTarget.open)}>
         <summary>Bekijk leerstappen</summary>
         <nav className={styles.stepNav} aria-label="Leerstappen in jouw route">
           {sequence.map((id, index) => {
@@ -382,7 +426,7 @@ export default function AdaptiveModule6Experience() {
       </header>
 
       <section className={styles.learningArea}>
-        <div className={styles.visualPanel}>
+        <div className={`${styles.visualPanel} ${uxStyles.visualPanel}`}>
           <p className={styles.panelLabel}>Afwegingsbord · Gemeente Middelveen</p>
           <div className={styles.matrixDesktop} role="region" aria-label="Afwegingsmatrix">
             <div className={styles.matrixHeader}><span>Alternatief</span>{attributes.slice(0, visual.visibleAttributes).map((attribute) => <strong key={attribute}>{attribute}</strong>)}</div>
@@ -408,7 +452,7 @@ export default function AdaptiveModule6Experience() {
           </div>
         </div>
 
-        <div className={styles.lessonPanel}>
+        <div className={`${styles.lessonPanel} ${uxStyles.lessonPanel}`}>
           <p className={styles.panelLabel}>{kindLabel[intervention.kind]}</p>
           <p className={styles.lessonText}>{intervention.body}</p>
 
@@ -459,21 +503,22 @@ export default function AdaptiveModule6Experience() {
             <button className={styles.primary} disabled={submitting || assessmentQuestions.some((item) => assessmentAnswers[item.id] === undefined)} onClick={submitAssessment} type="button">Beoordeel mijn antwoorden</button>
             {assessment ? <div className={assessment.passed ? styles.pass : styles.remediate} role="status" aria-live="polite">
               <strong>{assessment.correct}/{assessment.total} correct</strong>
-              <p>{assessment.passed ? "Je hebt de gecontroleerde concepten aangetoond. Deze modulecheck is afgerond." : "Minstens één concept vraagt nog aandacht. Je krijgt alleen de herstelstappen die daarbij horen."}</p>
-              {!assessment.passed && assessment.remediationSequence.length > 0 ? <button className={styles.primary} onClick={startRemediation} type="button">Start mijn gerichte herstelroute</button> : null}
+              <p>{assessment.passed ? "Goed gedaan. Je hebt de gecontroleerde concepten aangetoond en de eindcheck is afgerond." : "Minstens één concept vraagt nog aandacht. Je krijgt alleen de oefenstappen die daarbij horen."}</p>
+              {assessment.passed && courseHref ? <a className={`${styles.primary} ${uxStyles.completionLink}`} href={courseHref}>Terug naar de training</a> : null}
+              {!assessment.passed && assessment.remediationSequence.length > 0 ? <button className={styles.primary} onClick={startRemediation} type="button">Oefen alleen wat nog aandacht vraagt</button> : null}
             </div> : null}
           </section> : null}
         </div>
       </section>
 
-      <details className={styles.debugPanel}>
+      {showReviewDetails ? <details className={styles.debugPanel}>
         <summary>Reviewdetails adaptieve leerroute</summary>
         <div className={styles.debugGrid}>
           <div><small>Routebesluit</small><strong>{decisionCode}</strong><p>{diagnosis.evidence.map((item) => `${item.id}:${item.passed ? "pass" : "uncertain"}`).join(" · ")}</p></div>
           <div><small>Misconcepties</small><strong>{diagnosis.misconceptions.length}</strong><p>{diagnosis.misconceptions.join(" · ") || "geen actieve misconceptie gedetecteerd"}</p></div>
           <div><small>Learner model</small><strong>{diagnosis.profile.persistence}</strong><p>{Object.entries(profile).map(([key, value]) => `${key}: ${value}`).join(" · ")}</p></div>
         </div>
-      </details>
+      </details> : null}
 
       {error ? <p className={styles.error} role="alert">{error}</p> : null}
       <footer className={styles.controls}>
