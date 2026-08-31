@@ -81,11 +81,11 @@ Alle blokkerende architectuur- en productbevindingen uit deze milestone zijn ver
 - TypeScript PASS;
 - 15 adaptive API endpoints aanwezig;
 - drie QA-harnesses aanwezig;
-- finale featurebranch-deployment `dpl_FBe1hYvxJVKuucT8CxKpKuENYKdd` READY.
+- finale technische featurebranch-deployment `dpl_FBe1hYvxJVKuucT8CxKpKuENYKdd` READY.
 
 ## Gatebesluit
 
-**GO WITH ACCEPTED NON-BLOCKING WARNINGS** voor controlled rollout naar volgende modules.
+**GO WITH ACCEPTED NON-BLOCKING WARNINGS** uitsluitend voor controlled rollout naar volgende modules op de featurebranch.
 
 Accepted warnings:
 - Module 6 server-side pedagogische code is historisch nog over meer dan één serverfile verdeeld; geen tweede runtimecontract;
@@ -93,7 +93,7 @@ Accepted warnings:
 - fysieke device/screenreader-run wacht op releasefase;
 - definitieve media wacht op live UX GO.
 
-**Production release: NO-GO.**
+**Production release: NO-GO.** Dit betekent ook: geen merge, geen production flags, geen productie-course row en geen publicatie op basis van deze rollout-gate.
 
 ## Ben ik nog op de kortste route naar het einddoel?
 Ja. Verdere modules kunnen dezelfde bewezen architectuur gebruiken zonder nieuwe runtime-, state- of progressarchitectuur te introduceren.
