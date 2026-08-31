@@ -7,12 +7,13 @@
 3. De persona-review op de volledige 4→5→6-keten leverde andere bevindingen op dan losse modulereviews.
 4. Responsive review op daadwerkelijke CSS-classes vond een concrete desktopregressie die een gewone inhoudsreview niet had gezien.
 5. Productiestatus bleef expliciet NO-GO; ontbrekende live/device evidence werd niet als PASS gerapporteerd.
+6. De twee gevonden P1's — dynamische focus en mastery-versus-hostcompletion — konden in de generieke engine worden opgelost in plaats van per module.
 
 ## Wat ging minder goed
 
 1. `.mobileCards` werd semantisch gebruikt alsof het een generieke cardlayout was, terwijl de CSS hem bewust op desktop verbergt. Naamgeving stuurde daarmee naar verkeerd gebruik.
-2. De generieke completion-UI behandelt inhoudelijke mastery nog te veel alsof dat automatisch officiële platformcompletion betekent.
-3. Statische keyboardsemantiek is goed, maar dynamische SPA-orientatie/focus is nog geen first-class acceptance criterion in de runtime.
+2. De generieke completion-UI behandelde inhoudelijke mastery aanvankelijk alsof dat automatisch officiële platformcompletion betekende.
+3. Dynamische SPA-orientatie/focus was aanvankelijk geen first-class acceptance criterion in de runtime.
 4. Progress-E2E is te laat afhankelijk geworden van de definitieve course/module-config. Het configuratiecontract moet eerder als testfixture beschikbaar zijn.
 
 ## Nieuwe pipeline-regels
@@ -60,10 +61,18 @@ Niet alleen module per module reviewen. Minimaal toetsen:
 - casecontinuïteit;
 - oplopend cognitief niveau.
 
-## Acties
+## Afgeronde acties uit deze retrospective
 
-1. completion-status UX generiek verbeteren;
-2. focus/orientatie bij step transitions toevoegen;
-3. branch-only course-config fixture voor Modules 4–6 maken zodra testbranch is toegestaan;
-4. daarna fysieke desktop/mobile/screenreader review;
-5. pas daarna media en productierelease.
+1. completion-status UX generiek verbeterd — PASS;
+2. focus/orientatie bij step transitions toegevoegd — PASS;
+3. Module 4 responsive desktop/mobile cards hersteld — PASS;
+4. Modules 4 en 5 aangesloten op generiek centraal progresscontract — PASS.
+
+## Nog open
+
+1. branch-only course-config fixture voor Modules 4–6;
+2. persistence/platformprogress write-E2E met die fixture;
+3. fysieke desktop/mobile/touch review;
+4. VoiceOver/NVDA of equivalente screenreader-run;
+5. media pas na live UX GO;
+6. productiereleasebesluit.
