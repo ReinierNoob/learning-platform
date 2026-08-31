@@ -1,151 +1,102 @@
 # EAW Adaptive Learning v2 — persistence design
 
 **Datum:** 2026-08-31  
-**Status:** branch-validated technical baseline; not applied to production  
-**Branch:** `feature/adaptive-solution-architecture-module-6`
+**Status:** controlled feature-branch baseline; production remains disabled  
+**Runtime repository:** `ReinierNoob/learning-platform`  
+**Shared Supabase schema source of truth:** `ReinierNoob/enterprise-architecture-works`
 
 ## Doel
 
-De Module 6-pilot voorbereiden op persistente adaptatie zonder een parallel auth-, entitlement- of progressiesysteem te introduceren.
+Persistente adaptatie ondersteunen zonder een parallel auth-, entitlement- of progressiesysteem te introduceren.
 
-## Aansluiting op bestaande EAW-architectuur
+## Verantwoordelijkheden
+
+`learning-platform` bezit de adaptive runtime, modulepedagogiek en server-side RPC-clients. De gedeelde Supabase-DDL, databasecontracts en migration replay horen uitsluitend in `enterprise-architecture-works`.
+
+Hierdoor bestaat één database source of truth en kan de runtime geen eigen, concurrerende schemahistorie introduceren.
+
+## Aansluiting op EAW
 
 Bestaand en hergebruikt:
 
-- `courses` als cursusidentiteit;
-- `entitlements` als commerciële toegangsbron;
-- `enrollments` als unieke gebruiker/cursus-inschrijving;
-- `course_modules` als gepubliceerde module-identiteit;
-- het bestaande learning-access/entitlement patroon als autorisatiebasis;
-- de bestaande OAuth/PKCE-sessie in `lib/platform.ts`.
+- `courses.id` als learning identity;
+- `entitlements` als toegangsbron;
+- `enrollments` als gebruiker/cursus-inschrijving;
+- `course_modules` als module-identiteit;
+- `module_items` als officiële progressie-/assessmenteenheden;
+- bestaande OAuth/PKCE-sessie en learning-access contracten.
 
-Een adaptive learner profile is daarom 1-op-1 gekoppeld aan een `enrollment`, niet aan een los nieuw gebruikersbegrip.
+Een adaptive learner profile is 1-op-1 gekoppeld aan een enrollment en course. Adaptive state is aanvullend bewijs en bepaalt niet zelfstandig officiële course completion.
 
 ## Datamodel
 
 ### `adaptive_learner_profiles`
-
-Eén record per enrollment/gebruiker/cursus met schema- en classifier-versie, `concept_mastery`, `misconception_signals`, `route_state`, expliciete learner preferences en created/updated timestamps.
+Eén record per enrollment/user/course met schema- en classifier-versie, concept mastery, misconception signals, route state en expliciete learner preferences.
 
 ### `learning_evidence`
-
-Append-only didactisch bewijs met objective id, evidence type, bronreferentie, resultaat als JSON, evidence strength 0..1, classifier version en module/course/enrollment/profile-context.
+Append-only didactisch bewijs met objective id, evidence type, bronreferentie, resultaat, evidence strength, classifier version en volledige enrollment/course/module-scope.
 
 ### `adaptive_decisions`
+Append-only audittrail met route/action, geselecteerde content ids, evidence ids, reason code/rationale, orchestrator version en learner override.
 
-Append-only audittrail met action/route id, geselecteerde content ids, evidence ids, reason code/rationale, orchestrator version en learner-override indicator.
+## Security en writers
 
-## Schrijfbeveiliging
+Browserrollen hebben geen directe CRUD op de adaptive tabellen. Runtime writes lopen server-side via service-role RPC's, nadat de normale learning-context sessie, course, entitlement, enrollment en gepubliceerde module heeft gevalideerd.
 
-Browserrollen `anon` en `authenticated` krijgen geen directe CRUD-grants op de drie tabellen. Daarnaast bestaan expliciete deny-all RLS-policies voor deze browserrollen.
+De database controleert dezelfde enrollment/user/course/module-scope opnieuw. RPC's draaien als `SECURITY INVOKER`; alleen `service_role` heeft execute-rechten. De service-role key is server-only en mag nooit als `NEXT_PUBLIC_*` worden geconfigureerd.
 
-De learning server gebruikt een afzonderlijke, server-only `EAW_SUPABASE_SERVICE_ROLE_KEY`. Voor ieder request valideert de applicatie eerst:
+## Atomiciteit en ordering
 
-1. geldige EAW learning sessie;
-2. bestaande cursus;
-3. actieve entitlement;
-4. bestaande enrollment;
-5. gepubliceerde module binnen die cursus.
-
-Daarna controleert de database opnieuw dat `user_id`, `course_id`, enrollment en entitlement bij elkaar horen.
-
-De service-role key mag nooit als `NEXT_PUBLIC_*` worden geconfigureerd.
-
-### Security invoker
-
-Na de development-branch review zijn de adaptive RPC's en helper expliciet naar `SECURITY INVOKER` gehardend. Omdat alleen `service_role` de mutation-RPC's mag uitvoeren, is privilege-escalatie via `SECURITY DEFINER` niet nodig.
-
-`service_role` heeft uitsluitend voor de adaptive helper `USAGE` op schema `private` plus `EXECUTE` op `private.adaptive_active_enrollment(...)` nodig.
-
-## Atomiciteit
-
-De voorkeursoperatie is `adaptive_record_transition(...)`.
-
-Eén adaptieve transitie schrijft in één Postgres-transactie:
+De voorkeursoperatie is `adaptive_record_transition(...)`. Eén transitie schrijft atomair:
 
 1. learner-profile update;
 2. nul of meer evidence records;
-3. één adaptive decision met verwijzing naar de zojuist gemaakte evidence ids.
+3. één adaptive decision die naar dezelfde transition-evidence verwijst.
 
-Een fout in een van deze stappen rolt de gehele transitie terug. Dit is op de development branch getest door eerst geldige evidence te laten invoegen en vervolgens de decision bewust op een check constraint te laten falen. Zowel evidence-count als profile route state bleven ongewijzigd.
+Een fout rolt de gehele transitie terug. Evidence en decisions krijgen daarnaast een monotone `event_seq`, zodat state restoration ook bij gelijke transaction timestamps deterministisch blijft.
 
-## Privacy en minimale data
+## Course-scope integrity
 
-Niet opslaan:
+Composite foreign keys borgen:
 
-- gevoelige persoonskenmerken die niet nodig zijn voor leren;
-- vrije psychologische classificaties;
-- pseudowetenschappelijke learning-style labels;
-- volledige chatinhoud wanneer een compacte evidence-samenvatting volstaat.
+- adaptive profile ↔ enrollment/user/course;
+- evidence ↔ profile/enrollment/user/course;
+- decision ↔ profile/enrollment/user/course;
+- evidence/decision module ↔ dezelfde course.
 
-Wel toegestaan wanneer didactisch nodig:
+Dit sluit aan op de centrale EAW course-scope hardening.
 
-- aangetoonde conceptbeheersing;
-- expliciete misconcepties;
-- toets-/diagnostisch bewijs;
-- gekozen ondersteuning/tempo als expliciete voorkeur;
-- routegeschiedenis en learner overrides.
+## Canonieke migrations en tests
 
-## Retentievoorstel
+De canonical DDL staat niet langer in deze runtime-repository. Gebruik uitsluitend de EAW-repository:
 
-Adaptief profiel en didactisch bewijs vallen functioneel onder leerprogressie. De bestaande EAW-retentiebaseline voor leerprogressie is daarom de logische bovengrens: bewaren tot 12 maanden na einde toegang, tenzij een latere privacyreview een kortere termijn voorschrijft.
+- `supabase/migrations/20260831173000_adaptive_learning_v2_persistence.sql`
+- `supabase/migrations/20260831173500_adaptive_learning_v2_atomic_transition.sql`
+- `supabase/migrations/20260831174000_adaptive_learning_v2_hardening.sql`
+- `supabase/migrations/20260831174500_adaptive_learning_v2_event_ordering.sql`
+- `supabase/migrations/20260831175000_adaptive_course_scope_integrity.sql`
 
-Technische request-/securitylogs blijven een apart loggingregime en horen niet in deze tabellen. Voor productie is nog een cleanup-job nodig die records verwijdert op basis van entitlement-einddatum + vastgestelde retentieperiode.
-
-## SQL-migraties
-
-Geteste bestanden:
-
-- `supabase/migrations/20260831_adaptive_learning_v2_persistence.sql`
-- `supabase/migrations/20260831_z_adaptive_learning_v2_atomic_transition.sql`
-- `supabase/migrations/20260831_zz_adaptive_learning_v2_hardening.sql`
-
-Tests:
+Databasecontracts staan eveneens in EAW:
 
 - `supabase/tests/adaptive_learning_v2_schema_checks.sql`
 - `supabase/tests/adaptive_learning_v2_behavior_checks.sql`
+- `supabase/tests/adaptive_learning_v2_event_ordering_regression.sql`
 
-Deze migraties zijn getest op de tijdelijke Supabase development branch `adaptive-learning-v2-persistence-test` (`bcirrkofoycbuyalqlvk`) en **niet op productie**.
+De EAW Supabase Migration Replay bouwt de volledige database vanaf nul en voert zowel de centrale course-contracten als deze adaptive-contracten uit.
 
-## Branchvalidatie — 2026-08-31
+## Privacy en retentie
 
-PASS:
+Niet opslaan: gevoelige persoonskenmerken zonder leerdoel, vrije psychologische classificaties, pseudowetenschappelijke learning-style labels of volledige chatinhoud wanneer compacte evidence volstaat.
 
-- alle drie adaptive tabellen aanwezig;
-- RLS ingeschakeld;
-- expliciete browser deny-policies aanwezig;
-- `anon` en `authenticated` hebben geen directe adaptive INSERT-rechten;
-- `authenticated` mag `adaptive_record_transition(...)` niet uitvoeren;
-- `service_role` kan de adaptive RPC's uitvoeren;
-- adaptive functies draaien als `SECURITY INVOKER`;
-- geldige entitlement/enrollment wordt geaccepteerd;
-- ontbrekende entitlement wordt geweigerd;
-- één geldige transition schrijft profiel + evidence + decision;
-- `adaptive_get_state(...)` retourneert de opgeslagen state;
-- geforceerde fout in de decision rolt eerdere evidence/profile-updates terug;
-- Supabase security advisor bevat na hardening geen meldingen meer voor de drie adaptive tabellen of adaptive RPC's;
-- Supabase performance advisor rapporteert geen ontbrekende foreign-key-indexen meer voor de adaptive tabellen.
-
-De advisor bevat nog bestaande meldingen voor andere EAW-tabellen/functies; die zijn niet door deze pilot geïntroduceerd en vallen buiten deze migratie.
+Adaptief profiel en didactisch bewijs vallen functioneel onder leerprogressie. Productieretentie blijft een aparte privacy/releasegate; een cleanup-mechanisme moet vóór productie definitief zijn.
 
 ## Applicatiecontract
 
-- `lib/adaptive-store.ts` bevat de server-only repository/RPC-wrapper.
-- `lib/adaptive-service.ts` resolveert sessie, user, course, entitlement en module via de bestaande learning-platformfuncties.
-- Runtimeflows moeten `recordAdaptiveTransition()` gebruiken; losse profiel/evidence/decision-writes zijn low-level.
+- `lib/adaptive-store.ts` = server-only RPC wrapper;
+- `lib/adaptive-service.ts` = normale sessie/course/entitlement/module-context;
+- `lib/adaptive-platform-progress.ts` = enige brug naar officiële platformprogress;
+- runtimeflows gebruiken `recordAdaptiveTransition()` voor adaptive state.
 
-## Open gates vóór productie
+## Releasegate
 
-1. Module 6-preview verbinden met de persistence-service in een niet-productieomgeving;
-2. end-to-end browser/persona/accessibilitytest met persistence;
-3. evidence-strength regels inhoudelijk kalibreren;
-4. retentie/privacybesluit formaliseren en cleanup-job implementeren;
-5. service-role secret uitsluitend server-side configureren;
-6. standaard `/leren` renderer integreren;
-7. geselecteerde Eva/Alexander-media pas na UX-go produceren;
-8. production apply uitsluitend via aparte releasebeslissing.
-
-## Huidige gate
-
-**PASS voor database-ontwerp en development-branch validatie.**  
-**NO-GO voor productie-integratie/release.**
+Database-ontwerp mag alleen via de centrale EAW migration/replayketen worden gepromoveerd. Production apply, production adaptive flags, course commercial terms en launch blijven buiten deze featurebranch-gate.
