@@ -7,6 +7,13 @@ export const adaptiveModule6ClassifierVersion = "module6-classifier-v1.1";
 export const adaptiveModule6AssessmentVersion = "module6-assessment-v1";
 export const adaptiveModule6OrchestratorVersion = "adaptive-orchestrator-v2.3";
 
+// TEMPORARY E2E SWITCH. This is restricted to the feature preview branch and
+// removed immediately after the integrated /leren validation. Production remains denied.
+function isStandardLearningE2EPreview() {
+  return process.env.VERCEL_ENV !== "production"
+    && process.env.VERCEL_GIT_COMMIT_REF === "feature/adaptive-solution-architecture-module-6";
+}
+
 export function isAdaptivePersistenceEnabled() {
   return process.env.VERCEL_ENV !== "production"
     && process.env.EAW_ADAPTIVE_PERSISTENCE_ENABLED === "true";
@@ -14,7 +21,7 @@ export function isAdaptivePersistenceEnabled() {
 
 export function isAdaptiveModule6LearningEnabled(courseSlug: string, sourceModuleId: number) {
   return process.env.VERCEL_ENV !== "production"
-    && process.env.EAW_ADAPTIVE_MODULE6_IN_LEARNING === "true"
+    && (process.env.EAW_ADAPTIVE_MODULE6_IN_LEARNING === "true" || isStandardLearningE2EPreview())
     && courseSlug === adaptiveModule6CourseSlug
     && sourceModuleId === adaptiveModule6SourceModuleId;
 }
