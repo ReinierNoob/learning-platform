@@ -1,6 +1,8 @@
 import "server-only";
 
-export const adaptiveModule6CourseSlug = "solution-architectuur-ontwerppraktijk";
+export const adaptiveSolutionArchitectureCourseSlug = "solution-architectuur-ontwerppraktijk";
+export const adaptiveModule5SourceModuleId = 5;
+export const adaptiveModule6CourseSlug = adaptiveSolutionArchitectureCourseSlug;
 export const adaptiveModule6SourceModuleId = 6;
 export const adaptiveSchemaVersion = "v2.3";
 export const adaptiveModule6ClassifierVersion = "module6-classifier-v1.1";
@@ -16,14 +18,26 @@ export function isAdaptivePersistenceEnabled() {
 }
 
 /**
- * Module 6 can only replace the standard learning renderer in preview environments
- * and only for the canonical Solution Architecture course/module pair.
+ * Adaptive presentation is allowlisted per course + module and hard-disabled in production.
+ * Each module has its own preview flag so rollout can be reversed independently.
  */
+export function isAdaptiveLearningEnabled(courseSlug: string, sourceModuleId: number) {
+  if (process.env.VERCEL_ENV === "production") return false;
+  if (courseSlug !== adaptiveSolutionArchitectureCourseSlug) return false;
+
+  if (sourceModuleId === adaptiveModule5SourceModuleId) {
+    return process.env.EAW_ADAPTIVE_MODULE5_IN_LEARNING === "true";
+  }
+  if (sourceModuleId === adaptiveModule6SourceModuleId) {
+    return process.env.EAW_ADAPTIVE_MODULE6_IN_LEARNING === "true";
+  }
+  return false;
+}
+
+/** Backwards-compatible helper while Module 6-specific files are still present. */
 export function isAdaptiveModule6LearningEnabled(courseSlug: string, sourceModuleId: number) {
-  return process.env.VERCEL_ENV !== "production"
-    && process.env.EAW_ADAPTIVE_MODULE6_IN_LEARNING === "true"
-    && courseSlug === adaptiveModule6CourseSlug
-    && sourceModuleId === adaptiveModule6SourceModuleId;
+  return sourceModuleId === adaptiveModule6SourceModuleId
+    && isAdaptiveLearningEnabled(courseSlug, sourceModuleId);
 }
 
 export function adaptiveAccessStatus(code: string) {
