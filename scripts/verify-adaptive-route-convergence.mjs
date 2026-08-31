@@ -29,6 +29,10 @@ if (!existsSync(architectureDecisionPath)) {
 
 if (modules.length === 0) failures.push("Geen adaptive Solution Architecture modules gevonden");
 
+const learningHostPath = "app/leren/[slug]/module/[id]/page.tsx";
+const learningHost = existsSync(learningHostPath) ? readFileSync(learningHostPath, "utf8") : "";
+if (!learningHost) failures.push("Centrale learning host ontbreekt");
+
 for (const moduleNumber of modules) {
   const runtimePath = moduleNumber === 5
     ? "lib/solution-architecture-module-5-factory-runtime.ts"
@@ -63,6 +67,30 @@ for (const moduleNumber of modules) {
       }
     }
   }
+
+  const componentPath = `components/adaptive/solution-architecture-module-${moduleNumber}/AdaptiveModule${moduleNumber}Experience.tsx`;
+  if (!existsSync(componentPath)) {
+    failures.push(`Module ${moduleNumber}: adaptive clientcomponent ontbreekt (${componentPath})`);
+  }
+
+  const labPath = `app/lab/solution-architecture-module-${moduleNumber}/page.tsx`;
+  if (!existsSync(labPath)) {
+    failures.push(`Module ${moduleNumber}: preview QA-lab ontbreekt (${labPath})`);
+  } else {
+    const lab = readFileSync(labPath, "utf8");
+    if (!lab.includes('process.env.VERCEL_ENV === "production"') || !lab.includes("notFound()")) {
+      failures.push(`Module ${moduleNumber}: QA-lab is niet hard-denied in productie`);
+    }
+  }
+
+  const hostWrapperPath = `app/leren/[slug]/module/[id]/adaptive-module${moduleNumber}-experience.tsx`;
+  if (!existsSync(hostWrapperPath)) {
+    failures.push(`Module ${moduleNumber}: learning-host wrapper ontbreekt (${hostWrapperPath})`);
+  }
+
+  if (learningHost && (!learningHost.includes(`AdaptiveModule${moduleNumber}LearningExperience`) || !learningHost.includes(`sourceModuleId === ${moduleNumber}`))) {
+    failures.push(`Module ${moduleNumber}: centrale learning host routeert niet aantoonbaar naar de adaptive ervaring`);
+  }
 }
 
 const clientRuntime = readFileSync("components/adaptive/config-driven/AdaptiveModuleExperience.tsx", "utf8");
@@ -90,4 +118,4 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log(`Adaptive route convergence: PASS (${modules.length} discovered modules, ${modules.length * endpoints.length} endpoints, architecture decision + anti-lockout + fail-closed progress guards)`);
+console.log(`Adaptive route convergence: PASS (${modules.length} discovered modules, ${modules.length * endpoints.length} endpoints, architecture decision + API + client + lab + learning-host integration + anti-lockout + fail-closed progress guards)`);
