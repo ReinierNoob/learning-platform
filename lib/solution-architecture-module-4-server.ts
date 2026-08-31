@@ -3,9 +3,9 @@ import "server-only";
 import type { AdaptiveRouteId } from "./adaptive-module-definition";
 import { solutionArchitectureModule4 } from "./solution-architecture-module-4";
 
-export const module4ClassifierVersion = "module4-classifier-v1";
+export const module4ClassifierVersion = "module4-classifier-v1.1";
 export const module4AssessmentVersion = "module4-assessment-v1";
-export const module4OrchestratorVersion = "adaptive-orchestrator-v2.15";
+export const module4OrchestratorVersion = "adaptive-orchestrator-v2.16";
 
 function normalize(value: unknown) {
   return typeof value === "string" ? value.toLocaleLowerCase("nl-NL").trim() : "";
@@ -39,7 +39,7 @@ export function diagnoseModule4(answers: Record<string, string>) {
     misconceptions.push("sa.mc.getal-zonder-context-is-toetsbaar");
   }
   if (q4 === "alleen een securityprobleem" || q4 === "alleen een usabilityprobleem") {
-    misconceptions.push("sa.mc.alle-attributen-maximaliseren");
+    misconceptions.push("sa.mc.een-attribuut-altijd-dominant");
   }
 
   const passedCount = evidence.filter((item) => item.passed).length;
@@ -120,10 +120,10 @@ export function observeModule4Reasoning(interventionId: string, rawAnswer: unkno
   }
 
   if (interventionId === "m4-maximaliseren-repair-v1") {
-    const priority = /priorit|context|keuze|afweging|spanning|trade.?off|kosten|risico|doel/.test(answer);
+    const priority = /priorit|context|keuze|afweging|spanning|trade.?off|kosten|risico|doel|randvoorwaarde/.test(answer);
     return priority
-      ? { level: "strong", canProceed: true, feedback: "Juist: zonder expliciete prioriteit en context geeft 'alles maximaal' geen richting aan ontwerpkeuzes.", followUp: null, indicators: ["priority_reasoning"] }
-      : { level: "partial", canProceed: false, feedback: "Je benoemt nog niet waarom maximale scores op alle kenmerken geen bruikbare ontwerpsturing opleveren.", followUp: "Wat gebeurt er wanneer twee kwaliteitskenmerken in een concreet ontwerp botsen?", indicators: [] };
+      ? { level: "strong", canProceed: true, feedback: "Juist: een absolute prioriteit is alleen bruikbaar wanneer de context of eis duidelijk maakt waarom die hard is; anders heb je expliciete afweging en prioritering nodig.", followUp: null, indicators: ["priority_reasoning"] }
+      : { level: "partial", canProceed: false, feedback: "Je benoemt nog niet waarom absolute kwaliteitsprioriteit zonder context onvoldoende ontwerpsturing geeft.", followUp: "Wat gebeurt er wanneer twee kwaliteitskenmerken in een concreet ontwerp botsen?", indicators: [] };
   }
 
   return null;
