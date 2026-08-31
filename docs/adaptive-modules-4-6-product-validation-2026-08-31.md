@@ -101,3 +101,5 @@ Niet blocking voor controlled content rollout, wel blocking voor productie:
 **Controlled rollout:** GO WITH ACCEPTED NON-BLOCKING WARNINGS.
 
 **Production release:** NO-GO.
+
+Finale remediation-build: commit `11885c9963a0cdda6bfc3b9764443e65c9eb0b69`, Vercel deployment `dpl_FBe1hYvxJVKuucT8CxKpKuENYKdd`, status READY.
