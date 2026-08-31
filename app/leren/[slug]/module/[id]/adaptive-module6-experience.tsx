@@ -19,6 +19,11 @@ export function AdaptiveModule6LearningExperience({
         </form>
       </div>
     </header>
+    <section className="sectionBlock">
+      <p className="eyebrow dark">Doorlopende lijn · Module 4 → 5 → 6</p>
+      <h2>Van kwaliteit naar keuze</h2>
+      <p className="meta">In Module 4 heb je kwaliteitskenmerken herkend en meetbaar gemaakt. In Module 5 heb je geleerd welke kwaliteitsinformatie je voor welk publiek zichtbaar maakt. Hier gebruik je die kennis als besliscriteria: je vergelijkt serieuze alternatieven, maakt winst en verlies expliciet en legt de keuze vast.</p>
+    </section>
     <AdaptiveModule6Experience courseHref={`/leren/${courseSlug}`} />
   </>;
 }
