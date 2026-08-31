@@ -54,6 +54,7 @@ export default function AdaptiveModuleExperience({ definition, apiBase, caseIntr
   const [stepIndex, setStepIndex] = useState(0);
   const [promptResponses, setPromptResponses] = useState<Record<string, string>>({});
   const [observations, setObservations] = useState<Record<string, TutorObservation>>({});
+  const [promptAttempts, setPromptAttempts] = useState<Record<string, number>>({});
   const [assessmentAnswers, setAssessmentAnswers] = useState<Record<string, number>>({});
   const [assessment, setAssessment] = useState<AssessmentResult | null>(null);
   const [busy, setBusy] = useState(false);
@@ -107,6 +108,7 @@ export default function AdaptiveModuleExperience({ definition, apiBase, caseIntr
     setAssessment(null);
     setAssessmentAnswers({});
     setObservations({});
+    setPromptAttempts({});
     setPromptResponses({});
   }
 
@@ -144,6 +146,7 @@ export default function AdaptiveModuleExperience({ definition, apiBase, caseIntr
       if (!response.ok) throw new Error("observe_failed");
       const observation = await response.json() as TutorObservation;
       setObservations((current) => ({ ...current, [interventionId]: observation }));
+      setPromptAttempts((current) => ({ ...current, [interventionId]: (current[interventionId] ?? 0) + 1 }));
     } catch { setError("Je redenering kon niet worden beoordeeld. Probeer het opnieuw."); }
     finally { setBusy(false); }
   }
@@ -168,6 +171,7 @@ export default function AdaptiveModuleExperience({ definition, apiBase, caseIntr
     setAssessmentAnswers({});
     setPromptResponses({});
     setObservations({});
+    setPromptAttempts({});
   }
 
   function goDiagnostic(direction: -1 | 1) {
@@ -219,8 +223,9 @@ export default function AdaptiveModuleExperience({ definition, apiBase, caseIntr
 
   if (!activeRoute || !intervention) return null;
   const observation = observations[intervention.id];
+  const attempts = promptAttempts[intervention.id] ?? 0;
   const hasPrompt = Boolean(intervention.prompt);
-  const canProceed = !hasPrompt || observation?.canProceed === true;
+  const canProceed = !hasPrompt || observation?.canProceed === true || attempts >= 2;
   const last = stepIndex === sequence.length - 1;
   const platformProgressRequired = Boolean(courseHref);
   const platformProgressSynced = !platformProgressRequired || assessment?.platformProgress?.status === "synced";
@@ -228,7 +233,7 @@ export default function AdaptiveModuleExperience({ definition, apiBase, caseIntr
 
   return <main className={styles.shell}>
     <section className={styles.routeHeader}>
-      <div><p className={styles.kicker}>Module {definition.sourceModuleId} · {customSequence ? "Extra oefenroute" : routeCopy[activeRoute].name}</p><h1 ref={(node) => { stepHeadingRef.current = node; }} tabIndex={-1}>{definition.title}</h1><p>{customSequence ? "Je oefent alleen de onderdelen die in de eindcheck nog aandacht vroegen." : routeCopy[activeRoute].description}</p></div>
+      <div><p className={styles.kicker}>Module {definition.sourceModuleId} · {customSequence ? "Extra oefenroute" : routeCopy[activeRoute].name}</p><h1>{definition.title}</h1><p>{customSequence ? "Je oefent alleen de onderdelen die in de eindcheck nog aandacht vroegen." : routeCopy[activeRoute].description}</p></div>
       {!customSequence ? <div className={styles.routeActions}>
         {activeRoute !== "A" ? <button className={styles.secondary} type="button" disabled={busy} onClick={() => void chooseRoute("A")}>Toon volledige uitleg</button> : null}
         {routeOverride ? <button className={styles.secondary} type="button" disabled={busy} onClick={() => void chooseRoute(null)}>Terug naar aanbevolen route</button> : null}
@@ -239,7 +244,7 @@ export default function AdaptiveModuleExperience({ definition, apiBase, caseIntr
       <section className={styles.card}>
         <div className={styles.persona}><span aria-hidden="true">{intervention.speaker === "interviewer" ? "E" : "A"}</span><div><small>{intervention.speaker === "interviewer" ? "Interviewer" : "Tutor"}</small><strong>{intervention.speaker === "interviewer" ? "Eva" : "Alexander"}</strong></div></div>
         <p className={styles.kicker}>{intervention.kind === "assessment" ? "Eindcheck" : `Stap ${stepIndex + 1} van ${sequence.length}`}</p>
-        <h2>{intervention.title}</h2>
+        <h2 ref={(node) => { stepHeadingRef.current = node; }} tabIndex={-1}>{intervention.title}</h2>
         <p>{intervention.body}</p>
         {renderVisual?.(intervention.visualMode)}
 
@@ -247,6 +252,7 @@ export default function AdaptiveModuleExperience({ definition, apiBase, caseIntr
           <label><strong>{intervention.prompt}</strong><textarea className={styles.textarea} rows={5} value={promptResponses[intervention.id] ?? ""} onChange={(event) => { const value = event.target.value; setPromptResponses((current) => ({ ...current, [intervention.id]: value })); setObservations((current) => { const next = { ...current }; delete next[intervention.id]; return next; }); }} /></label>
           <button className={styles.primary} disabled={busy || !(promptResponses[intervention.id]?.trim())} type="button" onClick={() => void observe(intervention.id)}>Laat mijn redenering beoordelen</button>
           {observation ? <div className={styles.feedback} role="status"><strong>{observation.level === "strong" ? "Dit is voldoende onderbouwd." : "Nog één stap scherper."}</strong><p>{observation.feedback}</p>{observation.followUp ? <p><strong>Vervolgvraag:</strong> {observation.followUp}</p> : null}</div> : null}
+          {observation && !observation.canProceed && attempts >= 2 ? <div className={styles.feedback} role="status"><strong>Je hoeft hier niet vast te lopen.</strong><p>Je kunt doorgaan naar de volgende stap. De verplichte eindcheck bepaalt later of dit onderdeel nog extra oefening nodig heeft.</p></div> : null}
         </div> : null}
 
         {intervention.kind === "assessment" ? <div className={styles.assessment}>
