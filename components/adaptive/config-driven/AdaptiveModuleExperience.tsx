@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { AdaptiveModuleDefinition, AdaptiveRouteId } from "../../../lib/adaptive-module-definition";
 import styles from "./adaptive-experience.module.css";
 
@@ -17,7 +17,11 @@ type AssessmentResult = {
   total: number;
   passed: boolean;
   remediationSequence: string[];
-  platformProgress?: { status: string; completionPercentage: number | null };
+  platformProgress?: {
+    status: "not_requested" | "not_passed" | "synced" | "not_configured" | "contract_mismatch" | "failed" | string;
+    completionPercentage: number | null;
+    score?: number | null;
+  };
 };
 
 type TutorObservation = {
@@ -55,6 +59,8 @@ export default function AdaptiveModuleExperience({ definition, apiBase, caseIntr
   const [busy, setBusy] = useState(false);
   const [restoring, setRestoring] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const stepHeadingRef = useRef<HTMLElement | null>(null);
+  const focusAfterTransitionRef = useRef(false);
 
   const activeRoute = routeOverride ?? diagnosis?.route ?? null;
   const routeSequence = useMemo(() => activeRoute ? [...definition.routes[activeRoute]] : [], [activeRoute, definition.routes]);
@@ -84,6 +90,17 @@ export default function AdaptiveModuleExperience({ definition, apiBase, caseIntr
     return () => { active = false; };
   }, [apiBase]);
 
+  useEffect(() => {
+    if (!focusAfterTransitionRef.current) return;
+    focusAfterTransitionRef.current = false;
+    const frame = requestAnimationFrame(() => stepHeadingRef.current?.focus());
+    return () => cancelAnimationFrame(frame);
+  }, [diagnosticIndex, diagnosis, routeOverride, customSequence, stepIndex]);
+
+  function requestStepFocus() {
+    focusAfterTransitionRef.current = true;
+  }
+
   function resetLearningState() {
     setCustomSequence(null);
     setStepIndex(0);
@@ -98,6 +115,7 @@ export default function AdaptiveModuleExperience({ definition, apiBase, caseIntr
     try {
       const response = await fetch(`${apiBase}/diagnose`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ answers: nextAnswers }) });
       if (!response.ok) throw new Error("diagnose_failed");
+      requestStepFocus();
       setDiagnosis(await response.json() as Diagnosis);
       setRouteOverride(null); resetLearningState();
     } catch { setError("De leerroute kon niet worden bepaald. Probeer het opnieuw."); }
@@ -111,6 +129,7 @@ export default function AdaptiveModuleExperience({ definition, apiBase, caseIntr
     try {
       const response = await fetch(`${apiBase}/override`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ route: target }) });
       if (!response.ok) throw new Error("override_failed");
+      requestStepFocus();
       setRouteOverride(route); resetLearningState();
     } catch { setError("De gekozen leerroute kon niet worden vastgelegd."); }
     finally { setBusy(false); }
@@ -141,6 +160,7 @@ export default function AdaptiveModuleExperience({ definition, apiBase, caseIntr
 
   function startRemediation() {
     if (!assessment?.remediationSequence.length || !assessmentStepId) return;
+    requestStepFocus();
     setCustomSequence([...assessment.remediationSequence, assessmentStepId]);
     setRouteOverride(null);
     setStepIndex(0);
@@ -148,6 +168,16 @@ export default function AdaptiveModuleExperience({ definition, apiBase, caseIntr
     setAssessmentAnswers({});
     setPromptResponses({});
     setObservations({});
+  }
+
+  function goDiagnostic(direction: -1 | 1) {
+    requestStepFocus();
+    setDiagnosticIndex((current) => Math.min(definition.diagnostics.length - 1, Math.max(0, current + direction)));
+  }
+
+  function goStep(direction: -1 | 1) {
+    requestStepFocus();
+    setStepIndex((current) => Math.min(sequence.length - 1, Math.max(0, current + direction)));
   }
 
   if (restoring && !diagnosis) {
@@ -169,18 +199,18 @@ export default function AdaptiveModuleExperience({ definition, apiBase, caseIntr
       <section className={styles.card} aria-labelledby="adaptive-eva-heading">
         <div className={styles.persona}><span aria-hidden="true">E</span><div><small>Interviewer</small><strong id="adaptive-eva-heading">Eva</strong></div></div>
         <div className={styles.progressText}>Vraag {diagnosticIndex + 1} van {definition.diagnostics.length} · {progress}%</div>
-        <h2>{question.prompt}</h2>
+        <h2 ref={(node) => { stepHeadingRef.current = node; }} tabIndex={-1}>{question.prompt}</h2>
         {question.kind === "single_choice" ? <fieldset className={styles.choices}>
           <legend className={styles.srOnly}>Kies één antwoord</legend>
           {question.options?.map((option) => <label key={option} className={styles.choice}><input type="radio" name={question.id} value={option} checked={value === option} onChange={() => setAnswers((current) => ({ ...current, [question.id]: option }))} /><span>{option}</span></label>)}
         </fieldset> : <textarea className={styles.textarea} rows={5} maxLength={1000} value={value} onChange={(event) => setAnswers((current) => ({ ...current, [question.id]: event.target.value }))} placeholder="Leg kort uit wat je ziet. Je hoeft het nog niet zeker te weten." />}
         <div className={styles.actions}>
-          <button type="button" className={styles.secondary} disabled={diagnosticIndex === 0 || busy} onClick={() => setDiagnosticIndex((current) => Math.max(0, current - 1))}>Vorige</button>
+          <button type="button" className={styles.secondary} disabled={diagnosticIndex === 0 || busy} onClick={() => goDiagnostic(-1)}>Vorige</button>
           <button type="button" className={styles.secondary} disabled={busy} onClick={() => {
             const next = { ...answers, [question.id]: "Ik weet dit nog niet." }; setAnswers(next);
-            if (finalQuestion) void diagnose(next); else setDiagnosticIndex((current) => current + 1);
+            if (finalQuestion) void diagnose(next); else goDiagnostic(1);
           }}>Ik weet dit nog niet</button>
-          {finalQuestion ? <button type="button" className={styles.primary} disabled={!value.trim() || busy} onClick={() => void diagnose()}>{busy ? "Route bepalen…" : "Bepaal mijn route"}</button> : <button type="button" className={styles.primary} disabled={!value.trim()} onClick={() => setDiagnosticIndex((current) => current + 1)}>Volgende</button>}
+          {finalQuestion ? <button type="button" className={styles.primary} disabled={!value.trim() || busy} onClick={() => void diagnose()}>{busy ? "Route bepalen…" : "Bepaal mijn route"}</button> : <button type="button" className={styles.primary} disabled={!value.trim()} onClick={() => goDiagnostic(1)}>Volgende</button>}
         </div>
         {error ? <p className={styles.error} role="alert">{error}</p> : null}
       </section>
@@ -192,10 +222,13 @@ export default function AdaptiveModuleExperience({ definition, apiBase, caseIntr
   const hasPrompt = Boolean(intervention.prompt);
   const canProceed = !hasPrompt || observation?.canProceed === true;
   const last = stepIndex === sequence.length - 1;
+  const platformProgressRequired = Boolean(courseHref);
+  const platformProgressSynced = !platformProgressRequired || assessment?.platformProgress?.status === "synced";
+  const masteryPassedButSyncOpen = Boolean(assessment?.passed && platformProgressRequired && !platformProgressSynced);
 
   return <main className={styles.shell}>
     <section className={styles.routeHeader}>
-      <div><p className={styles.kicker}>Module {definition.sourceModuleId} · {customSequence ? "Extra oefenroute" : routeCopy[activeRoute].name}</p><h1>{definition.title}</h1><p>{customSequence ? "Je oefent alleen de onderdelen die in de eindcheck nog aandacht vroegen." : routeCopy[activeRoute].description}</p></div>
+      <div><p className={styles.kicker}>Module {definition.sourceModuleId} · {customSequence ? "Extra oefenroute" : routeCopy[activeRoute].name}</p><h1 ref={(node) => { stepHeadingRef.current = node; }} tabIndex={-1}>{definition.title}</h1><p>{customSequence ? "Je oefent alleen de onderdelen die in de eindcheck nog aandacht vroegen." : routeCopy[activeRoute].description}</p></div>
       {!customSequence ? <div className={styles.routeActions}>
         {activeRoute !== "A" ? <button className={styles.secondary} type="button" disabled={busy} onClick={() => void chooseRoute("A")}>Toon volledige uitleg</button> : null}
         {routeOverride ? <button className={styles.secondary} type="button" disabled={busy} onClick={() => void chooseRoute(null)}>Terug naar aanbevolen route</button> : null}
@@ -219,11 +252,23 @@ export default function AdaptiveModuleExperience({ definition, apiBase, caseIntr
         {intervention.kind === "assessment" ? <div className={styles.assessment}>
           {definition.assessment.map((question, index) => <fieldset key={question.id} className={styles.assessmentQuestion}><legend>{index + 1}. {question.question}</legend>{question.options.map((option, optionIndex) => <label key={option} className={styles.choice}><input type="radio" name={question.id} checked={assessmentAnswers[question.id] === optionIndex} onChange={() => setAssessmentAnswers((current) => ({ ...current, [question.id]: optionIndex }))} /><span>{option}</span></label>)}</fieldset>)}
           <button className={styles.primary} type="button" disabled={busy || Object.keys(assessmentAnswers).length !== definition.assessment.length} onClick={() => void assess()}>{busy ? "Beoordelen…" : "Beoordeel mijn eindcheck"}</button>
-          {assessment ? <div className={assessment.passed ? styles.success : styles.feedback} role="status"><strong>{assessment.passed ? "Modulecheck afgerond" : `${assessment.correct} van ${assessment.total} goed`}</strong><p>{assessment.passed ? "Je hebt de verplichte leerdoelen aangetoond." : "Je krijgt alleen de onderdelen terug die nog aandacht vragen."}</p>{!assessment.passed && assessment.remediationSequence.length ? <button type="button" className={styles.primary} onClick={startRemediation}>Oefen alleen wat nog aandacht vraagt</button> : null}{assessment.passed && courseHref ? <a className={styles.primaryLink} href={courseHref}>Terug naar de training</a> : null}</div> : null}
+          {assessment ? masteryPassedButSyncOpen ? <div className={styles.feedback} role="status">
+            <strong>Eindcheck gehaald — voortgang nog niet bijgewerkt</strong>
+            <p>Je hebt de verplichte leerdoelen aangetoond, maar EAW kon de officiële cursusvoortgang nog niet registreren.</p>
+            <div className={styles.actions}>
+              <button type="button" className={styles.primary} disabled={busy} onClick={() => void assess()}>{busy ? "Opnieuw proberen…" : "Probeer voortgang opnieuw"}</button>
+              {courseHref ? <a className={styles.secondary} href={courseHref}>Terug naar training zonder sync</a> : null}
+            </div>
+          </div> : <div className={assessment.passed ? styles.success : styles.feedback} role="status">
+            <strong>{assessment.passed ? "Modulecheck afgerond" : `${assessment.correct} van ${assessment.total} goed`}</strong>
+            <p>{assessment.passed ? (platformProgressRequired ? "Je hebt de verplichte leerdoelen aangetoond en je EAW-voortgang is bijgewerkt." : "Je hebt de verplichte leerdoelen aangetoond.") : "Je krijgt alleen de onderdelen terug die nog aandacht vragen."}</p>
+            {!assessment.passed && assessment.remediationSequence.length ? <button type="button" className={styles.primary} onClick={startRemediation}>Oefen alleen wat nog aandacht vraagt</button> : null}
+            {assessment.passed && courseHref ? <a className={styles.primaryLink} href={courseHref}>Terug naar de training</a> : null}
+          </div> : null}
         </div> : null}
 
         {error ? <p className={styles.error} role="alert">{error}</p> : null}
-        <div className={styles.actions}><button className={styles.secondary} type="button" disabled={stepIndex === 0 || busy} onClick={() => setStepIndex((current) => Math.max(0, current - 1))}>Vorige</button>{!last ? <button className={styles.primary} type="button" disabled={!canProceed || busy} onClick={() => setStepIndex((current) => Math.min(sequence.length - 1, current + 1))}>Volgende</button> : null}</div>
+        <div className={styles.actions}><button className={styles.secondary} type="button" disabled={stepIndex === 0 || busy} onClick={() => goStep(-1)}>Vorige</button>{!last ? <button className={styles.primary} type="button" disabled={!canProceed || busy} onClick={() => goStep(1)}>Volgende</button> : null}</div>
       </section>
     </div>
   </main>;
