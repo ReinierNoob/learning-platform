@@ -7,30 +7,34 @@ import { solutionArchitectureModule5 } from "../../../lib/solution-architecture-
 
 type Stakeholder = "wethouder" | "opdrachtgever" | "keuringsinstantie" | "integratieteam";
 
-const stakeholderViews: Record<Stakeholder, { doel: string; toon: string; laatWeg: string; detail: string }> = {
+const stakeholderViews: Record<Stakeholder, { doel: string; toon: string; laatWeg: string; detail: string; kwaliteit: string }> = {
   wethouder: {
     doel: "Begrijpen welke partijen en hoofdsystemen de digitale aanvraag mogelijk maken.",
     toon: "Burger, gemeente, keuringsinstantie en de belangrijkste systeemgrenzen.",
     laatWeg: "API-details, componentnamen, technische protocollen en interne databases.",
     detail: "C4 System Context / bestuurlijke landschapsview",
+    kwaliteit: "Alleen kwaliteit die de bestuurlijke beslissing ondersteunt, bijvoorbeeld bereikbaarheid van dienstverlening of risico; geen technische kwaliteitscatalogus.",
   },
   opdrachtgever: {
     doel: "Zien hoe de oplossing in het bestaande landschap past en waar afhankelijkheden ontstaan.",
     toon: "Hoofdsystemen, externe diensten, verantwoordelijkheden en betekenisvolle relaties.",
     laatWeg: "Code- en componentdetails die geen besluit ondersteunen.",
     detail: "Stakeholdergerichte ArchiMate 4-view of C4-landschaps/contextbeeld",
+    kwaliteit: "Reliability/availability, security en maintainability/flexibility waar die de haalbaarheid of risico's van de oplossing bepalen.",
   },
   keuringsinstantie: {
     doel: "Begrijpen waar gegevens en statusinformatie worden uitgewisseld.",
     toon: "Systemen aan beide kanten, interacties, gegevensstromen en afspraken.",
     laatWeg: "Interne componentstructuur van Middelveen die de koppeling niet raakt.",
     detail: "C4 Container / gerichte ArchiMate 4-integratieview",
+    kwaliteit: "Compatibility/interoperability, security/confidentiality en reliability van de gegevensuitwisseling.",
   },
   integratieteam: {
     doel: "De oplossingsstructuur en integratiepunten technisch kunnen realiseren en toetsen.",
     toon: "Containers, verantwoordelijkheden, interfaces en relevante technische grenzen.",
     laatWeg: "Organisatiecontext die voor deze technische beslissing geen extra betekenis toevoegt.",
     detail: "C4 Container en waar nodig Component-detail",
+    kwaliteit: "Compatibility, reliability, performance efficiency en maintainability als concrete ontwerp- en testcriteria.",
   },
 };
 
@@ -61,6 +65,7 @@ function ProgressiveArchitectureCanvas({ mode }: { mode?: string }) {
       <div className={styles.visualCard}><strong>Toon</strong><span>{view.toon}</span></div>
       <div className={styles.visualCard}><strong>Laat weg</strong><span>{view.laatWeg}</span></div>
       <div className={styles.visualCard}><strong>Detailniveau</strong><span>{view.detail}</span></div>
+      <div className={styles.visualCard}><strong>Kwaliteitslens uit Module 4</strong><span>{view.kwaliteit}</span></div>
     </div>
 
     <div className={styles.feedback}>
@@ -69,6 +74,7 @@ function ProgressiveArchitectureCanvas({ mode }: { mode?: string }) {
       <p><b>Toon:</b> {view.toon}</p>
       <p><b>Laat weg:</b> {view.laatWeg}</p>
       <p><b>Passend detailniveau:</b> {view.detail}</p>
+      <p><b>Kwaliteitslens uit Module 4:</b> {view.kwaliteit}</p>
     </div>
   </section>;
 }
@@ -77,7 +83,7 @@ export default function AdaptiveModule5Experience({ courseHref }: { courseHref?:
   return <AdaptiveModuleExperience
     definition={solutionArchitectureModule5}
     apiBase="/api/adaptive/solution-architecture-module-5"
-    caseIntro="Gemeente Middelveen wil dezelfde oplossingsarchitectuur aan verschillende stakeholders uitleggen. Jij kiest per gesprek welk beeld, detailniveau en model het meest bruikbaar is."
+    caseIntro="Gemeente Middelveen wil dezelfde oplossingsarchitectuur aan verschillende stakeholders uitleggen. Je neemt de kwaliteitskenmerken uit Module 4 mee, maar kiest per gesprek welk beeld, detailniveau en model het meest bruikbaar is."
     courseHref={courseHref}
     renderVisual={(mode) => <ProgressiveArchitectureCanvas mode={mode} />}
   />;
