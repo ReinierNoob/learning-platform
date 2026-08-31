@@ -146,6 +146,13 @@ export const solutionArchitectureModule8: AdaptiveModuleDefinition = {
       kind: "single_choice",
       options: ["Automatisch afkeuren", "Onderbouwing, consequenties en voorwaarden van de afwijking beoordelen en vastleggen", "Het principe meteen aanpassen", "Goedkeuren omdat principes alleen richting geven"],
     },
+    {
+      id: "m8-diag-05",
+      objectiveIds: ["sa.m08.review-toetsen"],
+      prompt: "Wat is het primaire doel van een architectuurreview?",
+      kind: "single_choice",
+      options: ["Een goedkeuringsstempel geven zodat het project verder mag", "De kwaliteit van ontwerp en onderbouwing toetsen aan expliciete eisen en principes", "Alleen controleren of de juiste template is gebruikt", "De reviewer eigenaar maken van het ontwerp"],
+    },
   ],
   interventions,
   routes: {
