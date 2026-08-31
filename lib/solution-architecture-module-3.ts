@@ -118,7 +118,7 @@ export const solutionArchitectureModule3: AdaptiveModuleDefinition = {
       objectiveIds: ["sa.m03.toetsbare-eis", "sa.m03.eis-beoordelen"],
       prompt: "Welke formulering maakt 'de aanvraag moet snel gaan' het best toetsbaar?",
       kind: "single_choice",
-      options: ["De aanvraag moet zo snel mogelijk gaan", "Een volledige aanvraag levert binnen tien werkdagen een besluit op", "Het portaal moet performant zijn", "De doorlooptijd moet korter dan nu"],
+      options: ["De aanvraag moet zo snel mogelijk gaan", "Een volledige aanvraag levert binnen tien werkdagen een besluit op", "10 werkdagen", "Het portaal moet performant zijn"],
     },
     {
       id: "m3-diag-03",
