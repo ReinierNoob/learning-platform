@@ -2,13 +2,21 @@ import "server-only";
 
 import { cookies } from "next/headers";
 
-const configuredEawSupabaseUrl =
-  process.env.EAW_SUPABASE_URL ??
-  process.env.NEXT_PUBLIC_EAW_SUPABASE_URL;
+// TEMPORARY branch-only E2E bridge. The publishable key is public by design.
+// This block is removed immediately after integrated /leren validation.
+const adaptiveE2EPreview =
+  process.env.VERCEL_ENV !== "production"
+  && process.env.VERCEL_GIT_COMMIT_REF === "feature/adaptive-solution-architecture-module-6";
+const adaptiveE2ESupabaseUrl = "https://olxhsmjtnkwyjuqbpini.supabase.co";
+const adaptiveE2EPublishableKey = "sb_publishable_rowSyTGqS57U37-c9oBGAA_lTUnTbFq";
 
-const configuredEawPublishableKey =
-  process.env.EAW_SUPABASE_PUBLISHABLE_KEY ??
-  process.env.NEXT_PUBLIC_EAW_SUPABASE_PUBLISHABLE_KEY;
+const configuredEawSupabaseUrl = adaptiveE2EPreview
+  ? adaptiveE2ESupabaseUrl
+  : process.env.EAW_SUPABASE_URL ?? process.env.NEXT_PUBLIC_EAW_SUPABASE_URL;
+
+const configuredEawPublishableKey = adaptiveE2EPreview
+  ? adaptiveE2EPublishableKey
+  : process.env.EAW_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_EAW_SUPABASE_PUBLISHABLE_KEY;
 
 // Supabase publishable keys are intentionally public credentials. Production
 // is pinned to the active key for the EAW project so a stale Vercel environment
@@ -128,11 +136,6 @@ export async function getSessionUser(token?: string | null): Promise<SessionUser
   const accessToken = token ?? (await getAccessToken());
   if (!accessToken) return null;
 
-  // OAuth 2.1 access tokens issued to the learning client must be validated
-  // through the OIDC UserInfo endpoint. This is the standards-based identity
-  // endpoint for Supabase OAuth clients. During the zero-downtime migration we
-  // keep the legacy /user check as a fallback for the temporary magic-link
-  // handoff token, which is a normal Supabase Auth session token.
   const userInfoResponse = await fetch(`${eawSupabaseUrl}/auth/v1/oauth/userinfo`, {
     headers: { Authorization: `Bearer ${accessToken}` },
     cache: "no-store",
