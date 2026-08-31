@@ -27,6 +27,18 @@ jobs:
         run: node scripts/verify-environment-contract.mjs
       - name: Verify adaptive route convergence
         run: npm run verify:adaptive-routes
+      - name: Export Solution Architecture course manifest
+        env:
+          EAW_MANIFEST_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+          NODE_OPTIONS: --conditions=react-server
+        run: npx --yes tsx@4.20.6 scripts/export-solution-architecture-course-manifest.ts /tmp/solution-architecture-course-manifest.json
+      - name: Upload Solution Architecture course manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: solution-architecture-course-manifest
+          path: /tmp/solution-architecture-course-manifest.json
+          retention-days: 3
+          if-no-files-found: error
       - name: Build
         run: npm run build
       - name: Verify adaptive HTTP contracts
