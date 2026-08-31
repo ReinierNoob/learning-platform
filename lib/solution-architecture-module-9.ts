@@ -104,7 +104,11 @@ export const solutionArchitectureModule9: AdaptiveModuleDefinition = {
   moduleSlug: "realisatie-en-migratie",
   title: "Realisatie en migratie",
   standardReferences: [
-    "TOGAF® Standard, 10th Edition — optionele terminologiereferentie voor Transition Architecture; de leerroute gebruikt primair neutrale termen",
+    {
+      name: "TOGAF® Standard",
+      version: "10th Edition",
+      reference: "Optionele terminologiereferentie voor Transition Architecture; de leerroute gebruikt primair neutrale termen.",
+    },
   ],
   objectives: [
     "sa.m09.tussenstappen",
