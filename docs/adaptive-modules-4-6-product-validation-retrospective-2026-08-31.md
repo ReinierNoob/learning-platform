@@ -1,78 +1,99 @@
 # Retrospective — Adaptive Modules 4–6 productvalidatie — 2026-08-31
 
-## Wat ging goed
+## Wat was het doel?
+De 4→5→6 adaptive leerketen als één architectuur- en productmijlpaal sluiten voordat verdere modules worden ontwikkeld.
 
-1. Centrale progresslogica bleek generiek genoeg om Modules 4, 5 en 6 via hetzelfde hostcontract te laten lopen.
-2. De fail-closed contractcheck voorkomt dat adaptive content en gepubliceerde quizconfig ongemerkt uit elkaar groeien.
-3. De persona-review op de volledige 4→5→6-keten leverde andere bevindingen op dan losse modulereviews.
-4. Responsive review op daadwerkelijke CSS-classes vond een concrete desktopregressie die een gewone inhoudsreview niet had gezien.
-5. Productiestatus bleef expliciet NO-GO; ontbrekende live/device evidence werd niet als PASS gerapporteerd.
-6. De twee gevonden P1's — dynamische focus en mastery-versus-hostcompletion — konden in de generieke engine worden opgelost in plaats van per module.
+## Wat heb ik daadwerkelijk gedaan?
+- centrale progressarchitectuur gereviewd;
+- cross-module state restore gereviewd;
+- Module 6 van bespoke naar generic client runtime gemigreerd;
+- module identities naar definitions als SSOT gebracht;
+- Module 6 answer key gecentraliseerd;
+- obsolete Module 6 runtime CSS verwijderd;
+- foolproof completion/focus/mobile bevindingen herbevestigd;
+- build/TypeScript/route-table opnieuw uitgevoerd;
+- Architecture Product Review uitgevoerd.
 
-## Wat ging minder goed
+## Heb ik het doel bereikt?
+Ja voor controlled rollout. Productie blijft een aparte NO-GO gate.
 
-1. `.mobileCards` werd semantisch gebruikt alsof het een generieke cardlayout was, terwijl de CSS hem bewust op desktop verbergt. Naamgeving stuurde daarmee naar verkeerd gebruik.
-2. De generieke completion-UI behandelde inhoudelijke mastery aanvankelijk alsof dat automatisch officiële platformcompletion betekende.
-3. Dynamische SPA-orientatie/focus was aanvankelijk geen first-class acceptance criterion in de runtime.
-4. Progress-E2E is te laat afhankelijk geworden van de definitieve course/module-config. Het configuratiecontract moet eerder als testfixture beschikbaar zijn.
+## Waar ben ik afgeweken?
+Eerdere iteraties ontwikkelden Module 5 en 4 voordat de multi-module architecture/product milestone formeel was gesloten.
 
-## Nieuwe pipeline-regels
+## Welke onnodige complexiteit was geïntroduceerd?
+1. Een aparte Module 6 client-engine naast de generieke runtime.
+2. Course-brede route-state die bij restore niet op module scope werd begrensd.
+3. Een dubbele Module 6 assessment answer key.
+4. Losse module-identiteitsconstanten naast de moduledefinitions.
 
-### Regel 1 — mastery en host completion blijven zichtbaar gescheiden
+Alle vier zijn in deze gate geremedieerd.
 
-Backend én UI onderscheiden:
-- inhoudelijk geslaagd;
-- hostprogress gesynchroniseerd;
-- hostprogress niet geconfigureerd/mismatch/mislukt.
+## Welke root cause lag eronder?
+Pilotcode werd incrementeel productcode zonder expliciete tweede-module-promotiegate. Daardoor bleef historische pilotstructuur langer eigenaar dan architectonisch gewenst.
 
-Een groene mastery-status mag een mislukte hostsync niet maskeren.
+## Wat moet structureel worden verbeterd?
+Na de tweede adaptive module verplicht:
+`multi-module solution architecture review → architecture product review → UX review → remediation → retest → gate`.
 
-### Regel 2 — responsive utility-namen beschrijven intentie
+## Welke pipeline-/skillverbetering voorkomt herhaling?
+Controleer expliciet:
+- één generic client runtime;
+- course-scoped mastery versus module-scoped route/evidence/decision restore;
+- identity uit moduledefinitions;
+- één server-side assessment answer-key bron;
+- host-platformprogress blijft enige officiële completion;
+- module-specifieke adaptive meerwaarde vóór implementatie.
 
-Gebruik niet een viewportnaam (`mobileCards`) voor content die in meerdere viewports relevant is.
+## Foolproof UX/UI Review
 
-Voorkeur:
-- `mobileOnlyCards` voor echt mobile-only;
-- `responsiveCards`/`alwaysCards` voor multi-viewport inhoud.
+Status: code/statisch PASS.
 
-### Regel 3 — dynamic-focus gate na iedere stateful stepflow
+Geremedieerd:
+- desktopvisual-regressie Module 4;
+- focusoriëntatie bij dynamische stapwissels;
+- mastery versus hostsync-status;
+- Module 6 afwijkende runtime.
 
-Bij React/SPA-stapwissels expliciet beoordelen:
-- waar blijft keyboardfocus?
-- wordt de nieuwe stap programmatisch herkenbaar?
-- blijft de leesvolgorde logisch?
-- is feedback een statusbericht of vraagt het focus?
+Open maar non-blocking voor controlled rollout:
+- fysieke touch/device-run;
+- echte screenreader-run.
 
-### Regel 4 — course-config fixture vóór platformprogress E2E
+Deze blijven blocking voor productie.
 
-Voor elke adaptive module moet vóór live E2E een branch-only fixture bestaan met:
-- gepubliceerde module;
-- exact quizcontract;
-- centrale answer key;
-- required content/assessment items;
-- entitlement + enrollment.
+## Architecture Product Review
 
-### Regel 5 — cross-module review na iedere cluster van aangrenzende modules
+PASS na remediation.
 
-Niet alleen module per module reviewen. Minimaal toetsen:
-- begripsherhaling;
-- verkeerde terminologieverschuiving;
-- handoff tussen leerdoelen;
-- casecontinuïteit;
-- oplopend cognitief niveau.
+- business: adaptive learning is onderdeel van EAW learning, geen parallel product;
+- solution: één engine + modulespecifieke definitions/evaluators/visuals;
+- data: course-brede mastery, module-brede route/evidence/decisions, host-brede progress;
+- usability: routes besparen tijd zonder assessment/agency weg te nemen;
+- reuse: patroon kan door naar overige Solution Architecture-modules;
+- maintainability: pilot-specifieke clientfork verwijderd;
+- reference principles: SSOT, separation of concerns, fail closed, backwards-compatible rollout;
+- dependencies: Supabase/Vercel/HeyGen blijven achter expliciete releasegates.
 
-## Afgeronde acties uit deze retrospective
+## Remediation
+Alle blokkerende architectuur- en productbevindingen uit deze milestone zijn verwerkt.
 
-1. completion-status UX generiek verbeterd — PASS;
-2. focus/orientatie bij step transitions toegevoegd — PASS;
-3. Module 4 responsive desktop/mobile cards hersteld — PASS;
-4. Modules 4 en 5 aangesloten op generiek centraal progresscontract — PASS.
+## Retest
+- compile PASS;
+- TypeScript PASS;
+- 15 adaptive API endpoints aanwezig;
+- drie QA-harnesses aanwezig;
+- finale featurebranch-deployment READY.
 
-## Nog open
+## Gatebesluit
 
-1. branch-only course-config fixture voor Modules 4–6;
-2. persistence/platformprogress write-E2E met die fixture;
-3. fysieke desktop/mobile/touch review;
-4. VoiceOver/NVDA of equivalente screenreader-run;
-5. media pas na live UX GO;
-6. productiereleasebesluit.
+**GO WITH ACCEPTED NON-BLOCKING WARNINGS** voor controlled rollout naar volgende modules.
+
+Accepted warnings:
+- Module 6 server-side pedagogische code is historisch nog over meer dan één serverfile verdeeld; geen tweede runtimecontract;
+- Module 4/5 branch-only write-E2E wacht op definitieve fixtures;
+- fysieke device/screenreader-run wacht op releasefase;
+- definitieve media wacht op live UX GO.
+
+**Production release: NO-GO.**
+
+## Ben ik nog op de kortste route naar het einddoel?
+Ja. Verdere modules kunnen dezelfde bewezen architectuur gebruiken zonder nieuwe runtime-, state- of progressarchitectuur te introduceren.
