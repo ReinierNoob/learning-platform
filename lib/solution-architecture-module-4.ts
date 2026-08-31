@@ -5,9 +5,9 @@ const interventions = {
     id: "m4-kwaliteit-vs-functie-standard-v1",
     objectiveId: "sa.m04.attributen-herkennen",
     speaker: "alexander",
-    title: "Wat versus hoe goed",
+    title: "Functionele werking versus kwaliteitseis",
     kind: "explanation",
-    body: "Een functionele eis beschrijft wat de oplossing moet doen. Een kwaliteitsattribuut beschrijft hoe goed de oplossing dat moet doen of welke kwaliteit de oplossing daarbij moet bezitten. 'De burger kan status bekijken' is functioneel; '95% van de statuspagina's opent binnen 2 seconden bij 2.000 gelijktijdige gebruikers' beschrijft kwaliteit.",
+    body: "In architectuurwerk is het vaak praktisch om eerst te vragen: wat moet de oplossing doen, en daarna: welke kwaliteit moet die werking hebben? 'De burger kan status bekijken' beschrijft vooral functionaliteit; '95% van de statuspagina's opent binnen 2 seconden bij 2.000 gelijktijdige gebruikers' maakt performance meetbaar. Dit is een praktische onderscheidingsvraag, geen formele grens in ISO/IEC 25010:2023: dat productkwaliteitsmodel bevat namelijk ook Functional suitability als kwaliteitskenmerk.",
     visualMode: "quality-vs-function",
   },
   "m4-iso25010-standard-v1": {
@@ -90,10 +90,10 @@ const interventions = {
     id: "m4-maximaliseren-repair-v1",
     objectiveId: "sa.m04.spanning-analyseren",
     speaker: "interviewer",
-    title: "Herstel: overal maximaal is geen ontwerpstrategie",
+    title: "Herstel: prioriteit zonder context stuurt niet",
     kind: "repair",
-    body: "Als elk kwaliteitskenmerk zonder context maximale prioriteit krijgt, heb je geen bruikbare ontwerpsturing. Ontwerpen betekent grenzen, prioriteiten en spanningen expliciet maken.",
-    prompt: "Waarom is 'alle kwaliteitsattributen krijgen prioriteit 1' geen bruikbare architectuurrichting?",
+    body: "Zowel 'security wint altijd' als 'alle kwaliteitskenmerken krijgen prioriteit 1' zijn te absoluut. Een ontwerpvraag vraagt expliciete grenzen en prioriteiten in de concrete context. Soms is één attribuut een harde randvoorwaarde; dat moet dan uit de context of eis blijken, niet uit een algemene rangorde.",
+    prompt: "Waarom is een absolute kwaliteitsprioriteit zonder context geen bruikbare architectuurrichting?",
     visualMode: "quality-priority",
   },
   "m4-assessment-v1": {
@@ -129,6 +129,7 @@ export const solutionArchitectureModule4: AdaptiveModuleDefinition = {
     "sa.mc.kwaliteitsattribuut-is-oplossing",
     "sa.mc.bijvoeglijk-naamwoord-is-eis",
     "sa.mc.getal-zonder-context-is-toetsbaar",
+    "sa.mc.een-attribuut-altijd-dominant",
     "sa.mc.alle-attributen-maximaliseren",
   ],
   diagnostics: [
@@ -193,7 +194,7 @@ export const solutionArchitectureModule4: AdaptiveModuleDefinition = {
     {
       id: "m4-assess-01",
       objectiveId: "sa.m04.attributen-herkennen",
-      question: "Welke formulering beschrijft primair een kwaliteitskenmerk en niet alleen functionaliteit?",
+      question: "Welke formulering maakt vooral een kwaliteitskenmerk over performance efficiency meetbaar, in plaats van alleen een functie te beschrijven?",
       options: ["De burger kan de aanvraag indienen", "95% van de statuspagina's opent binnen 2 seconden bij 2.000 gelijktijdige gebruikers", "De behandelaar kan een besluit registreren", "De keuringsinstantie stuurt een uitslag"],
     },
     {
