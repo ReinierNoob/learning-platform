@@ -19,6 +19,6 @@ export function AdaptiveModule6LearningExperience({
         </form>
       </div>
     </header>
-    <AdaptiveModule6Experience />
+    <AdaptiveModule6Experience courseHref={`/leren/${courseSlug}`} />
   </>;
 }
