@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
+import { isAdaptiveModule6LearningEnabled } from "../../../../../lib/adaptive-pilot-runtime";
 import { getAccessToken, getCourseBySlug, getEawLoginUrl, getLearningAccess, getPublishedModule, getSessionUser, startCourse } from "../../../../../lib/platform";
+import { AdaptiveModule6LearningExperience } from "./adaptive-module6-experience";
 import { QuizClient } from "./learning-client";
 
 export default async function ModulePage({ params }: { params: Promise<{ slug: string; id: string }> }) {
@@ -25,6 +27,16 @@ export default async function ModulePage({ params }: { params: Promise<{ slug: s
   const module = await getPublishedModule(course.id, sourceModuleId, token);
   if (!module) {
     return <main className="shell"><section className="hero"><p className="eyebrow">Nog niet beschikbaar</p><h1>Deze module is nog niet gepubliceerd.</h1><a className="button" href={`/leren/${slug}`}>Terug naar de training</a></section></main>;
+  }
+
+  // Adaptive learning deliberately reuses the normal session, entitlement, course-start
+  // and published-module checks above. The feature is preview-only and hard-disabled in production.
+  if (isAdaptiveModule6LearningEnabled(slug, sourceModuleId)) {
+    return <AdaptiveModule6LearningExperience
+      courseTitle={course.title}
+      courseSlug={slug}
+      userEmail={user.email}
+    />;
   }
 
   const chapters = module.chapters ?? [];
