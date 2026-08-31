@@ -18,7 +18,7 @@ export function diagnoseModule1(answers: Record<string, string>) {
   const q4 = normalize(answers["m1-diag-04"]);
 
   const evidence = [
-    { id: "ev-m1-diag-01", objectiveId: "sa.m01.rollen-onderscheiden", passed: q1 === "business-architect / businessverantwoordelijke" },
+    { id: "ev-m1-diag-01", objectiveId: "sa.m01.rollen-onderscheiden", passed: q1 === "business-architect" },
     { id: "ev-m1-diag-02", objectiveId: "sa.m01.mandaat", passed: q2 === "ik laat dit bij het team zolang er geen bredere architectuurimpact is" },
     { id: "ev-m1-diag-03", objectiveId: "sa.m01.mandaat-invloed", passed: q3 === "ik werk de consequenties uit en leg onaanvaardbare knelpunten terug" },
     { id: "ev-m1-diag-04", objectiveId: "sa.m01.belangen-analyseren", passed: q4 === "projectresultaat op korte termijn versus landschapskwaliteit op langere termijn" },
