@@ -1,6 +1,6 @@
 const baseUrl = process.env.EAW_ADAPTIVE_BASE_URL ?? "http://127.0.0.1:3000";
 const productionDeny = process.env.EAW_ADAPTIVE_EXPECT_PRODUCTION_DENY === "1";
-const modules = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+const modules = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 const failures = [];
 
 async function request(moduleNumber, endpoint, init) {
@@ -50,6 +50,10 @@ const routeProbes = {
   9: {
     B: { "m9-diag-01": "Dat de stap zelfstandig waarde levert en een stabiele basis voor vervolg vormt", "m9-diag-02": "Omdat je zonder vastgestelde identiteit niet verantwoord kunt bepalen wiens status je toont", "m9-diag-03": "Wanneer de tijdelijke extra kosten lager zijn dan de potentiële schade van een mislukte overgang", "m9-diag-04": "Dat criteria en herstelpad vooraf zijn bepaald zodat een mislukte overgang beheerst kan worden teruggedraaid" },
     C: { "m9-diag-01": "Dat de stap zelfstandig waarde levert en een stabiele basis voor vervolg vormt", "m9-diag-02": "Omdat je zonder vastgestelde identiteit niet verantwoord kunt bepalen wiens status je toont", "m9-diag-03": "Wanneer de tijdelijke extra kosten lager zijn dan de potentiële schade van een mislukte overgang", "m9-diag-04": "Dat het team weinig vertrouwen heeft" },
+  },
+  10: {
+    B: { "m10-diag-01": "De ontvangen opdracht toetsen op scope, aannames en werkbaarheid", "m10-diag-02": "Welke kwaliteitsbelangen botsen en welke eisen daaruit volgen", "m10-diag-03": "Omdat het portaal afhankelijk wordt van de interne structuur van dat systeem", "m10-diag-04": "Dat criteria en herstelpad vooraf zijn bepaald zodat gecontroleerd kan worden teruggevallen" },
+    C: { "m10-diag-01": "De ontvangen opdracht toetsen op scope, aannames en werkbaarheid", "m10-diag-02": "Welke kwaliteitsbelangen botsen en welke eisen daaruit volgen", "m10-diag-03": "Omdat rechtstreeks hergebruik per definitie de beste keuze is", "m10-diag-04": "Dat criteria en herstelpad vooraf zijn bepaald zodat gecontroleerd kan worden teruggevallen" },
   },
 };
 
@@ -167,6 +171,30 @@ if (!productionDeny) {
   check(module6Pass.body?.passed === true && module6Pass.body?.correct === module6Pass.body?.total, "Module 6 assessment-pass grading wijkt af");
   check(Array.isArray(module6Pass.body?.remediationSequence) && module6Pass.body.remediationSequence.length === 0, "Module 6 assessment-pass bevat onverwachte remediation");
 
+  const module10PassAnswers = {
+    "m10-assess-01": 1, "m10-assess-02": 0, "m10-assess-03": 1,
+    "m10-assess-04": 1, "m10-assess-05": 1, "m10-assess-06": 2,
+    "m10-assess-07": 1, "m10-assess-08": 1, "m10-assess-09": 1,
+    "m10-assess-10": 1, "m10-assess-11": 1, "m10-assess-12": 1,
+    "m10-assess-13": 1,
+  };
+  const module10Pass = await request(10, "assess", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ answers: module10PassAnswers, syncPlatformProgress: false }),
+  });
+  check(module10Pass.body?.total === 13, `Module 10 eindcasus: verwacht 13 vragen, kreeg ${module10Pass.body?.total}`);
+  check(module10Pass.body?.passed === true && module10Pass.body?.correct === 13, "Module 10 assessment-pass grading wijkt af");
+  check(Array.isArray(module10Pass.body?.remediationSequence) && module10Pass.body.remediationSequence.length === 0, "Module 10 assessment-pass bevat onverwachte remediation");
+
+  const module10OneError = await request(10, "assess", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ answers: { ...module10PassAnswers, "m10-assess-01": 0 }, syncPlatformProgress: false }),
+  });
+  check(module10OneError.body?.correct === 12 && module10OneError.body?.passed === false, "Module 10 zelfstandige vraagbeoordeling: één fout moet exact één scorepunt kosten");
+  check(Array.isArray(module10OneError.body?.remediationSequence) && module10OneError.body.remediationSequence.length === 1 && module10OneError.body.remediationSequence[0] === "m10-ref-m2-v1", "Module 10 gerichte remediation: één scopefout moet alleen naar Module 2 verwijzen");
+
   const module5Legacy = await request(5, "diagnose", {
     method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ answers: {} }),
   });
@@ -188,4 +216,4 @@ if (failures.length > 0) {
 
 console.log(productionDeny
   ? `Adaptive HTTP production deny: PASS (${modules.length * 5} endpoint checks)`
-  : `Adaptive HTTP contracts: PASS (${modules.length} modules, routes A/B/C, misconceptions, observation, assessment pass/remediation, legacy response compatibility)`);
+  : `Adaptive HTTP contracts: PASS (${modules.length} modules, routes A/B/C, misconceptions, observation, assessment pass/remediation, Module 10 independent grading, legacy response compatibility)`);
