@@ -4,6 +4,31 @@ import AdaptiveModuleExperience from "../config-driven/AdaptiveModuleExperience"
 import styles from "../config-driven/adaptive-experience.module.css";
 import { solutionArchitectureModule7 } from "../../../lib/solution-architecture-module-7";
 
+function SystemContextIntegrationMap() {
+  return <section className={styles.visual} aria-labelledby="module7-context-heading">
+    <div className={styles.visualHeader}><div><p className={styles.kicker}>Systeemcontext</p><h3 id="module7-context-heading">Houd interne structuur achter stabiele grenzen</h3></div><span>Middelveen</span></div>
+    <div className={styles.alwaysCards}>
+      <div className={styles.visualCard}><strong>Burger → Burgerportaal</strong><span>Digitale aanvraag en persoonlijke statusinzage na betrouwbare identificatie.</span></div>
+      <div className={styles.visualCard}><strong>Burgerportaal → Statusinterface</strong><span>Het portaal gebruikt een gepubliceerde afspraak en leest niet rechtstreeks uit interne zaaksysteemtabellen.</span></div>
+      <div className={styles.visualCard}><strong>Zaaksysteem ↔ BRP</strong><span>Benodigde brongegevens worden via een expliciete koppeling opgevraagd; uitval hoort bij de beschikbaarheidsanalyse.</span></div>
+      <div className={styles.visualCard}><strong>Keuringsinstantie → Gemeente</strong><span>Iedere keuringsuitslag arriveert als afzonderlijke gebeurtenis met bevestiging, logging en herstelgedrag.</span></div>
+    </div>
+    <p className={styles.feedback}><strong>Ontwerpgrens:</strong> relaties beschrijven de belofte tussen partijen; interne databasestructuur blijft een implementatiedetail van de eigenaar.</p>
+  </section>;
+}
+
+function LandscapeImpact() {
+  return <section className={styles.visual} aria-label="Impact van koppelingen op het applicatielandschap">
+    <div className={styles.visualHeader}><div><p className={styles.kicker}>Landschapsimpact</p><h3>Wat kan straks nog zelfstandig veranderen?</h3></div><span>wendbaarheid is onderdeel van de keuze</span></div>
+    <div className={styles.alwaysCards}>
+      <div className={styles.visualCard}><strong>Afnemers</strong><span>Welke systemen of organisaties vertrouwen al op deze koppeling?</span></div>
+      <div className={styles.visualCard}><strong>Interne structuur</strong><span>Welke technische details lekken onnodig naar buiten?</span></div>
+      <div className={styles.visualCard}><strong>Belofte</strong><span>Verandert betekenis, timing of foutafhandeling door hergebruik?</span></div>
+      <div className={styles.visualCard}><strong>Wijzigingsruimte</strong><span>Welke partij kan daarna niet meer zelfstandig veranderen?</span></div>
+    </div>
+  </section>;
+}
+
 function IntegrationCanvas({ mode }: { mode?: string }) {
   if (!mode || mode === "assessment") return null;
 
@@ -43,15 +68,10 @@ function IntegrationCanvas({ mode }: { mode?: string }) {
     </section>;
   }
 
-  return <section className={styles.visual} aria-label="Impact van koppelingen op het applicatielandschap">
-    <div className={styles.visualHeader}><div><p className={styles.kicker}>Landschapsimpact</p><h3>Wat kan straks nog zelfstandig veranderen?</h3></div><span>wendbaarheid is onderdeel van de keuze</span></div>
-    <div className={styles.alwaysCards}>
-      <div className={styles.visualCard}><strong>Afnemers</strong><span>Welke systemen of organisaties vertrouwen al op deze koppeling?</span></div>
-      <div className={styles.visualCard}><strong>Interne structuur</strong><span>Welke technische details lekken onnodig naar buiten?</span></div>
-      <div className={styles.visualCard}><strong>Belofte</strong><span>Verandert betekenis, timing of foutafhandeling door hergebruik?</span></div>
-      <div className={styles.visualCard}><strong>Wijzigingsruimte</strong><span>Welke partij kan daarna niet meer zelfstandig veranderen?</span></div>
-    </div>
-  </section>;
+  return <>
+    <SystemContextIntegrationMap />
+    <LandscapeImpact />
+  </>;
 }
 
 export default function AdaptiveModule7Experience({ courseHref }: { courseHref?: string }) {
