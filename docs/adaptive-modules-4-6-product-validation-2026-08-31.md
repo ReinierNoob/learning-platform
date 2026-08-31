@@ -6,131 +6,98 @@ Gezamenlijke validatie van de leerketen:
 
 `Module 4 kwaliteit expliciet maken → Module 5 kwaliteit zichtbaar maken → Module 6 kwaliteit afwegen`
 
-Deze review beoordeelt centrale platformprogress, persona's, responsive gedrag, keyboard/screenreadersemantiek, foolproof completion en resterende live/device gates.
+Deze review beoordeelt:
+- centrale platformprogress;
+- beginner/basis/ervaren persona;
+- mobile/responsive informatievolgorde;
+- keyboard- en screenreadersemantiek op codeniveau;
+- foolproof gedrag;
+- resterende live/device gates.
 
-## 1. Centrale EAW-platformprogress — PASS op code/build
+## 1. Centrale EAW-platformprogress
 
-Modules 4, 5 en 6 gebruiken hetzelfde fail-closed progresscontract.
+### PASS — code/build
 
-Na een geslaagde adaptive eindcheck:
-1. session/entitlement/published-modulecontext wordt server-side opnieuw opgehaald;
-2. gepubliceerde vraagtekst wordt exact vergeleken;
-3. optievolgorde wordt exact vergeleken;
-4. centrale `system_instruction` answer key wordt gecontroleerd;
-5. bij iedere afwijking vinden geen progresswrites plaats;
-6. verplichte contentitems worden via bestaande `recordProgress(...)` voltooid;
-7. de centrale assessment wordt via dezelfde platformfunctie beoordeeld;
-8. alleen score 100 geldt als succesvolle synchronisatie;
-9. het centrale `completion_percentage` wordt opnieuw gelezen.
+Modules 4, 5 en 6 gebruiken hetzelfde fail-closed hostprogresscontract. De host leeromgeving blijft eigenaar van officiële module- en cursusvoortgang.
 
-Geen tweede adaptive completion-teller is geïntroduceerd.
+Voor writes worden vraagtekst, antwoordopties en de centrale server-side antwoordsleutel gecontroleerd. Module 6 gebruikt na remediation nog maar één server-only answer-key bron.
 
-### OPEN — data-E2E
+## 2. Cross-module state restore
 
-De definitieve Solution Architecture course/module-config bestaat nog niet in een veilige branch-only testfixture. Daarom is de echte write-E2E voor Modules 4 en 5 nog niet uitgevoerd. Productie-Supabase wordt hiervoor niet gebruikt.
+### PASS na remediation
 
-## 2. Persona walkthrough — PASS op ontwerp/codeniveau
+Learner mastery blijft bewust course-scoped. Navigation state, evidence en decisions worden bij restore nu op de actieve gepubliceerde module gefilterd. Daardoor kan Module 4 niet langer een route uit Module 5 of 6 herstellen en omgekeerd.
+
+## 3. Persona review
 
 ### Beginner
-- casus vóór diagnose;
-- expliciet `Ik weet dit nog niet`;
-- route A bouwt kernbegrippen volledig op;
-- Module 4 gebruikt ISO/IEC 25010 als begrippenkaart;
-- Module 5 doseert detail per stakeholder;
-- Module 6 maakt winst én verlies zichtbaar.
+PASS op code/statische walkthrough.
+- `Ik weet dit nog niet` blijft geldig;
+- volledige route beschikbaar;
+- technische classifierdetails blijven buiten primaire UX.
 
 ### Basisgebruiker
-- route B verkort bekende uitleg;
-- toepassing blijft behouden;
-- volledige uitleg blijft beschikbaar;
-- assessment blijft verplicht.
+PASS.
+- verkorte route blijft mogelijk;
+- verplichte assessment blijft staan;
+- geen volledige herhaling bij een beperkte fout.
 
-### Ervaren cursist met fout denkpatroon
-- route C repareert alleen geobserveerde misconcepties;
-- één misconception-id staat voor één observeerbaar denkpatroon;
-- learner override blijft mogelijk;
-- formele mastery blijft onafhankelijk van Eva/Alexander als persona.
+### Ervaren gebruiker
+PASS.
+- focusroute en learner override behouden agency;
+- transfer/opendeurvragen worden niet als formele mastery behandeld zonder server-side checks.
 
-## 3. Cross-module continuïteit — PASS
+## 4. Responsive / mobile review
 
-- Module 4 → 5: kwaliteitslens wordt per stakeholder gebruikt zonder ISO opnieuw te doceren.
-- Module 5 → 6: stakeholdergerichte beelden voeden de ontwerpafweging.
-- ISO/IEC 25010:2023 is de Module 4-referentie.
-- ArchiMate 4 is de Module 5-referentie.
-- Module 6 positioneert beschikbaarheid, vertrouwelijkheid en onderhoudbaarheid correct en markeert consistentie als aanvullend casuscriterium.
+### PASS op code/statische review
 
-## 4. Responsive/mobile — PASS op codeniveau, live device OPEN
+Geremedieerd:
+- Module 4 visuals waren door mobile-only classgebruik onbedoeld verborgen op desktop;
+- responsive cards werken nu op desktop én mobiel;
+- Module 6 gebruikt na de architecture gate dezelfde generieke runtime als Modules 4/5, met een eigen visual plugin.
 
-Tijdens deze review gevonden en hersteld:
-- Module 4 gebruikte alleen `.mobileCards`; kwaliteitsvisuals waren daardoor op desktop verborgen;
-- `.alwaysCards` toont Module 4 nu op desktop én mobiel;
-- mobiel wordt één kolom;
-- touch targets blijven minimaal 40–44 px;
-- Module 5 behoudt desktopdiagram + taakgerichte mobiele cards.
+## 5. Keyboard / screenreadersemantiek
 
-Fysieke iPhone/touch-validatie blijft een aparte releasecheck.
+### PASS op code; fysieke screenreader-run blijft releasegate
 
-## 5. Keyboard/screenreader — dynamische focus code PASS, fysieke screenreader OPEN
+Aanwezig:
+- native radio/fieldset/legend;
+- labels rond textareas;
+- status/error live semantics;
+- dynamisch focusherstel na diagnostic navigation, routewissel, lesson navigation en remediation.
 
-Positief:
-- native buttons, links, radio inputs en textareas;
-- fieldset/legend bij keuzevragen;
-- `aria-pressed` bij stakeholdertabs;
-- `role=status` voor feedback;
-- `role=alert` voor fouten;
-- geen pointer-only primaire interacties;
-- na diagnostische stapwissels, routewissels, lesson navigation en remediation wordt de nieuwe context programmatisch focusbaar gemaakt en gefocust.
-
-Normbasis:
-- WCAG 2.2 SC 2.4.3 — betekenisvolle focusvolgorde;
-- WCAG 2.2 SC 4.1.3 — programmatisch herkenbare statusmeldingen.
-
-OPEN:
-- echte VoiceOver/NVDA of equivalente screenreader-run.
-
-## 6. Foolproof completion — PASS op code/build
-
-De backend onderscheidt `synced`, `not_configured`, `contract_mismatch` en `failed`.
-
-De generieke UI maakt nu eveneens onderscheid:
-- inhoudelijk geslaagd + `synced` → normale moduleafronding;
-- inhoudelijk geslaagd + geen succesvolle hostsync → expliciet `Eindcheck gehaald — voortgang nog niet bijgewerkt`;
-- retry van de voortgangssync is mogelijk;
-- terugkeer zonder sync blijft mogelijk, maar wordt expliciet zo benoemd;
-- learner mastery wordt niet teruggedraaid door een technische hostsyncfout.
-
-Daarmee maskeert een groene mastery-status geen mislukte officiële EAW-progressregistratie meer.
-
-## 7. Buildbewijs — PASS
-
-Finale Vercel-build na de P1-fixes:
-- Next.js compile PASS;
-- TypeScript PASS;
-- 15 adaptive API-endpoints aanwezig;
-- 3 QA-harnesses aanwezig;
-- Module 4 desktop/mobile visuals PASS;
-- generic platformprogress voor Modules 4/5/6 compileert;
-- dynamic focus + completion sync UX compileert;
-- productie blijft hard-disabled.
-
-## Gate-status
+## 6. Foolproof completion
 
 ### PASS
-- 4→5→6 learning spine;
-- config-driven multi-module runtime;
-- centrale progresscode voor 4/5/6;
-- fail-closed question/options/answer-key contract;
-- Module 4 desktopvisuals;
-- persona walkthrough op ontwerp/codeniveau;
-- responsive/keyboard/semantic static review;
-- dynamic focus/orientation code;
-- foolproof completion-status UX.
 
-### OPEN
-1. branch-only Supabase persistence/progress E2E voor Modules 4 en 5;
-2. fysieke desktop/mobile/touch review;
-3. VoiceOver/NVDA of equivalente screenreader-run;
-4. finale Solution Architecture course-config;
-5. production releasebesluit.
+Inhoudelijke mastery en officiële EAW-hostprogress zijn expliciet gescheiden:
+- mastery niet gehaald → targeted remediation;
+- mastery gehaald + host sync → modulecheck afgerond;
+- mastery gehaald + host sync open/fout → duidelijke status + retry; geen vals voltooid-signaal.
 
-**Productie: NO-GO.**
+## 7. Architecture/Product remediation
+
+De formele gate heeft aanvullend opgelost:
+- modulegescheiden state restore;
+- Module 6 migratie van bespoke naar generic client engine;
+- oude Module 6 runtime CSS verwijderd;
+- module identity komt uit moduledefinitions;
+- previewflag-registry gecentraliseerd;
+- Module 6 answer key single-source server-only.
+
+Zie `docs/adaptive-modules-4-6-architecture-product-gate-2026-08-31.md` voor de volledige EAW gate.
+
+## 8. Resterende releasechecks
+
+Niet blocking voor controlled content rollout, wel blocking voor productie:
+- branch-only Supabase write-E2E voor Module 4/5 fixtures;
+- definitieve course/module testconfig;
+- fysieke desktop/mobile/touch-run;
+- VoiceOver/NVDA of equivalent;
+- definitieve media na live UX GO.
+
+## Gate
+
+**Controlled rollout:** GO WITH ACCEPTED NON-BLOCKING WARNINGS.
+
+**Production release:** NO-GO.
