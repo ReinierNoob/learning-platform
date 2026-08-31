@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import type { AdaptiveModuleDefinition, AdaptiveRouteId } from "../../../lib/adaptive-module-definition";
 import styles from "./adaptive-experience.module.css";
 
@@ -46,18 +46,52 @@ export default function AdaptiveModuleExperience({ definition, apiBase, caseIntr
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [diagnosis, setDiagnosis] = useState<Diagnosis | null>(null);
   const [routeOverride, setRouteOverride] = useState<AdaptiveRouteId | null>(null);
+  const [customSequence, setCustomSequence] = useState<string[] | null>(null);
   const [stepIndex, setStepIndex] = useState(0);
   const [promptResponses, setPromptResponses] = useState<Record<string, string>>({});
   const [observations, setObservations] = useState<Record<string, TutorObservation>>({});
   const [assessmentAnswers, setAssessmentAnswers] = useState<Record<string, number>>({});
   const [assessment, setAssessment] = useState<AssessmentResult | null>(null);
   const [busy, setBusy] = useState(false);
+  const [restoring, setRestoring] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const activeRoute = routeOverride ?? diagnosis?.route ?? null;
-  const sequence = useMemo(() => activeRoute ? [...definition.routes[activeRoute]] : [], [activeRoute, definition.routes]);
+  const routeSequence = useMemo(() => activeRoute ? [...definition.routes[activeRoute]] : [], [activeRoute, definition.routes]);
+  const sequence = customSequence ?? routeSequence;
   const activeId = sequence[Math.min(stepIndex, Math.max(0, sequence.length - 1))];
   const intervention = activeId ? definition.interventions[activeId] : null;
+  const assessmentStepId = useMemo(() => Object.values(definition.interventions).find((item) => item.kind === "assessment")?.id ?? null, [definition.interventions]);
+
+  useEffect(() => {
+    let active = true;
+    async function restore() {
+      try {
+        const response = await fetch(`${apiBase}/state`, { cache: "no-store" });
+        if (!response.ok) return;
+        const payload = await response.json() as { state?: Diagnosis | null };
+        if (active && payload.state?.route) {
+          setDiagnosis(payload.state);
+          setStepIndex(0);
+        }
+      } catch {
+        // Session-only mode and unavailable persistence are both safe fallbacks.
+      } finally {
+        if (active) setRestoring(false);
+      }
+    }
+    void restore();
+    return () => { active = false; };
+  }, [apiBase]);
+
+  function resetLearningState() {
+    setCustomSequence(null);
+    setStepIndex(0);
+    setAssessment(null);
+    setAssessmentAnswers({});
+    setObservations({});
+    setPromptResponses({});
+  }
 
   async function diagnose(nextAnswers = answers) {
     setBusy(true); setError(null);
@@ -65,7 +99,7 @@ export default function AdaptiveModuleExperience({ definition, apiBase, caseIntr
       const response = await fetch(`${apiBase}/diagnose`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ answers: nextAnswers }) });
       if (!response.ok) throw new Error("diagnose_failed");
       setDiagnosis(await response.json() as Diagnosis);
-      setRouteOverride(null); setStepIndex(0); setAssessment(null); setAssessmentAnswers({}); setObservations({}); setPromptResponses({});
+      setRouteOverride(null); resetLearningState();
     } catch { setError("De leerroute kon niet worden bepaald. Probeer het opnieuw."); }
     finally { setBusy(false); }
   }
@@ -77,7 +111,7 @@ export default function AdaptiveModuleExperience({ definition, apiBase, caseIntr
     try {
       const response = await fetch(`${apiBase}/override`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ route: target }) });
       if (!response.ok) throw new Error("override_failed");
-      setRouteOverride(route); setStepIndex(0); setAssessment(null); setAssessmentAnswers({}); setObservations({}); setPromptResponses({});
+      setRouteOverride(route); resetLearningState();
     } catch { setError("De gekozen leerroute kon niet worden vastgelegd."); }
     finally { setBusy(false); }
   }
@@ -105,6 +139,21 @@ export default function AdaptiveModuleExperience({ definition, apiBase, caseIntr
     finally { setBusy(false); }
   }
 
+  function startRemediation() {
+    if (!assessment?.remediationSequence.length || !assessmentStepId) return;
+    setCustomSequence([...assessment.remediationSequence, assessmentStepId]);
+    setRouteOverride(null);
+    setStepIndex(0);
+    setAssessment(null);
+    setAssessmentAnswers({});
+    setPromptResponses({});
+    setObservations({});
+  }
+
+  if (restoring && !diagnosis) {
+    return <main className={styles.shell} aria-busy="true"><section className={styles.hero}><p className={styles.kicker}>Solution Architecture · Module {definition.sourceModuleId}</p><h1>{definition.title}</h1><p role="status">Je leerroute wordt geladen…</p></section></main>;
+  }
+
   if (!diagnosis) {
     const question = definition.diagnostics[diagnosticIndex];
     const finalQuestion = diagnosticIndex === definition.diagnostics.length - 1;
@@ -122,7 +171,7 @@ export default function AdaptiveModuleExperience({ definition, apiBase, caseIntr
         <div className={styles.progressText}>Vraag {diagnosticIndex + 1} van {definition.diagnostics.length} · {progress}%</div>
         <h2>{question.prompt}</h2>
         {question.kind === "single_choice" ? <fieldset className={styles.choices}>
-          <legend className="sr-only">Kies één antwoord</legend>
+          <legend className={styles.srOnly}>Kies één antwoord</legend>
           {question.options?.map((option) => <label key={option} className={styles.choice}><input type="radio" name={question.id} value={option} checked={value === option} onChange={() => setAnswers((current) => ({ ...current, [question.id]: option }))} /><span>{option}</span></label>)}
         </fieldset> : <textarea className={styles.textarea} rows={5} maxLength={1000} value={value} onChange={(event) => setAnswers((current) => ({ ...current, [question.id]: event.target.value }))} placeholder="Leg kort uit wat je ziet. Je hoeft het nog niet zeker te weten." />}
         <div className={styles.actions}>
@@ -146,11 +195,11 @@ export default function AdaptiveModuleExperience({ definition, apiBase, caseIntr
 
   return <main className={styles.shell}>
     <section className={styles.routeHeader}>
-      <div><p className={styles.kicker}>Module {definition.sourceModuleId} · {routeCopy[activeRoute].name}</p><h1>{definition.title}</h1><p>{routeCopy[activeRoute].description}</p></div>
-      <div className={styles.routeActions}>
+      <div><p className={styles.kicker}>Module {definition.sourceModuleId} · {customSequence ? "Extra oefenroute" : routeCopy[activeRoute].name}</p><h1>{definition.title}</h1><p>{customSequence ? "Je oefent alleen de onderdelen die in de eindcheck nog aandacht vroegen." : routeCopy[activeRoute].description}</p></div>
+      {!customSequence ? <div className={styles.routeActions}>
         {activeRoute !== "A" ? <button className={styles.secondary} type="button" disabled={busy} onClick={() => void chooseRoute("A")}>Toon volledige uitleg</button> : null}
         {routeOverride ? <button className={styles.secondary} type="button" disabled={busy} onClick={() => void chooseRoute(null)}>Terug naar aanbevolen route</button> : null}
-      </div>
+      </div> : null}
     </section>
 
     <div className={styles.learningGrid}>
@@ -170,7 +219,7 @@ export default function AdaptiveModuleExperience({ definition, apiBase, caseIntr
         {intervention.kind === "assessment" ? <div className={styles.assessment}>
           {definition.assessment.map((question, index) => <fieldset key={question.id} className={styles.assessmentQuestion}><legend>{index + 1}. {question.question}</legend>{question.options.map((option, optionIndex) => <label key={option} className={styles.choice}><input type="radio" name={question.id} checked={assessmentAnswers[question.id] === optionIndex} onChange={() => setAssessmentAnswers((current) => ({ ...current, [question.id]: optionIndex }))} /><span>{option}</span></label>)}</fieldset>)}
           <button className={styles.primary} type="button" disabled={busy || Object.keys(assessmentAnswers).length !== definition.assessment.length} onClick={() => void assess()}>{busy ? "Beoordelen…" : "Beoordeel mijn eindcheck"}</button>
-          {assessment ? <div className={assessment.passed ? styles.success : styles.feedback} role="status"><strong>{assessment.passed ? "Modulecheck afgerond" : `${assessment.correct} van ${assessment.total} goed`}</strong><p>{assessment.passed ? "Je hebt de verplichte leerdoelen aangetoond." : "Je krijgt alleen de onderdelen terug die nog aandacht vragen."}</p>{assessment.passed && courseHref ? <a className={styles.primaryLink} href={courseHref}>Terug naar de training</a> : null}</div> : null}
+          {assessment ? <div className={assessment.passed ? styles.success : styles.feedback} role="status"><strong>{assessment.passed ? "Modulecheck afgerond" : `${assessment.correct} van ${assessment.total} goed`}</strong><p>{assessment.passed ? "Je hebt de verplichte leerdoelen aangetoond." : "Je krijgt alleen de onderdelen terug die nog aandacht vragen."}</p>{!assessment.passed && assessment.remediationSequence.length ? <button type="button" className={styles.primary} onClick={startRemediation}>Oefen alleen wat nog aandacht vraagt</button> : null}{assessment.passed && courseHref ? <a className={styles.primaryLink} href={courseHref}>Terug naar de training</a> : null}</div> : null}
         </div> : null}
 
         {error ? <p className={styles.error} role="alert">{error}</p> : null}
