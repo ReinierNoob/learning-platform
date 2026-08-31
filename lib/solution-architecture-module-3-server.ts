@@ -28,7 +28,7 @@ export function diagnoseModule3(answers: Record<string, string>) {
   if (q4 === "zelf de beste eis kiezen" || q4 === "zelf een compromis vastleggen") {
     misconceptions.push("sa.mc.architect-kiest-bij-botsende-belangen");
   }
-  if (q2 === "de doorlooptijd moet korter dan nu") {
+  if (q2 === "10 werkdagen") {
     misconceptions.push("sa.mc.getal-maakt-eis-toetsbaar");
   }
 
