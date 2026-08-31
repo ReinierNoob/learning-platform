@@ -5,7 +5,7 @@ import { solutionArchitectureModule1Runtime } from "./solution-architecture-modu
 import { solutionArchitectureModule2Runtime } from "./solution-architecture-module-2-runtime";
 import { solutionArchitectureModule3Runtime } from "./solution-architecture-module-3-runtime";
 import { solutionArchitectureModule4Runtime } from "./solution-architecture-module-4-runtime";
-import { solutionArchitectureModule5Runtime } from "./solution-architecture-module-5-runtime";
+import { solutionArchitectureModule5Runtime } from "./solution-architecture-module-5-factory-runtime";
 import { solutionArchitectureModule6Runtime } from "./solution-architecture-module-6-runtime";
 import { solutionArchitectureModule7Runtime } from "./solution-architecture-module-7-runtime";
 import { solutionArchitectureModule8Runtime } from "./solution-architecture-module-8-runtime";
