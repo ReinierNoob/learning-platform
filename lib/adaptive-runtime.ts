@@ -6,6 +6,9 @@ import { solutionArchitectureModule3 } from "./solution-architecture-module-3";
 import { solutionArchitectureModule4 } from "./solution-architecture-module-4";
 import { solutionArchitectureModule5 } from "./solution-architecture-module-5";
 import { solutionArchitectureModule6 } from "./solution-architecture-module-6-definition";
+import { solutionArchitectureModule7 } from "./solution-architecture-module-7";
+import { solutionArchitectureModule8 } from "./solution-architecture-module-8";
+import { solutionArchitectureModule9 } from "./solution-architecture-module-9";
 
 export const adaptiveSolutionArchitectureCourseSlug = solutionArchitectureModule1.courseSlug;
 export const adaptiveModule1SourceModuleId = solutionArchitectureModule1.sourceModuleId;
@@ -15,6 +18,9 @@ export const adaptiveModule4SourceModuleId = solutionArchitectureModule4.sourceM
 export const adaptiveModule5SourceModuleId = solutionArchitectureModule5.sourceModuleId;
 export const adaptiveModule6CourseSlug = solutionArchitectureModule6.courseSlug;
 export const adaptiveModule6SourceModuleId = solutionArchitectureModule6.sourceModuleId;
+export const adaptiveModule7SourceModuleId = solutionArchitectureModule7.sourceModuleId;
+export const adaptiveModule8SourceModuleId = solutionArchitectureModule8.sourceModuleId;
+export const adaptiveModule9SourceModuleId = solutionArchitectureModule9.sourceModuleId;
 export const adaptiveSchemaVersion = "v2.3";
 export const adaptiveModule6ClassifierVersion = "module6-classifier-v1.1";
 export const adaptiveModule6AssessmentVersion = "module6-assessment-v1";
@@ -27,6 +33,9 @@ const adaptivePreviewFlagByModule: Readonly<Record<number, string>> = {
   [adaptiveModule4SourceModuleId]: "EAW_ADAPTIVE_MODULE4_IN_LEARNING",
   [adaptiveModule5SourceModuleId]: "EAW_ADAPTIVE_MODULE5_IN_LEARNING",
   [adaptiveModule6SourceModuleId]: "EAW_ADAPTIVE_MODULE6_IN_LEARNING",
+  [adaptiveModule7SourceModuleId]: "EAW_ADAPTIVE_MODULE7_IN_LEARNING",
+  [adaptiveModule8SourceModuleId]: "EAW_ADAPTIVE_MODULE8_IN_LEARNING",
+  [adaptiveModule9SourceModuleId]: "EAW_ADAPTIVE_MODULE9_IN_LEARNING",
 };
 
 /**
