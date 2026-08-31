@@ -7,7 +7,7 @@ const interventions = {
     speaker: "alexander",
     title: "Een architectuuropdracht is nog geen oplossing",
     kind: "explanation",
-    body: "Een werkbare architectuuropdracht maakt minimaal resultaat, scope en randvoorwaarden expliciet en benoemt wat nog openstaat. Als de gekozen oplossing al in de opdracht staat, is een belangrijk deel van het architectuurwerk feitelijk vooraf ingevuld. De solution architect onderzoekt daarom eerst wat werkelijk gevraagd wordt voordat hij gaat ontwerpen.",
+    body: "Een werkbare architectuuropdracht maakt minimaal resultaat, scope en randvoorwaarden expliciet en benoemt wat nog openstaat. Als de gekozen oplossing al in de opdracht staat, is een belangrijk deel van het architectuurwerk feitelijk vooraf ingevuld. De solution architect formuleert de businessvraag niet opnieuw; hij toetst de ontvangen vraag op werkbaarheid en onderzoekt wat werkelijk gevraagd wordt voordat hij gaat ontwerpen.",
     visualMode: "assignment-anatomy",
   },
   "m2-vraag-achter-vraag-standard-v1": {
@@ -16,7 +16,7 @@ const interventions = {
     speaker: "alexander",
     title: "Digitalisering is vaak het middel, niet het doel",
     kind: "explanation",
-    body: "De vraag 'maak de aanvraag volledig digitaal' kan verschillende onderliggende doelen verbergen: minder handmatige verwerking, minder telefoontjes, betere toegankelijkheid of kortere doorlooptijd. Een architect die het middel voor het doel aanneemt, optimaliseert mogelijk de verkeerde uitkomst.",
+    body: "De vraag 'maak de aanvraag volledig digitaal' kan verschillende onderliggende doelen verbergen: minder handmatige verwerking, minder telefoontjes, betere toegankelijkheid of kortere doorlooptijd. Een architect die het middel voor het doel aanneemt, optimaliseert mogelijk de verkeerde uitkomst. Je gebruikt zulke doelen om te toetsen of de ontvangen vraag goed begrepen en compleet is; de businesskeuze zelf blijft bij de bevoegde opdrachtgever of businessarchitectuur.",
     visualMode: "question-behind-question",
   },
   "m2-scope-standard-v1": {
