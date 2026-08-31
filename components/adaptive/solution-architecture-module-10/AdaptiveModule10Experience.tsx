@@ -41,12 +41,35 @@ const lenses: Record<string, Lens> = {
   },
 };
 
+function FinalDecisionTree() {
+  const steps = [
+    ["1 · Vraag en scope", "Is het probleem helder en zijn oplossingsaannames expliciet getoetst?"],
+    ["2 · Stakeholders en eisen", "Welke belangen botsen en welke eisen zijn werkelijk toetsbaar?"],
+    ["3 · Kwaliteitsprioriteiten", "Welke kwaliteitsattributen sturen de oplossingskeuze en waar zit de dominante spanning?"],
+    ["4 · Passende views", "Welke informatie heeft iedere beslisser nodig en welk model/detailniveau ondersteunt dat?"],
+    ["5 · Alternatieven en trade-offs", "Welke serieuze opties zijn vergeleken en welke consequenties accepteer je bewust?"],
+    ["6 · Principes en ADR", "Is de keuze conform kaders of is een expliciete, tijdelijke en navolgbare afwijking nodig?"],
+    ["7 · Migratie en rollback", "Welke zelfstandig waardevolle stap kan veilig live en wat is het vooraf ontworpen herstelpad?"],
+  ] as const;
+
+  return <section className={styles.visual} aria-labelledby="module10-decision-tree-heading">
+    <div className={styles.visualHeader}>
+      <div><p className={styles.kicker}>Eindbeslisboom</p><h3 id="module10-decision-tree-heading">Van businessvraag naar realiseerbare architectuurbeslissing</h3></div>
+      <span>proces, geen antwoordmodel</span>
+    </div>
+    <div className={styles.alwaysCards}>
+      {steps.map(([title, description]) => <div className={styles.visualCard} key={title}><strong>{title}</strong><span>{description}</span></div>)}
+    </div>
+    <p className={styles.feedback}><strong>Teruglus:</strong> als een stap onvoldoende onderbouwd is, ga je terug naar de relevante eerdere analyse in plaats van het volgende besluit te forceren.</p>
+  </section>;
+}
+
 function IntegratedCaseCanvas({ mode }: { mode?: string }) {
   if (!mode || mode === "assessment") return null;
   const lens = lenses[mode];
   if (!lens) return null;
 
-  return <section className={styles.visual} aria-label={lens.title}>
+  const canvas = <section className={styles.visual} aria-label={lens.title}>
     <div className={styles.visualHeader}>
       <div><p className={styles.kicker}>Analysecanvas</p><h3>{lens.title}</h3></div>
       <span>geen inhoudelijke hint</span>
@@ -58,6 +81,9 @@ function IntegratedCaseCanvas({ mode }: { mode?: string }) {
       </div>)}
     </div>
   </section>;
+
+  if (mode === "case-overview") return <>{canvas}<FinalDecisionTree /></>;
+  return canvas;
 }
 
 function PreviousModuleLinks({ courseHref }: { courseHref?: string }) {
