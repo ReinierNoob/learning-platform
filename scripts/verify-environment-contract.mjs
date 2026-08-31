@@ -30,6 +30,9 @@ for (const file of runtimeRoots.flatMap(walk)) {
   if (/https:\/\/[a-z0-9]{20}\.supabase\.co/i.test(source)) {
     failures.push(`${file}: hardcoded Supabase project URL in runtime source`);
   }
+  if (/process\.env\.SUPABASE_(?:URL|SERVICE_ROLE_KEY)\b/.test(source)) {
+    failures.push(`${file}: legacy generic SUPABASE_* runtime fallback aangetroffen`);
+  }
 }
 
 const platformPath = "lib/platform.ts";
@@ -55,16 +58,21 @@ if (!existsSync(ciPath)) {
   }
 }
 
-const productionWorkflowPath = ".github/workflows/vercel-production.yml";
-if (!existsSync(productionWorkflowPath)) {
-  failures.push("production workflow ontbreekt");
-} else {
-  const production = readFileSync(productionWorkflowPath, "utf8");
-  if (!production.includes("Verify required production environment keys")) {
-    failures.push("production workflow mist environment preflight");
+for (const [label, workflowPath, preflightName] of [
+  ["preview", ".github/workflows/vercel-preview.yml", "Verify required preview secret configuration"],
+  ["production", ".github/workflows/vercel-production.yml", "Verify required production environment keys"],
+]) {
+  if (!existsSync(workflowPath)) {
+    failures.push(`${label} workflow ontbreekt`);
+    continue;
   }
-  for (const key of ["EAW_SUPABASE_URL", "EAW_SUPABASE_PUBLISHABLE_KEY", "EAW_ACCOUNT_URL", "VIDEO_SUPABASE_URL"]) {
-    if (!production.includes(key)) failures.push(`production workflow preflight mist ${key}`);
+  const workflow = readFileSync(workflowPath, "utf8");
+  if (!workflow.includes(preflightName)) failures.push(`${label} workflow mist environment preflight`);
+  for (const key of ["EAW_SUPABASE_URL", "EAW_SUPABASE_PUBLISHABLE_KEY", "EAW_ACCOUNT_URL", "VIDEO_SUPABASE_URL", "VIDEO_SUPABASE_SERVICE_ROLE_KEY"]) {
+    if (!workflow.includes(key)) failures.push(`${label} workflow preflight mist ${key}`);
+  }
+  if (/(^|[^A-Z0-9_])SUPABASE_SERVICE_ROLE_KEY([^A-Z0-9_]|$)/m.test(workflow.replaceAll("VIDEO_SUPABASE_SERVICE_ROLE_KEY", ""))) {
+    failures.push(`${label} workflow accepteert nog generieke SUPABASE_SERVICE_ROLE_KEY als mediafallback`);
   }
 }
 
@@ -74,4 +82,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log("Environment contract: PASS (Vercel target env is runtime SoT; CI is hermetic; no hardcoded Supabase runtime credentials/URLs)");
+console.log("Environment contract: PASS (Vercel target env is runtime SoT; CI is hermetic; dedicated EAW/media bindings; no hardcoded Supabase runtime credentials/URLs)");
