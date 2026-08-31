@@ -3,7 +3,7 @@ import {
   accessCookieName,
   eawPublishableKey,
   eawSupabaseUrl,
-} from "../../../../../../lib/platform";
+} from "../../../../../lib/platform";
 
 const expectedBranch = "feature/adaptive-solution-architecture-module-6";
 const coursePath = "/leren/solution-architectuur-ontwerppraktijk/module/6";
