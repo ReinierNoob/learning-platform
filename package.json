@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "postbuild": "node scripts/verify-protected-preview-oidc.mjs",
     "start": "next start"
   },
   "dependencies": {
