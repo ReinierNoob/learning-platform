@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import AdaptiveModule6Pilot from "./AdaptiveModule6Pilot";
+import AdaptiveModule6PilotV2 from "./AdaptiveModule6PilotV2";
 
 export const metadata = {
   title: "EAW Learning Lab — Solution Architecture Module 6",
@@ -9,5 +9,5 @@ export const metadata = {
 
 export default function SolutionArchitectureModule6LabPage() {
   if (process.env.VERCEL_ENV === "production") notFound();
-  return <AdaptiveModule6Pilot />;
+  return <AdaptiveModule6PilotV2 />;
 }
