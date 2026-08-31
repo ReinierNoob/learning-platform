@@ -16,13 +16,11 @@ async function request(path) {
   const location = response.headers.get("location") ?? "";
   const locationClass = location.includes("vercel.com/sso-api")
     ? "vercel_sso"
-    : location.includes("enterprisearchitectureworks.nl/account/inloggen")
-      ? "eaw_login"
-      : location
-        ? "other_redirect"
-        : "none";
+    : location
+      ? "application_redirect"
+      : "none";
   console.log(`OIDC_TRUSTED_SOURCE_PROBE:${JSON.stringify({ path, status: response.status, locationClass })}`);
-  return { response, location, locationClass };
+  return { response, locationClass };
 }
 
 const lab = await request("/lab/solution-architecture-module-6");
@@ -32,7 +30,10 @@ if (lab.response.status !== 200 || lab.locationClass === "vercel_sso") {
 }
 
 const learning = await request("/leren/solution-architectuur-ontwerppraktijk/module/6");
-if (learning.response.status < 300 || learning.response.status >= 400 || learning.locationClass !== "eaw_login") {
+const isApplicationRedirect = learning.response.status >= 300
+  && learning.response.status < 400
+  && learning.locationClass === "application_redirect";
+if (!isApplicationRedirect) {
   console.error("OIDC_TRUSTED_SOURCE_PROBE:LEARNING_ROUTE_FAILED");
   process.exit(25);
 }
