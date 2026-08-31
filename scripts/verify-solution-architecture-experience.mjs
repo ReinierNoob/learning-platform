@@ -35,6 +35,7 @@ for (const key of personaKeys) {
 if (!Array.isArray(registry.modules) || registry.modules.length !== 10) fail(`module_count:${registry.modules?.length ?? 0}`);
 const seenModules = new Set();
 const seenAssetKeys = new Set();
+const visualSourceCache = new Map();
 let visualCount = 0;
 for (const module of registry.modules) {
   const id = Number(module.sourceModuleId);
@@ -68,10 +69,17 @@ for (const module of registry.modules) {
       if (visual.assetStatus !== "ready") fail(`visual_not_ready:${id}:${visual.assetKey}`);
       if (visual.implementationType !== "semantic_react") fail(`visual_implementation_type:${id}:${visual.assetKey}`);
       if (!visual.assetPath) fail(`visual_path_missing:${id}:${visual.assetKey}`);
-      if (!fs.existsSync(path.resolve(visual.assetPath))) fail(`visual_path_not_found:${id}:${visual.assetKey}`);
+      const resolvedPath = path.resolve(visual.assetPath);
+      if (!fs.existsSync(resolvedPath)) fail(`visual_path_not_found:${id}:${visual.assetKey}`);
+      const source = visualSourceCache.get(resolvedPath) ?? fs.readFileSync(resolvedPath, "utf8");
+      visualSourceCache.set(resolvedPath, source);
+      if (!source.includes("aria-label") && !source.includes("aria-labelledby")) fail(`visual_accessibility_semantics_missing:${id}:${visual.assetKey}`);
       const hasModes = Array.isArray(visual.runtimeModes) && visual.runtimeModes.length > 0;
       const hasBinding = typeof visual.runtimeBinding === "string" && visual.runtimeBinding.trim().length > 0;
       if (!hasModes && !hasBinding) fail(`visual_runtime_binding_missing:${id}:${visual.assetKey}`);
+      if (hasModes && !visual.runtimeModes.some((runtimeMode) => source.includes(`\"${runtimeMode}\"`))) {
+        fail(`visual_runtime_mode_not_found:${id}:${visual.assetKey}`);
+      }
     }
   }
 
