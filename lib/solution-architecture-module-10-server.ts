@@ -62,9 +62,9 @@ export function diagnoseModule10(answers: Record<string, string>) {
   const conceptMastery: Record<string, string> = {
     "sa.m10.scope-aannames": evidence[0].passed ? "demonstrated" : "uncertain",
     "sa.m10.kwaliteit-conflict": evidence[1].passed ? "demonstrated" : "uncertain",
-    "sa.m10.modelkeuze": evidence[2].passed ? "demonstrated" : "uncertain",
+    "sa.m10.modelkeuze": "uncertain",
     "sa.m10.alternatieven-tradeoff": evidence[2].passed ? "demonstrated" : "uncertain",
-    "sa.m10.principes-review": evidence[2].passed ? "demonstrated" : "uncertain",
+    "sa.m10.principes-review": "uncertain",
     "sa.m10.migratierisico": evidence[3].passed ? "demonstrated" : "uncertain",
   };
   if (misconceptions.includes("sa.mc.hergebruik-is-altijd-beter")) {
