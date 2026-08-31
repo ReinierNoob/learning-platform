@@ -39,6 +39,8 @@ jobs:
           path: /tmp/solution-architecture-course-manifest.json
           retention-days: 3
           if-no-files-found: error
+      - name: Verify Solution Architecture learning experience design completeness
+        run: node scripts/verify-solution-architecture-experience.mjs design
       - name: Build
         run: npm run build
       - name: Verify adaptive HTTP contracts
