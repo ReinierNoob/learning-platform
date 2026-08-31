@@ -338,6 +338,8 @@ Geaccepteerde niet-blokkerende waarschuwingen voor rollout:
 Productierelease blijft daarom afzonderlijk:
 # NO-GO
 
+Dit onderscheid is expliciet: `GO WITH ACCEPTED NON-BLOCKING WARNINGS` geldt uitsluitend voor verdere ontwikkeling/controlled rollout op de featurebranch, niet voor publicatie, merge of productie-activering.
+
 ---
 
 ## 11. Doelcheck na de stap
