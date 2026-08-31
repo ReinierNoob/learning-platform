@@ -78,6 +78,9 @@ for (const moduleNumber of modules) {
     failures.push(`Module ${moduleNumber}: preview QA-lab ontbreekt (${labPath})`);
   } else {
     const lab = readFileSync(labPath, "utf8");
+    if (!lab.includes('export const dynamic = "force-dynamic"')) {
+      failures.push(`Module ${moduleNumber}: QA-lab moet request-time dynamisch zijn voor een betrouwbare runtime production-deny`);
+    }
     if (!lab.includes('process.env.VERCEL_ENV === "production"') || !lab.includes("notFound()")) {
       failures.push(`Module ${moduleNumber}: QA-lab is niet hard-denied in productie`);
     }
@@ -118,4 +121,4 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log(`Adaptive route convergence: PASS (${modules.length} discovered modules, ${modules.length * endpoints.length} endpoints, architecture decision + API + client + lab + learning-host integration + anti-lockout + fail-closed progress guards)`);
+console.log(`Adaptive route convergence: PASS (${modules.length} discovered modules, ${modules.length * endpoints.length} endpoints, architecture decision + API + client + dynamic lab + learning-host integration + anti-lockout + fail-closed progress guards)`);
