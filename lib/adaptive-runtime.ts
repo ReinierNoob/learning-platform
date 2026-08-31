@@ -1,6 +1,7 @@
 import "server-only";
 
 export const adaptiveSolutionArchitectureCourseSlug = "solution-architectuur-ontwerppraktijk";
+export const adaptiveModule4SourceModuleId = 4;
 export const adaptiveModule5SourceModuleId = 5;
 export const adaptiveModule6CourseSlug = adaptiveSolutionArchitectureCourseSlug;
 export const adaptiveModule6SourceModuleId = 6;
@@ -25,6 +26,9 @@ export function isAdaptiveLearningEnabled(courseSlug: string, sourceModuleId: nu
   if (process.env.VERCEL_ENV === "production") return false;
   if (courseSlug !== adaptiveSolutionArchitectureCourseSlug) return false;
 
+  if (sourceModuleId === adaptiveModule4SourceModuleId) {
+    return process.env.EAW_ADAPTIVE_MODULE4_IN_LEARNING === "true";
+  }
   if (sourceModuleId === adaptiveModule5SourceModuleId) {
     return process.env.EAW_ADAPTIVE_MODULE5_IN_LEARNING === "true";
   }
