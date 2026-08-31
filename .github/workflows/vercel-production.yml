@@ -33,6 +33,38 @@ jobs:
             "https://api.vercel.com/v9/projects/$VERCEL_PROJECT_ID?teamId=$VERCEL_TEAM_ID")"
           test "$STATUS" = '200' || { echo "::error::Token cannot access learning-platform (HTTP $STATUS)"; exit 1; }
 
+      - name: Verify required production environment keys
+        shell: bash
+        run: |
+          STATUS="$(curl --silent --show-error --output /tmp/envs.json --write-out '%{http_code}' \
+            --header "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v10/projects/$VERCEL_PROJECT_ID/env?teamId=$VERCEL_TEAM_ID")"
+          test "$STATUS" = '200' || { echo "::error::Cannot inspect production env keys (HTTP $STATUS)"; exit 1; }
+          node <<'NODE'
+          const fs = require('fs');
+          const envs = JSON.parse(fs.readFileSync('/tmp/envs.json','utf8')).envs ?? [];
+          const productionKeys = new Set(
+            envs
+              .filter((entry) => Array.isArray(entry.target) && entry.target.includes('production'))
+              .map((entry) => entry.key),
+          );
+          const required = [
+            'EAW_SUPABASE_URL',
+            'EAW_SUPABASE_PUBLISHABLE_KEY',
+            'EAW_ACCOUNT_URL',
+            'VIDEO_SUPABASE_URL',
+          ];
+          const missing = required.filter((key) => !productionKeys.has(key));
+          if (!productionKeys.has('VIDEO_SUPABASE_SERVICE_ROLE_KEY') && !productionKeys.has('SUPABASE_SERVICE_ROLE_KEY')) {
+            missing.push('media service role key');
+          }
+          if (missing.length) {
+            console.error(`::error::Missing production configuration: ${missing.join(', ')}`);
+            process.exit(1);
+          }
+          console.log('Production environment key contract: PASS');
+          NODE
+
       - name: Prepare production deployment payload
         shell: bash
         run: |
