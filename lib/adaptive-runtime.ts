@@ -1,14 +1,24 @@
 import "server-only";
 
-export const adaptiveSolutionArchitectureCourseSlug = "solution-architectuur-ontwerppraktijk";
-export const adaptiveModule4SourceModuleId = 4;
-export const adaptiveModule5SourceModuleId = 5;
-export const adaptiveModule6CourseSlug = adaptiveSolutionArchitectureCourseSlug;
-export const adaptiveModule6SourceModuleId = 6;
+import { solutionArchitectureModule4 } from "./solution-architecture-module-4";
+import { solutionArchitectureModule5 } from "./solution-architecture-module-5";
+import { solutionArchitectureModule6 } from "./solution-architecture-module-6-definition";
+
+export const adaptiveSolutionArchitectureCourseSlug = solutionArchitectureModule4.courseSlug;
+export const adaptiveModule4SourceModuleId = solutionArchitectureModule4.sourceModuleId;
+export const adaptiveModule5SourceModuleId = solutionArchitectureModule5.sourceModuleId;
+export const adaptiveModule6CourseSlug = solutionArchitectureModule6.courseSlug;
+export const adaptiveModule6SourceModuleId = solutionArchitectureModule6.sourceModuleId;
 export const adaptiveSchemaVersion = "v2.3";
 export const adaptiveModule6ClassifierVersion = "module6-classifier-v1.1";
 export const adaptiveModule6AssessmentVersion = "module6-assessment-v1";
 export const adaptiveModule6OrchestratorVersion = "adaptive-orchestrator-v2.3";
+
+const adaptivePreviewFlagByModule: Readonly<Record<number, string>> = {
+  [adaptiveModule4SourceModuleId]: "EAW_ADAPTIVE_MODULE4_IN_LEARNING",
+  [adaptiveModule5SourceModuleId]: "EAW_ADAPTIVE_MODULE5_IN_LEARNING",
+  [adaptiveModule6SourceModuleId]: "EAW_ADAPTIVE_MODULE6_IN_LEARNING",
+};
 
 /**
  * Persistence remains explicitly preview-gated until the production release gate is approved.
@@ -20,25 +30,17 @@ export function isAdaptivePersistenceEnabled() {
 
 /**
  * Adaptive presentation is allowlisted per course + module and hard-disabled in production.
- * Each module has its own preview flag so rollout can be reversed independently.
+ * The module definitions own course/module identity; this server-only registry owns preview flags.
  */
 export function isAdaptiveLearningEnabled(courseSlug: string, sourceModuleId: number) {
   if (process.env.VERCEL_ENV === "production") return false;
   if (courseSlug !== adaptiveSolutionArchitectureCourseSlug) return false;
 
-  if (sourceModuleId === adaptiveModule4SourceModuleId) {
-    return process.env.EAW_ADAPTIVE_MODULE4_IN_LEARNING === "true";
-  }
-  if (sourceModuleId === adaptiveModule5SourceModuleId) {
-    return process.env.EAW_ADAPTIVE_MODULE5_IN_LEARNING === "true";
-  }
-  if (sourceModuleId === adaptiveModule6SourceModuleId) {
-    return process.env.EAW_ADAPTIVE_MODULE6_IN_LEARNING === "true";
-  }
-  return false;
+  const flag = adaptivePreviewFlagByModule[sourceModuleId];
+  return Boolean(flag) && process.env[flag] === "true";
 }
 
-/** Backwards-compatible helper while Module 6-specific files are still present. */
+/** Backwards-compatible helper while Module 6-specific server files are still present. */
 export function isAdaptiveModule6LearningEnabled(courseSlug: string, sourceModuleId: number) {
   return sourceModuleId === adaptiveModule6SourceModuleId
     && isAdaptiveLearningEnabled(courseSlug, sourceModuleId);
