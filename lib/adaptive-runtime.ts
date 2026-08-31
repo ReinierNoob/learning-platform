@@ -1,10 +1,16 @@
 import "server-only";
 
+import { solutionArchitectureModule1 } from "./solution-architecture-module-1";
+import { solutionArchitectureModule2 } from "./solution-architecture-module-2";
+import { solutionArchitectureModule3 } from "./solution-architecture-module-3";
 import { solutionArchitectureModule4 } from "./solution-architecture-module-4";
 import { solutionArchitectureModule5 } from "./solution-architecture-module-5";
 import { solutionArchitectureModule6 } from "./solution-architecture-module-6-definition";
 
-export const adaptiveSolutionArchitectureCourseSlug = solutionArchitectureModule4.courseSlug;
+export const adaptiveSolutionArchitectureCourseSlug = solutionArchitectureModule1.courseSlug;
+export const adaptiveModule1SourceModuleId = solutionArchitectureModule1.sourceModuleId;
+export const adaptiveModule2SourceModuleId = solutionArchitectureModule2.sourceModuleId;
+export const adaptiveModule3SourceModuleId = solutionArchitectureModule3.sourceModuleId;
 export const adaptiveModule4SourceModuleId = solutionArchitectureModule4.sourceModuleId;
 export const adaptiveModule5SourceModuleId = solutionArchitectureModule5.sourceModuleId;
 export const adaptiveModule6CourseSlug = solutionArchitectureModule6.courseSlug;
@@ -15,6 +21,9 @@ export const adaptiveModule6AssessmentVersion = "module6-assessment-v1";
 export const adaptiveModule6OrchestratorVersion = "adaptive-orchestrator-v2.3";
 
 const adaptivePreviewFlagByModule: Readonly<Record<number, string>> = {
+  [adaptiveModule1SourceModuleId]: "EAW_ADAPTIVE_MODULE1_IN_LEARNING",
+  [adaptiveModule2SourceModuleId]: "EAW_ADAPTIVE_MODULE2_IN_LEARNING",
+  [adaptiveModule3SourceModuleId]: "EAW_ADAPTIVE_MODULE3_IN_LEARNING",
   [adaptiveModule4SourceModuleId]: "EAW_ADAPTIVE_MODULE4_IN_LEARNING",
   [adaptiveModule5SourceModuleId]: "EAW_ADAPTIVE_MODULE5_IN_LEARNING",
   [adaptiveModule6SourceModuleId]: "EAW_ADAPTIVE_MODULE6_IN_LEARNING",
