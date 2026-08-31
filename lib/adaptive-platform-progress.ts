@@ -1,7 +1,13 @@
 import "server-only";
 
 import { assessmentQuestions } from "./solution-architecture-module-6";
-import { getLearningAccess, getModuleItems, recordProgress } from "./platform";
+import {
+  eawPublishableKey,
+  eawSupabaseUrl,
+  getLearningAccess,
+  getModuleItems,
+  recordProgress,
+} from "./platform";
 import type { AdaptiveLearningContext } from "./adaptive-service";
 
 export type AdaptivePlatformProgressStatus =
@@ -16,11 +22,17 @@ export type AdaptivePlatformProgressResult = {
   score: number | null;
 };
 
+const adaptiveAnswerKey: Record<string, number> = {
+  "m6-assess-01": 1,
+  "m6-assess-02": 1,
+  "m6-assess-03": 1,
+};
+
 function normalize(value: unknown) {
   return String(value ?? "").replace(/\s+/g, " ").trim();
 }
 
-function validateAssessmentContract(context: AdaptiveLearningContext) {
+function validateQuestionContract(context: AdaptiveLearningContext) {
   const quiz = Array.isArray(context.module.quiz) ? context.module.quiz : [];
   if (quiz.length !== assessmentQuestions.length) return false;
 
@@ -35,20 +47,51 @@ function validateAssessmentContract(context: AdaptiveLearningContext) {
   });
 }
 
+async function validateConfiguredAnswerKey(context: AdaptiveLearningContext) {
+  const response = await fetch(
+    `${eawSupabaseUrl}/rest/v1/course_modules?id=eq.${encodeURIComponent(context.module.id)}&select=system_instruction&limit=1`,
+    {
+      headers: {
+        apikey: eawPublishableKey,
+        Authorization: `Bearer ${context.token}`,
+      },
+      cache: "no-store",
+    },
+  );
+  if (!response.ok) return false;
+  const [row] = await response.json() as Array<{ system_instruction?: string | null }>;
+  if (!row) return false;
+
+  const configuredKey = new Map<number, string>();
+  for (const match of String(row.system_instruction ?? "").matchAll(/(?:^|\n)\s*(\d+)\s*=\s*([A-D])\s*\(([^\n]+)\)/g)) {
+    configuredKey.set(Number(match[1]), match[2]);
+  }
+
+  if (configuredKey.size < assessmentQuestions.length) return false;
+
+  return assessmentQuestions.every((question, index) => {
+    const configured = context.module.quiz[index];
+    const optionKeys = Object.keys(configured.opties ?? {});
+    const expectedIndex = adaptiveAnswerKey[question.id];
+    const expectedKey = optionKeys[expectedIndex];
+    return Boolean(expectedKey) && configuredKey.get(Number(configured.nr)) === expectedKey;
+  });
+}
+
 /**
  * Synchronizes a passed adaptive mastery check with the existing EAW progress
  * mechanism. This deliberately reuses record-progress / complete_module_item
  * instead of creating a second completion model.
  *
- * Fail closed: if the published Module 6 assessment contract differs from the
- * adaptive assessment, no platform completion is written.
+ * Fail closed: question text, options AND the central configured answer key
+ * must match before any standard platform progress is written.
  */
 export async function syncAdaptiveModule6PlatformProgress(
   context: AdaptiveLearningContext,
   adaptiveAnswers: Record<string, number>,
 ): Promise<AdaptivePlatformProgressResult> {
   try {
-    if (!validateAssessmentContract(context)) {
+    if (!validateQuestionContract(context) || !(await validateConfiguredAnswerKey(context))) {
       return { status: "contract_mismatch", completionPercentage: null, score: null };
     }
 
@@ -58,14 +101,6 @@ export async function syncAdaptiveModule6PlatformProgress(
 
     if (assessmentItems.length !== 1) {
       return { status: "not_configured", completionPercentage: null, score: null };
-    }
-
-    // The adaptive route replaces the fixed chapter sequence. Once the learner
-    // demonstrates all mandatory Module 6 objectives, all required content
-    // items in the same published module may be completed through the existing
-    // progress endpoint before the canonical assessment item is recorded.
-    for (const item of requiredContent) {
-      await recordProgress(context.token, { itemId: item.id });
     }
 
     const configuredQuiz = context.module.quiz;
@@ -82,6 +117,13 @@ export async function syncAdaptiveModule6PlatformProgress(
       platformAnswers[String(configured.nr)] = selectedKey;
     }
 
+    // The adaptive route replaces the fixed chapter sequence. After the learner
+    // passes every mandatory mastery check, the same required content items used
+    // by the standard module are completed through record-progress.
+    for (const item of requiredContent) {
+      await recordProgress(context.token, { itemId: item.id });
+    }
+
     const graded = await recordProgress(context.token, {
       itemId: assessmentItems[0].id,
       answers: platformAnswers,
@@ -89,7 +131,8 @@ export async function syncAdaptiveModule6PlatformProgress(
     });
 
     if (graded.score !== 100) {
-      return { status: "contract_mismatch", completionPercentage: null, score: graded.score };
+      console.error("adaptive_platform_progress_unexpected_score", graded.score);
+      return { status: "failed", completionPercentage: null, score: graded.score };
     }
 
     const access = await getLearningAccess(context.course.id, context.token);
