@@ -98,10 +98,12 @@ Niet blocking voor controlled content rollout, wel blocking voor productie:
 
 ## Gate
 
-**Controlled rollout:** GO WITH ACCEPTED NON-BLOCKING WARNINGS.
+**Controlled rollout op featurebranch:** GO WITH ACCEPTED NON-BLOCKING WARNINGS.
 
 **Production release:** NO-GO.
 
-Finale remediation-build: commit `11885c9963a0cdda6bfc3b9764443e65c9eb0b69`, Vercel deployment `dpl_FBe1hYvxJVKuucT8CxKpKuENYKdd`, status READY.
+De rollout-GO geeft dus geen toestemming voor merge, productieflags, productie-course data of publicatie.
 
-De formele gate is leidend; latere documentatiecommits wijzigen de technische bewijscommit niet.
+Finale technische remediation-build: commit `11885c9963a0cdda6bfc3b9764443e65c9eb0b69`, Vercel deployment `dpl_FBe1hYvxJVKuucT8CxKpKuENYKdd`, status READY.
+
+Latere documentatiecommits wijzigen de technische bewijscommit niet.
