@@ -53,11 +53,9 @@ jobs:
             'EAW_SUPABASE_PUBLISHABLE_KEY',
             'EAW_ACCOUNT_URL',
             'VIDEO_SUPABASE_URL',
+            'VIDEO_SUPABASE_SERVICE_ROLE_KEY',
           ];
           const missing = required.filter((key) => !productionKeys.has(key));
-          if (!productionKeys.has('VIDEO_SUPABASE_SERVICE_ROLE_KEY') && !productionKeys.has('SUPABASE_SERVICE_ROLE_KEY')) {
-            missing.push('media service role key');
-          }
           if (missing.length) {
             console.error(`::error::Missing production configuration: ${missing.join(', ')}`);
             process.exit(1);
