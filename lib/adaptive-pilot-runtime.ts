@@ -12,6 +12,13 @@ export function isAdaptivePersistenceEnabled() {
     && process.env.EAW_ADAPTIVE_PERSISTENCE_ENABLED === "true";
 }
 
+export function isAdaptiveModule6LearningEnabled(courseSlug: string, sourceModuleId: number) {
+  return process.env.VERCEL_ENV !== "production"
+    && process.env.EAW_ADAPTIVE_MODULE6_IN_LEARNING === "true"
+    && courseSlug === adaptiveModule6CourseSlug
+    && sourceModuleId === adaptiveModule6SourceModuleId;
+}
+
 export function adaptiveAccessStatus(code: string) {
   if (code === "authentication_required") return 401;
   if (code === "entitlement_required") return 403;
