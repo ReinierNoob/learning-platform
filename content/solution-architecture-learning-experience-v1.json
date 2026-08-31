@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "eaw-learning-experience-v1",
+  "courseSlug": "solution-architectuur-ontwerppraktijk",
+  "sourceManifestHash": "sha256:ab0186d5dd65e6598eb9f7ecd728fd9985a1fc0b1048cf46c2df2460b6edf6d3",
+  "personas": {
+    "eva": {
+      "role": "interviewer",
+      "releaseRequired": true,
+      "scriptLanguage": "nl-NL",
+      "avatar": {
+        "provider": "heygen",
+        "status": "awaiting_visual_approval",
+        "groupId": null,
+        "voiceId": null
+      },
+      "accessibility": {
+        "captionsRequired": true,
+        "transcriptRequired": true,
+        "textEquivalentRequired": true
+      }
+    },
+    "alexander": {
+      "role": "tutor",
+      "releaseRequired": true,
+      "scriptLanguage": "nl-NL",
+      "avatar": {
+        "provider": "heygen",
+        "status": "awaiting_visual_approval",
+        "groupId": null,
+        "voiceId": null
+      },
+      "accessibility": {
+        "captionsRequired": true,
+        "transcriptRequired": true,
+        "textEquivalentRequired": true
+      }
+    }
+  },
+  "modules": [
+    {"sourceModuleId":1,"slug":"rol-en-positionering","title":"Rol en positionering","scripts":{"eva":{"assetKey":"sa-m01-eva-intro-v1","status":"script_ready","transcriptStatus":"script_is_transcript"},"alexander":{"assetKey":"sa-m01-alexander-explainer-v1","status":"script_ready","transcriptStatus":"script_is_transcript"}},"visuals":[{"assetKey":"sa-m01-roles-mandate-map-v1","visualMode":"roles-mandate-map","briefStatus":"ready","assetStatus":"pending_generation","altTextStatus":"ready"}],"releaseStatus":"blocked_assets_pending"},
+    {"sourceModuleId":2,"slug":"businessvraag-ontvangen-en-toetsen","title":"De businessvraag ontvangen en toetsen","scripts":{"eva":{"assetKey":"sa-m02-eva-intro-v1","status":"script_ready","transcriptStatus":"script_is_transcript"},"alexander":{"assetKey":"sa-m02-alexander-explainer-v1","status":"script_ready","transcriptStatus":"script_is_transcript"}},"visuals":[{"assetKey":"sa-m02-question-scope-assumption-canvas-v1","visualMode":"question-scope-assumption-canvas","briefStatus":"ready","assetStatus":"pending_generation","altTextStatus":"ready"},{"assetKey":"sa-m02-open-decisions-board-v1","visualMode":"open-decisions-board","briefStatus":"ready","assetStatus":"pending_generation","altTextStatus":"ready"}],"releaseStatus":"blocked_assets_pending"},
+    {"sourceModuleId":3,"slug":"stakeholders-en-eisen","title":"Stakeholders en eisen","scripts":{"eva":{"assetKey":"sa-m03-eva-intro-v1","status":"script_ready","transcriptStatus":"script_is_transcript"},"alexander":{"assetKey":"sa-m03-alexander-explainer-v1","status":"script_ready","transcriptStatus":"script_is_transcript"}},"visuals":[{"assetKey":"sa-m03-stakeholder-tension-map-v1","visualMode":"stakeholder-tension-map","briefStatus":"ready","assetStatus":"pending_generation","altTextStatus":"ready"},{"assetKey":"sa-m03-requirement-quality-check-v1","visualMode":"requirement-quality-check","briefStatus":"ready","assetStatus":"pending_generation","altTextStatus":"ready"}],"releaseStatus":"blocked_assets_pending"},
+    {"sourceModuleId":4,"slug":"kwaliteitsattributen","title":"Kwaliteitsattributen","scripts":{"eva":{"assetKey":"sa-m04-eva-intro-v1","status":"script_ready","transcriptStatus":"script_is_transcript"},"alexander":{"assetKey":"sa-m04-alexander-explainer-v1","status":"script_ready","transcriptStatus":"script_is_transcript"}},"visuals":[{"assetKey":"sa-m04-quality-attribute-priority-board-v1","visualMode":"quality-attribute-priority-board","briefStatus":"ready","assetStatus":"pending_generation","altTextStatus":"ready"},{"assetKey":"sa-m04-quality-tradeoff-overlay-v1","visualMode":"quality-tradeoff-overlay","briefStatus":"ready","assetStatus":"pending_generation","altTextStatus":"ready"}],"releaseStatus":"blocked_assets_pending"},
+    {"sourceModuleId":5,"slug":"modelleren-en-visualiseren","title":"Modelleren en visualiseren","scripts":{"eva":{"assetKey":"sa-m05-eva-intro-v1","status":"script_ready","transcriptStatus":"script_is_transcript"},"alexander":{"assetKey":"sa-m05-alexander-explainer-v1","status":"script_ready","transcriptStatus":"script_is_transcript"}},"visuals":[{"assetKey":"sa-m05-c4-level-ladder-v1","visualMode":"c4-level-ladder","briefStatus":"ready","assetStatus":"pending_generation","altTextStatus":"ready"},{"assetKey":"sa-m05-viewpoint-selection-guide-v1","visualMode":"viewpoint-selection-guide","briefStatus":"ready","assetStatus":"pending_generation","altTextStatus":"ready"}],"releaseStatus":"blocked_assets_pending"},
+    {"sourceModuleId":6,"slug":"ontwerpkeuzes-en-trade-offs","title":"Ontwerpkeuzes en trade-offs","scripts":{"eva":{"assetKey":"sa-m06-eva-intro-v1","status":"script_ready","transcriptStatus":"script_is_transcript"},"alexander":{"assetKey":"sa-m06-alexander-explainer-v1","status":"script_ready","transcriptStatus":"script_is_transcript"}},"visuals":[{"assetKey":"sa-m06-tradeoff-matrix-v1","visualMode":"tradeoff-matrix","briefStatus":"ready","assetStatus":"pending_generation","altTextStatus":"ready"},{"assetKey":"sa-m06-adr-card-v1","visualMode":"adr-card","briefStatus":"ready","assetStatus":"pending_generation","altTextStatus":"ready"}],"releaseStatus":"blocked_assets_pending"},
+    {"sourceModuleId":7,"slug":"integratie-en-applicatielandschap","title":"Integratie en applicatielandschap","scripts":{"eva":{"assetKey":"sa-m07-eva-intro-v1","status":"script_ready","transcriptStatus":"script_is_transcript"},"alexander":{"assetKey":"sa-m07-alexander-explainer-v1","status":"script_ready","transcriptStatus":"script_is_transcript"}},"visuals":[{"assetKey":"sa-m07-system-context-integration-map-v1","visualMode":"system-context-integration-map","briefStatus":"ready","assetStatus":"pending_generation","altTextStatus":"ready"},{"assetKey":"sa-m07-sync-async-pattern-compare-v1","visualMode":"sync-async-pattern-compare","briefStatus":"ready","assetStatus":"pending_generation","altTextStatus":"ready"}],"releaseStatus":"blocked_assets_pending"},
+    {"sourceModuleId":8,"slug":"principes-governance-en-review","title":"Principes, governance en review","scripts":{"eva":{"assetKey":"sa-m08-eva-intro-v1","status":"script_ready","transcriptStatus":"script_is_transcript"},"alexander":{"assetKey":"sa-m08-alexander-explainer-v1","status":"script_ready","transcriptStatus":"script_is_transcript"}},"visuals":[{"assetKey":"sa-m08-principle-deviation-board-v1","visualMode":"principle-deviation-board","briefStatus":"ready","assetStatus":"pending_generation","altTextStatus":"ready"},{"assetKey":"sa-m08-review-decision-table-v1","visualMode":"review-decision-table","briefStatus":"ready","assetStatus":"pending_generation","altTextStatus":"ready"}],"releaseStatus":"blocked_assets_pending"},
+    {"sourceModuleId":9,"slug":"realisatie-en-migratie","title":"Realisatie en migratie","scripts":{"eva":{"assetKey":"sa-m09-eva-intro-v1","status":"script_ready","transcriptStatus":"script_is_transcript"},"alexander":{"assetKey":"sa-m09-alexander-explainer-v1","status":"script_ready","transcriptStatus":"script_is_transcript"}},"visuals":[{"assetKey":"sa-m09-phased-roadmap-v1","visualMode":"phased-roadmap","briefStatus":"ready","assetStatus":"pending_generation","altTextStatus":"ready"},{"assetKey":"sa-m09-rollback-gonogo-checkpoints-v1","visualMode":"rollback-gonogo-checkpoints","briefStatus":"ready","assetStatus":"pending_generation","altTextStatus":"ready"}],"releaseStatus":"blocked_assets_pending"},
+    {"sourceModuleId":10,"slug":"integrale-eindcasus","title":"Integrale eindcasus","scripts":{"eva":{"assetKey":"sa-m10-eva-intro-v1","status":"script_ready","transcriptStatus":"script_is_transcript"},"alexander":{"assetKey":"sa-m10-alexander-explainer-v1","status":"script_ready","transcriptStatus":"script_is_transcript"}},"visuals":[{"assetKey":"sa-m10-integral-case-map-v1","visualMode":"integral-case-map","briefStatus":"ready","assetStatus":"pending_generation","altTextStatus":"ready"},{"assetKey":"sa-m10-final-decision-tree-v1","visualMode":"final-decision-tree","briefStatus":"ready","assetStatus":"pending_generation","altTextStatus":"ready"}],"releaseStatus":"blocked_assets_pending"}
+  ]
+}
