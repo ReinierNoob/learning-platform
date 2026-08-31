@@ -15,35 +15,15 @@ import {
   requireAdaptiveLearningContext,
   type AdaptiveLearningContext,
 } from "../../../../../lib/adaptive-service";
-import { syncAdaptiveModule6PlatformProgress } from "../../../../../lib/adaptive-platform-progress";
-
-const answerKey: Record<string, number> = {
-  "m6-assess-01": 1,
-  "m6-assess-02": 1,
-  "m6-assess-03": 1,
-};
-
-const objectiveByQuestion: Record<string, string> = {
-  "m6-assess-01": "sa.m06.alternatieven-vergelijken",
-  "m6-assess-02": "sa.m06.adr-onderdelen",
-  "m6-assess-03": "sa.m06.adr-beoordelen",
-};
-
-const remediationByQuestion: Record<string, string[]> = {
-  "m6-assess-01": ["m6-trade-off-repair-v1", "m6-attributen-standard-v1"],
-  "m6-assess-02": ["m6-adr-anatomie-standard-v1"],
-  "m6-assess-03": ["m6-consequenties-repair-v1"],
-};
-
-function isStandardLearningRequest(request: Request) {
-  const referer = request.headers.get("referer");
-  if (!referer) return false;
-  try {
-    return new URL(referer).pathname.startsWith("/leren/");
-  } catch {
-    return false;
-  }
-}
+import {
+  shouldSyncAdaptivePlatformProgress,
+  syncAdaptiveModule6PlatformProgress,
+} from "../../../../../lib/adaptive-platform-progress";
+import {
+  module6AnswerKey,
+  module6ObjectiveByQuestion,
+  module6RemediationByQuestion,
+} from "../../../../../lib/solution-architecture-module-6-server";
 
 export async function POST(request: Request) {
   if (process.env.VERCEL_ENV === "production") return new NextResponse(null, { status: 404 });
@@ -53,16 +33,16 @@ export async function POST(request: Request) {
     syncPlatformProgress?: boolean;
   } | null;
   const answers = body?.answers ?? {};
-  const syncPlatformProgress = body?.syncPlatformProgress === true || isStandardLearningRequest(request);
+  const syncPlatformProgress = shouldSyncAdaptivePlatformProgress(request, body?.syncPlatformProgress);
 
-  const results = Object.entries(answerKey).map(([id, correctIndex]) => ({
+  const results = Object.entries(module6AnswerKey).map(([id, correctIndex]) => ({
     id,
-    objectiveId: objectiveByQuestion[id],
+    objectiveId: module6ObjectiveByQuestion[id],
     correct: answers[id] === correctIndex,
   }));
   const correct = results.filter((item) => item.correct).length;
   const remediationSequence = Array.from(new Set(
-    results.flatMap((item) => item.correct ? [] : remediationByQuestion[item.id] ?? []),
+    results.flatMap((item) => item.correct ? [] : module6RemediationByQuestion[item.id] ?? []),
   ));
   const passed = correct === results.length;
 
@@ -146,10 +126,6 @@ export async function POST(request: Request) {
     score: null,
   };
 
-  // The QA/lab page does not request normal platform progress. A request from
-  // the authenticated /leren host does. The referer only chooses whether sync
-  // is attempted; authentication, entitlement, published module and quiz
-  // contract are revalidated server-side before any progress write.
   if (syncPlatformProgress && passed) {
     try {
       context ??= await requireAdaptiveLearningContext(adaptiveModule6CourseSlug, adaptiveModule6SourceModuleId);
