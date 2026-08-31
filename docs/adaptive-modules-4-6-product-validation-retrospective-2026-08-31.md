@@ -5,7 +5,7 @@ De 4→5→6 adaptive leerketen als één architectuur- en productmijlpaal sluit
 
 ## Wat heb ik daadwerkelijk gedaan?
 - centrale progressarchitectuur gereviewd;
-- cross-module state restore gereviewd;
+- cross-module state restore gereviewd en modulegescheiden gemaakt;
 - Module 6 van bespoke naar generic client runtime gemigreerd;
 - module identities naar definitions als SSOT gebracht;
 - Module 6 answer key gecentraliseerd;
