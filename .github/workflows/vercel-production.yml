@@ -24,6 +24,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Verify Solution Architecture release experience completeness
+        run: node scripts/verify-solution-architecture-experience.mjs release
+
       - name: Validate project-scoped Vercel token
         shell: bash
         run: |
