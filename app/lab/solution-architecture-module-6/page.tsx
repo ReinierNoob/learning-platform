@@ -1,13 +1,13 @@
 import { notFound } from "next/navigation";
-import AdaptiveModule6PilotV3 from "./AdaptiveModule6PilotV3";
+import AdaptiveModule6Experience from "../../../components/adaptive/solution-architecture-module-6/AdaptiveModule6Experience";
 
 export const metadata = {
-  title: "EAW Learning Lab — Solution Architecture Module 6",
-  description: "Preview-only pilot voor adaptieve diagnostiek, routing en tutorinterventies in Solution Architecture.",
+  title: "EAW Learning QA — Solution Architecture Module 6",
+  description: "Preview-only QA-harness voor de generieke adaptieve Module 6-runtime.",
   robots: { index: false, follow: false },
 };
 
 export default function SolutionArchitectureModule6LabPage() {
   if (process.env.VERCEL_ENV === "production") notFound();
-  return <AdaptiveModule6PilotV3 />;
+  return <AdaptiveModule6Experience />;
 }
