@@ -21,9 +21,13 @@ Bron: ISO, `ISO/IEC 25010:2023 — Systems and software engineering — SQuaRE �
 
 ### ArchiMate
 
-De actuele ArchiMate-specificatie is **ArchiMate 3.2**, uitgebracht in oktober 2022.
+De actuele ArchiMate-specificatie is **ArchiMate® 4 Specification**, document **C260**, gepubliceerd door The Open Group in april 2026. ArchiMate 3.2 uit oktober 2022 is daarmee niet langer de actuele referentie.
 
-Bron: The Open Group, ArchiMate Licensed Downloads / ArchiMate Certification.
+Voor verdere Solution Architecture-content geldt daarom **ArchiMate 4** als normatieve versie. Bij migratie- of vergelijkingsmateriaal mag ArchiMate 3.2 alleen nog expliciet als voorgaande versie worden genoemd.
+
+Relevante veranderingen ten opzichte van 3.2 zijn onder meer de vereenvoudiging van het metamodel, generieke gedragselementen over domeinen heen, een Common Domain, generieke Role/Collaboration-concepten, verwijderde elementen en de terminologische verschuiving van `layer` naar `domain` waar de ArchiMate 4-specificatie dit voorschrijft.
+
+Bron: The Open Group, `ArchiMate® 4 Specification`, C260, april 2026.
 
 ### TOGAF
 
@@ -92,6 +96,14 @@ De Berichtenbox/e-mailroute blijft staan. Dit is inhoudelijk nuttig omdat een se
 ### 8. Assessment-eigenaarschap
 
 De eindchecktekst zegt nu expliciet dat vaste beoordelingsregels worden gebruikt en dat de uitslag geen persoonlijke beoordeling van Eva of Alexander is.
+
+### 9. ArchiMate-versie
+
+**Oorspronkelijk:** de review benoemde ArchiMate 3.2 als actuele specificatie.
+
+**Reviewcorrectie:** The Open Group heeft in april 2026 **ArchiMate 4** gepubliceerd als document C260.
+
+**Aangepast:** ArchiMate 4 is voortaan de actuele referentie voor nieuwe Solution Architecture-content. Verwijzingen naar 3.2 worden alleen behouden wanneer een migratie, vergelijking of historische context dat expliciet vereist.
 
 ## Beoordeling per expertise-perspectief
 
