@@ -81,7 +81,7 @@ Alle blokkerende architectuur- en productbevindingen uit deze milestone zijn ver
 - TypeScript PASS;
 - 15 adaptive API endpoints aanwezig;
 - drie QA-harnesses aanwezig;
-- finale featurebranch-deployment READY.
+- finale featurebranch-deployment `dpl_FBe1hYvxJVKuucT8CxKpKuENYKdd` READY.
 
 ## Gatebesluit
 
