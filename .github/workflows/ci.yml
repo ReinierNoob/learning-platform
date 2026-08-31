@@ -43,6 +43,8 @@ jobs:
         run: node scripts/verify-solution-architecture-experience.mjs design
       - name: Verify Solution Architecture visual experience completeness
         run: node scripts/verify-solution-architecture-experience.mjs visual
+      - name: Verify Solution Architecture canonical avatar identities
+        run: node scripts/verify-solution-architecture-experience.mjs identity
       - name: Build
         run: npm run build
       - name: Verify adaptive HTTP contracts
