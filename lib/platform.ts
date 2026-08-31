@@ -10,21 +10,12 @@ const configuredEawPublishableKey =
   process.env.EAW_SUPABASE_PUBLISHABLE_KEY ??
   process.env.NEXT_PUBLIC_EAW_SUPABASE_PUBLISHABLE_KEY;
 
-// Supabase publishable keys are intentionally public credentials. Production
-// is pinned to the active key for the EAW project so a stale Vercel environment
-// value cannot break authenticated Data API calls after OAuth succeeds.
-const productionEawPublishableKey =
-  "sb_publishable_N3wnY2NWs4QrF45TsOLuhQ_qaHbfv4W";
-
-if (!configuredEawSupabaseUrl) {
-  throw new Error("Missing EAW_SUPABASE_URL");
+if (!configuredEawSupabaseUrl || !configuredEawPublishableKey) {
+  throw new Error("Missing EAW_SUPABASE_URL or EAW_SUPABASE_PUBLISHABLE_KEY");
 }
 
 export const eawSupabaseUrl = configuredEawSupabaseUrl;
-export const eawPublishableKey =
-  process.env.VERCEL_ENV === "production"
-    ? productionEawPublishableKey
-    : configuredEawPublishableKey ?? productionEawPublishableKey;
+export const eawPublishableKey = configuredEawPublishableKey;
 
 export const accessCookieName = "eaw_learning_access_token";
 export const refreshCookieName = "eaw_learning_refresh_token";
