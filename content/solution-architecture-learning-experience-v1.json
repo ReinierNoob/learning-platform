@@ -7,14 +7,31 @@
       "role": "interviewer",
       "releaseRequired": true,
       "scriptLanguage": "nl-NL",
-      "avatar": {"provider":"heygen","status":"awaiting_visual_approval","groupId":null,"voiceId":null},
+      "avatar": {
+        "provider": "heygen",
+        "status": "ready",
+        "groupId": "4acc8e9013e42f8ebe9f18d7f5b779fc",
+        "voiceId": "82601fe034ea4d18994b5211acff8d03",
+        "voiceName": "Sharon",
+        "historicalReferenceVideoId": "fc452c7590704259b401586417ea49ab",
+        "selectionBasis": "Reuse the existing completed private EAW interviewer identity; voice is an explicit 2026-09-01 release choice validated with Dutch synthesis."
+      },
       "accessibility": {"captionsRequired":true,"transcriptRequired":true,"textEquivalentRequired":true}
     },
     "alexander": {
       "role": "tutor",
       "releaseRequired": true,
       "scriptLanguage": "nl-NL",
-      "avatar": {"provider":"heygen","status":"awaiting_visual_approval","groupId":null,"voiceId":null},
+      "avatar": {
+        "provider": "heygen",
+        "status": "ready",
+        "groupId": "578fb2b222dd3e125ebb5aced5a7c16c",
+        "voiceId": "05c3275ea199464fb7edbd10e91c7513",
+        "voiceName": "Peter",
+        "historicalReferenceVideoId": "c818fb2342c8406c9bc34d0753c5c56e",
+        "selectionBasis": "Canonical 2026-09-01 release identity selected from four completed same-name historical candidates. The legacy video API does not expose the historical source group, so this is an explicit current release decision rather than a claim about the old binding.",
+        "supersededCandidateGroupIds": ["4aa2719861f6a205038605b62393da12","80a9e52ebc22eb9eadd94183cf47c742","b353e09320772f74eb5199b4470d9fc9"]
+      },
       "accessibility": {"captionsRequired":true,"transcriptRequired":true,"textEquivalentRequired":true}
     }
   },
