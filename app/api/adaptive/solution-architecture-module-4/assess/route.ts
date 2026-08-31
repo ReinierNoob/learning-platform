@@ -1,13 +1,15 @@
 import { NextResponse } from "next/server";
 import { adaptiveAccessStatus, adaptiveSchemaVersion, adaptiveSolutionArchitectureCourseSlug, adaptiveModule4SourceModuleId, isAdaptivePersistenceEnabled } from "../../../../../lib/adaptive-runtime";
-import { AdaptiveAccessError, getAdaptiveStateForLearner, persistAdaptiveTransitionForLearner, requireAdaptiveLearningContext } from "../../../../../lib/adaptive-service";
+import { AdaptiveAccessError, getAdaptiveStateForLearner, persistAdaptiveTransitionForLearner, requireAdaptiveLearningContext, type AdaptiveLearningContext } from "../../../../../lib/adaptive-service";
 import { module4AnswerKey, module4AssessmentVersion, module4OrchestratorVersion, module4RemediationByQuestion } from "../../../../../lib/solution-architecture-module-4-server";
 import { solutionArchitectureModule4 } from "../../../../../lib/solution-architecture-module-4";
+import { shouldSyncAdaptivePlatformProgress, syncAdaptiveModulePlatformProgress } from "../../../../../lib/adaptive-platform-progress";
 
 export async function POST(request: Request) {
   if (process.env.VERCEL_ENV === "production") return new NextResponse(null, { status: 404 });
-  const body = await request.json().catch(() => null) as { answers?: Record<string, number> } | null;
+  const body = await request.json().catch(() => null) as { answers?: Record<string, number>; syncPlatformProgress?: boolean } | null;
   const answers = body?.answers ?? {};
+  const syncPlatformProgress = shouldSyncAdaptivePlatformProgress(request, body?.syncPlatformProgress);
 
   const results = solutionArchitectureModule4.assessment.map((question) => ({
     id: question.id,
@@ -21,9 +23,11 @@ export async function POST(request: Request) {
 
   let persistence = "preview-session-only";
   let transitionIds: unknown = null;
+  let context: AdaptiveLearningContext | null = null;
+
   if (isAdaptivePersistenceEnabled()) {
     try {
-      const context = await requireAdaptiveLearningContext(adaptiveSolutionArchitectureCourseSlug, adaptiveModule4SourceModuleId);
+      context = await requireAdaptiveLearningContext(adaptiveSolutionArchitectureCourseSlug, adaptiveModule4SourceModuleId);
       const state = await getAdaptiveStateForLearner(context);
       const persisted = await persistAdaptiveTransitionForLearner(context, {
         profile: {
@@ -35,7 +39,7 @@ export async function POST(request: Request) {
           preferences: state.profile?.preferences ?? {},
         },
         evidence: results.map((item) => ({
-          moduleId: context.module.id,
+          moduleId: context!.module.id,
           objectiveId: item.objectiveId,
           evidenceType: "assessment" as const,
           sourceRef: item.id,
@@ -64,6 +68,27 @@ export async function POST(request: Request) {
     }
   }
 
+  let platformProgress = {
+    status: syncPlatformProgress ? (passed ? "failed" : "not_passed") : "not_requested",
+    completionPercentage: null as number | null,
+    score: null as number | null,
+  };
+
+  if (syncPlatformProgress && passed) {
+    try {
+      context ??= await requireAdaptiveLearningContext(adaptiveSolutionArchitectureCourseSlug, adaptiveModule4SourceModuleId);
+      platformProgress = await syncAdaptiveModulePlatformProgress(
+        context,
+        solutionArchitectureModule4.assessment,
+        module4AnswerKey,
+        answers,
+      );
+    } catch (error) {
+      if (!(error instanceof AdaptiveAccessError)) console.error("adaptive_module4_platform_progress_failed", error);
+      platformProgress = { status: "failed", completionPercentage: null, score: null };
+    }
+  }
+
   return NextResponse.json({
     correct,
     total: results.length,
@@ -73,6 +98,6 @@ export async function POST(request: Request) {
     profileUpdate,
     persistence,
     transitionIds,
-    platformProgress: { status: "not_configured", completionPercentage: null },
+    platformProgress,
   });
 }
