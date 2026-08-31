@@ -62,7 +62,7 @@ export function diagnoseModule5Answers(answers: Record<string, string>) {
   return { evidence, misconceptions, route, reasonCode, mastery, sequence: [...solutionArchitectureModule5.routes[route]] };
 }
 
-const answerKey: Record<string, number> = {
+export const module5AnswerKey: Record<string, number> = {
   "m5-assess-01": 0,
   "m5-assess-02": 1,
   "m5-assess-03": 1,
@@ -82,7 +82,7 @@ export function assessModule5Answers(answers: Record<string, number>) {
   const results = solutionArchitectureModule5.assessment.map((question) => ({
     id: question.id,
     objectiveId: question.objectiveId,
-    correct: answers[question.id] === answerKey[question.id],
+    correct: answers[question.id] === module5AnswerKey[question.id],
   }));
   const correct = results.filter((item) => item.correct).length;
   const remediationSequence = Array.from(new Set(results.flatMap((item) => item.correct ? [] : remediationByQuestion[item.id] ?? [])));
