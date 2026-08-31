@@ -141,7 +141,7 @@ export const solutionArchitectureModule7: AdaptiveModuleDefinition = {
       objectiveIds: ["sa.m07.wendbaarheid"],
       prompt: "Waarom is hergebruik van een bestaande koppeling niet automatisch de beste keuze?",
       kind: "single_choice",
-      options: ["Omdat nieuwe koppelingen altijd goedkoper zijn", "Omdat de bestaande koppeling een andere belofte kan hebben en oprekken bestaande afnemers kan raken", "Omdat hergebruik nooit is toegestaan", "Omdat iedere use-case een eigen protocol nodig heeft"],
+      options: ["Hergebruik is altijd beter; bestaande koppelingen moet je daarom altijd oprekken", "Omdat de bestaande koppeling een andere belofte kan hebben en oprekken bestaande afnemers kan raken", "Omdat hergebruik nooit is toegestaan", "Omdat iedere use-case een eigen protocol nodig heeft"],
     },
   ],
   interventions,
