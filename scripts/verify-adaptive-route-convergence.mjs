@@ -1,6 +1,12 @@
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, readdirSync } from "node:fs";
 
-const modules = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+const adaptiveApiRoot = "app/api/adaptive";
+const modules = readdirSync(adaptiveApiRoot, { withFileTypes: true })
+  .filter((entry) => entry.isDirectory() && /^solution-architecture-module-\d+$/.test(entry.name))
+  .map((entry) => Number(entry.name.match(/\d+$/)?.[0]))
+  .filter(Number.isInteger)
+  .sort((a, b) => a - b);
+
 const endpoints = [
   ["diagnose", "createAdaptiveDiagnoseHandler", "POST"],
   ["observe", "createAdaptiveObserveHandler", "POST"],
@@ -10,6 +16,18 @@ const endpoints = [
 ];
 
 const failures = [];
+
+const architectureDecisionPath = "docs/adaptive-architecture-decision-a.md";
+if (!existsSync(architectureDecisionPath)) {
+  failures.push("Pre-scaling architecture decision ontbreekt");
+} else {
+  const decision = readFileSync(architectureDecisionPath, "utf8");
+  if (!decision.includes("**Status:** ACCEPTED") || !decision.includes("generic server-side route factory") || !decision.includes("Pre-scaling architecture decision gate")) {
+    failures.push("Pre-scaling architecture decision is niet ACCEPTED of mist het factorydoelpatroon");
+  }
+}
+
+if (modules.length === 0) failures.push("Geen adaptive Solution Architecture modules gevonden");
 
 for (const moduleNumber of modules) {
   const runtimePath = moduleNumber === 5
@@ -26,7 +44,7 @@ for (const moduleNumber of modules) {
   }
 
   for (const [endpoint, factoryHandler, method] of endpoints) {
-    const routePath = `app/api/adaptive/solution-architecture-module-${moduleNumber}/${endpoint}/route.ts`;
+    const routePath = `${adaptiveApiRoot}/solution-architecture-module-${moduleNumber}/${endpoint}/route.ts`;
     if (!existsSync(routePath)) {
       failures.push(`Module ${moduleNumber}: endpoint ontbreekt (${endpoint})`);
       continue;
@@ -72,4 +90,4 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log(`Adaptive route convergence: PASS (${modules.length} modules, ${modules.length * endpoints.length} endpoints, anti-lockout + fail-closed progress guards)`);
+console.log(`Adaptive route convergence: PASS (${modules.length} discovered modules, ${modules.length * endpoints.length} endpoints, architecture decision + anti-lockout + fail-closed progress guards)`);
