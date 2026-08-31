@@ -1,0 +1,16 @@
+.routeSteps{}
+.stepNav{}
+.visualPanel{}
+.lessonPanel{}
+.completionLink{display:inline-flex;align-items:center;justify-content:center;margin-top:8px;text-decoration:none}
+.unknownAction{margin-top:10px}
+.caseIntro{margin-top:16px;padding:14px;border-left:3px solid rgba(100,214,210,.8);background:rgba(255,255,255,.06);font-size:14px}
+
+@media(min-width:761px){
+  .routeSteps:not([open]) .stepNav{display:grid!important}
+}
+
+@media(max-width:760px){
+  .lessonPanel{order:1}
+  .visualPanel{order:2}
+}
