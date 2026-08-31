@@ -237,7 +237,9 @@ Na remediation:
 - legacy Module 6 runtime CSS verwijderd en build opnieuw PASS;
 - module identities uit definitions: PASS;
 - Module 6 answer-key single source: PASS;
-- finale Vercel deployment `dpl_FBe1hYvxJVKuucT8CxKpKuENYKdd`: READY.
+- finale technische bewijsdeployment `dpl_FBe1hYvxJVKuucT8CxKpKuENYKdd`: READY op commit `11885c9963a0cdda6bfc3b9764443e65c9eb0b69`.
+
+Latere commits in deze branch zijn documentatie van dezelfde gate en wijzigen de bewezen runtime niet.
 
 Niet uitgevoerd omdat dit een aparte release/data-gate vereist:
 - branch-only Supabase write-E2E voor de nieuwe Module 4/5 fixtures;
@@ -344,7 +346,3 @@ Vraag:
 > Wat ben ik nu aan het doen en draagt dit rechtstreeks bij aan de oorspronkelijke einddoelstelling?
 
 Antwoord: **ja**. De architectuurmijlpaal 4–6 is gesloten; verdere moduleontwikkeling kan nu dezelfde bewezen productarchitectuur gebruiken zonder nieuwe engine- of progressarchitectuur te introduceren.
-
-## Finale bewijsstatus
-
-De laatste remediation-build op commit `11885c9963a0cdda6bfc3b9764443e65c9eb0b69` is door Vercel als **READY** bevestigd. Compile, TypeScript en de framework route-table zijn groen na de laatste single-source-of-truth wijziging.
