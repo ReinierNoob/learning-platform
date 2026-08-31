@@ -325,7 +325,7 @@ Finale retest na remediation:
 
 # GO WITH ACCEPTED NON-BLOCKING WARNINGS
 
-**Scope van GO:** controlled rollout van de adaptive architectuur naar de overige Solution Architecture-modules.
+**Scope van GO:** controlled rollout van de adaptive architectuur naar de overige Solution Architecture-modules op de featurebranch.
 
 Geaccepteerde niet-blokkerende waarschuwingen voor rollout:
 1. Module 6 server-side pedagogische code kan later organisatorisch worden samengebracht in één evaluatorfile; er is geen tweede runtimecontract meer.
@@ -338,7 +338,7 @@ Geaccepteerde niet-blokkerende waarschuwingen voor rollout:
 Productierelease blijft daarom afzonderlijk:
 # NO-GO
 
-Dit onderscheid is expliciet: `GO WITH ACCEPTED NON-BLOCKING WARNINGS` geldt uitsluitend voor verdere ontwikkeling/controlled rollout op de featurebranch, niet voor publicatie, merge of productie-activering.
+Het rolloutbesluit geeft geen toestemming voor merge, productieflags, productie-course data of publicatie.
 
 ---
 
