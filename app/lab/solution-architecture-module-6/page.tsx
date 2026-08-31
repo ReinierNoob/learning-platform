@@ -9,5 +9,5 @@ export const metadata = {
 
 export default function SolutionArchitectureModule6LabPage() {
   if (process.env.VERCEL_ENV === "production") notFound();
-  return <AdaptiveModule6Experience />;
+  return <AdaptiveModule6Experience showReviewDetails />;
 }
