@@ -1,6 +1,7 @@
 import "server-only";
 
 import { assessmentQuestions as module6AssessmentQuestions } from "./solution-architecture-module-6";
+import { module6AnswerKey } from "./solution-architecture-module-6-server";
 import {
   eawPublishableKey,
   eawSupabaseUrl,
@@ -26,12 +27,6 @@ export type AdaptiveAssessmentQuestion = {
   id: string;
   question: string;
   options: readonly string[];
-};
-
-const module6AnswerKey: Record<string, number> = {
-  "m6-assess-01": 1,
-  "m6-assess-02": 1,
-  "m6-assess-03": 1,
 };
 
 function normalize(value: unknown) {
@@ -148,9 +143,6 @@ export async function syncAdaptiveModulePlatformProgress(
       platformAnswers[String(configured.nr)] = selectedKey;
     }
 
-    // The adaptive route replaces the fixed chapter sequence. After the learner
-    // passes every mandatory mastery check, the same required content items used
-    // by the standard module are completed through record-progress.
     for (const item of requiredContent) {
       await recordProgress(context.token, { itemId: item.id });
     }
