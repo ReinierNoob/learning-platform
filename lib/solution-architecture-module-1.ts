@@ -101,7 +101,7 @@ export const solutionArchitectureModule1: AdaptiveModuleDefinition = {
       objectiveIds: ["sa.m01.rollen-onderscheiden"],
       prompt: "Wie hoort primair te besluiten of Middelveen de papieren aanvraag als dienstverleningskanaal afschaft?",
       kind: "single_choice",
-      options: ["Business-architect / businessverantwoordelijke", "Solution architect", "Software-architect", "Ontwikkelteam"],
+      options: ["Business-architect", "Solution architect", "Software-architect", "Enterprise architect"],
     },
     {
       id: "m1-diag-02",
@@ -153,7 +153,7 @@ export const solutionArchitectureModule1: AdaptiveModuleDefinition = {
       id: "m1-assess-01",
       objectiveId: "sa.m01.rollen-onderscheiden",
       question: "Wie bepaalt primair of de gemeente überhaupt digitaal wil aanvragen?",
-      options: ["Business-architect / businessverantwoordelijke", "Solution architect", "Software-architect", "Enterprise architect"],
+      options: ["Business-architect", "Solution architect", "Software-architect", "Enterprise architect"],
     },
     {
       id: "m1-assess-02",
