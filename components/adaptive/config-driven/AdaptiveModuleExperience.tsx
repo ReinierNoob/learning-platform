@@ -89,7 +89,8 @@ export default function AdaptiveModuleExperience({ definition, apiBase, caseIntr
     try {
       const response = await fetch(`${apiBase}/observe`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ interventionId, answer }) });
       if (!response.ok) throw new Error("observe_failed");
-      setObservations((current) => ({ ...current, [interventionId]: await response.json() as TutorObservation }));
+      const observation = await response.json() as TutorObservation;
+      setObservations((current) => ({ ...current, [interventionId]: observation }));
     } catch { setError("Je redenering kon niet worden beoordeeld. Probeer het opnieuw."); }
     finally { setBusy(false); }
   }
