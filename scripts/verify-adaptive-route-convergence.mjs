@@ -47,10 +47,29 @@ for (const moduleNumber of modules) {
   }
 }
 
+const clientRuntime = readFileSync("components/adaptive/config-driven/AdaptiveModuleExperience.tsx", "utf8");
+if (!clientRuntime.includes("attempts >= 2")) {
+  failures.push("Generic client runtime: anti-lockout na twee tutor-observations ontbreekt");
+}
+if (!clientRuntime.includes("observation?.canProceed === true") || !clientRuntime.includes("const canProceed")) {
+  failures.push("Generic client runtime: tutor-observation proceed gate ontbreekt");
+}
+
+const progressRuntime = readFileSync("lib/adaptive-platform-progress.ts", "utf8");
+const firstProgressWrite = progressRuntime.indexOf("await recordProgress");
+const questionGuard = progressRuntime.indexOf("!validateQuestionContract");
+const answerKeyGuard = progressRuntime.indexOf("validateConfiguredAnswerKey");
+const mismatchReturn = progressRuntime.indexOf('return { status: "contract_mismatch"');
+if (firstProgressWrite < 0 || questionGuard < 0 || answerKeyGuard < 0 || mismatchReturn < 0) {
+  failures.push("Platformprogress: fail-closed contractguards of progresswrite ontbreken");
+} else if (!(questionGuard < firstProgressWrite && answerKeyGuard < firstProgressWrite && mismatchReturn < firstProgressWrite)) {
+  failures.push("Platformprogress: progresswrite kan plaatsvinden vóór volledige assessmentcontractvalidatie");
+}
+
 if (failures.length > 0) {
   console.error("Adaptive route convergence: FAIL");
   for (const failure of failures) console.error(`- ${failure}`);
   process.exit(1);
 }
 
-console.log(`Adaptive route convergence: PASS (${modules.length} modules, ${modules.length * endpoints.length} endpoints)`);
+console.log(`Adaptive route convergence: PASS (${modules.length} modules, ${modules.length * endpoints.length} endpoints, anti-lockout + fail-closed progress guards)`);
