@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { isAdaptiveLearningEnabled } from "../../../../../lib/adaptive-runtime";
 import { getAccessToken, getCourseBySlug, getEawLoginUrl, getLearningAccess, getPublishedModule, getSessionUser, startCourse } from "../../../../../lib/platform";
+import { AdaptiveModule4LearningExperience } from "./adaptive-module4-experience";
 import { AdaptiveModule5LearningExperience } from "./adaptive-module5-experience";
 import { AdaptiveModule6LearningExperience } from "./adaptive-module6-experience";
 import { QuizClient } from "./learning-client";
@@ -31,9 +32,16 @@ export default async function ModulePage({ params }: { params: Promise<{ slug: s
   }
 
   // Adaptive learning deliberately reuses the normal session, entitlement, course-start
-  // and published-module checks above. Each module has its own preview flag and the
-  // entire adaptive presentation is hard-disabled in production.
+  // and published-module checks above. Modules 4, 5 and 6 have independent preview flags,
+  // while adaptive presentation remains hard-disabled in production.
   if (isAdaptiveLearningEnabled(slug, sourceModuleId)) {
+    if (sourceModuleId === 4) {
+      return <AdaptiveModule4LearningExperience
+        courseTitle={course.title}
+        courseSlug={slug}
+        userEmail={user.email ?? "ingelogde cursist"}
+      />;
+    }
     if (sourceModuleId === 5) {
       return <AdaptiveModule5LearningExperience
         courseTitle={course.title}
