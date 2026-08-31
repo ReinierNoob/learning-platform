@@ -60,12 +60,36 @@ function IntegratedCaseCanvas({ mode }: { mode?: string }) {
   </section>;
 }
 
+function PreviousModuleLinks({ courseHref }: { courseHref?: string }) {
+  const baseHref = courseHref ?? `/leren/${solutionArchitectureModule10.courseSlug}`;
+  return <section className={styles.visual} aria-labelledby="module10-reference-heading">
+    <div className={styles.visualHeader}>
+      <div>
+        <p className={styles.kicker}>Gerichte herhaling</p>
+        <h3 id="module10-reference-heading">Eerdere modules direct beschikbaar</h3>
+      </div>
+      <span>alleen referentie, geen antwoord</span>
+    </div>
+    <p>Als de eindcheck een onderwerp terugverwijst, open je hier rechtstreeks de betreffende eerdere module en keer je daarna terug naar Module 10.</p>
+    <div className={styles.actions}>
+      {[2, 3, 4, 5, 6, 7, 8, 9].map((moduleNumber) => <a
+        className={styles.secondary}
+        href={`${baseHref}/module/${moduleNumber}`}
+        key={moduleNumber}
+      >Module {moduleNumber}</a>)}
+    </div>
+  </section>;
+}
+
 export default function AdaptiveModule10Experience({ courseHref }: { courseHref?: string }) {
-  return <AdaptiveModuleExperience
-    definition={solutionArchitectureModule10}
-    apiBase="/api/adaptive/solution-architecture-module-10"
-    caseIntro="Je brengt de volledige Middelveen-leerlijn samen in één integrale eindcasus. De casus introduceert geen nieuwe leerstof: je analyseert opdracht en aannames, eisen en kwaliteitsbelangen, modelkeuze, alternatieven en trade-offs, principes en review, en ten slotte realisatie en migratierisico."
-    courseHref={courseHref}
-    renderVisual={(mode) => <IntegratedCaseCanvas mode={mode} />}
-  />;
+  return <>
+    <PreviousModuleLinks courseHref={courseHref} />
+    <AdaptiveModuleExperience
+      definition={solutionArchitectureModule10}
+      apiBase="/api/adaptive/solution-architecture-module-10"
+      caseIntro="Je brengt de volledige Middelveen-leerlijn samen in één integrale eindcasus. De casus introduceert geen nieuwe leerstof: je analyseert opdracht en aannames, eisen en kwaliteitsbelangen, modelkeuze, alternatieven en trade-offs, principes en review, en ten slotte realisatie en migratierisico."
+      courseHref={courseHref}
+      renderVisual={(mode) => <IntegratedCaseCanvas mode={mode} />}
+    />
+  </>;
 }
