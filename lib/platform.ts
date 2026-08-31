@@ -32,7 +32,7 @@ export type SessionUser = { id: string; email?: string | null };
 export type LearningAccess = {
   training_id: string;
   course_slug: string;
-  launch_path: string;
+  launch_path: string | null;
   entitlement_id: string | null;
   entitlement_status: string | null;
   can_access: boolean;
@@ -64,7 +64,6 @@ export type Course = {
   slug: string;
   title: string;
   description: string | null;
-  launch_path: string;
 };
 
 export type CourseModule = {
@@ -182,7 +181,7 @@ export async function startCourse(trainingId: string, token: string): Promise<Co
 
 export async function getCourseBySlug(slug: string, token?: string | null): Promise<Course | null> {
   const response = await fetch(
-    `${eawSupabaseUrl}/rest/v1/courses?slug=eq.${encodeURIComponent(slug)}&status=eq.published&select=id,slug,title,description,launch_path&limit=1`,
+    `${eawSupabaseUrl}/rest/v1/courses?slug=eq.${encodeURIComponent(slug)}&status=eq.published&select=id,slug,title,description&limit=1`,
     { headers: authHeaders(token), cache: "no-store" },
   );
   if (!response.ok) return null;
