@@ -2,11 +2,12 @@ import fs from "node:fs";
 import path from "node:path";
 
 const mode = process.argv[2] ?? "design";
-if (!new Set(["design", "visual", "release"]).has(mode)) {
+if (!new Set(["design", "visual", "identity", "release"]).has(mode)) {
   throw new Error(`Unknown experience validation mode: ${mode}`);
 }
 
-const requireVisualAssets = mode === "visual" || mode === "release";
+const requireVisualAssets = mode === "visual" || mode === "identity" || mode === "release";
+const requireIdentity = mode === "identity" || mode === "release";
 const requireReleaseAssets = mode === "release";
 const registryPath = path.resolve("content/solution-architecture-learning-experience-v1.json");
 const registry = JSON.parse(fs.readFileSync(registryPath, "utf8"));
@@ -26,9 +27,11 @@ for (const key of personaKeys) {
     fail(`persona_accessibility_contract:${key}`);
   }
   if (persona.avatar?.provider !== "heygen") fail(`persona_provider:${key}`);
-  if (requireReleaseAssets) {
+  if (requireIdentity) {
     if (persona.avatar?.status !== "ready") fail(`persona_avatar_not_ready:${key}`);
-    if (!persona.avatar?.groupId || !persona.avatar?.voiceId) fail(`persona_identity_missing:${key}`);
+    if (!/^[0-9a-f]{32}$/i.test(persona.avatar?.groupId ?? "")) fail(`persona_group_id:${key}`);
+    if (!/^[0-9a-f]{32}$/i.test(persona.avatar?.voiceId ?? "")) fail(`persona_voice_id:${key}`);
+    if (!persona.avatar?.voiceName || !persona.avatar?.selectionBasis) fail(`persona_identity_metadata:${key}`);
   }
 }
 
