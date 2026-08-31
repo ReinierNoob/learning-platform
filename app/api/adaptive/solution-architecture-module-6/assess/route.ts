@@ -13,7 +13,9 @@ import {
   getAdaptiveStateForLearner,
   persistAdaptiveTransitionForLearner,
   requireAdaptiveLearningContext,
+  type AdaptiveLearningContext,
 } from "../../../../../lib/adaptive-service";
+import { syncAdaptiveModule6PlatformProgress } from "../../../../../lib/adaptive-platform-progress";
 
 const answerKey: Record<string, number> = {
   "m6-assess-01": 1,
@@ -36,7 +38,10 @@ const remediationByQuestion: Record<string, string[]> = {
 export async function POST(request: Request) {
   if (process.env.VERCEL_ENV === "production") return new NextResponse(null, { status: 404 });
 
-  const body = await request.json().catch(() => null) as { answers?: Record<string, number> } | null;
+  const body = await request.json().catch(() => null) as {
+    answers?: Record<string, number>;
+    syncPlatformProgress?: boolean;
+  } | null;
   const answers = body?.answers ?? {};
   const results = Object.entries(answerKey).map(([id, correctIndex]) => ({
     id,
@@ -55,10 +60,11 @@ export async function POST(request: Request) {
 
   let persistence = "preview-session-only";
   let transitionIds: { profileId: string; evidenceIds: string[]; decisionId: string } | null = null;
+  let context: AdaptiveLearningContext | null = null;
 
   if (isAdaptivePersistenceEnabled()) {
     try {
-      const context = await requireAdaptiveLearningContext(adaptiveModule6CourseSlug, adaptiveModule6SourceModuleId);
+      context = await requireAdaptiveLearningContext(adaptiveModule6CourseSlug, adaptiveModule6SourceModuleId);
       const state = await getAdaptiveStateForLearner(context);
       const conceptMastery = {
         ...(state.profile?.concept_mastery ?? {}),
@@ -81,7 +87,7 @@ export async function POST(request: Request) {
           preferences: state.profile?.preferences ?? {},
         },
         evidence: results.map((item) => ({
-          moduleId: context.module.id,
+          moduleId: context!.module.id,
           objectiveId: item.objectiveId,
           evidenceType: "assessment" as const,
           sourceRef: item.id,
@@ -118,6 +124,32 @@ export async function POST(request: Request) {
     }
   }
 
+  let platformProgress: {
+    status: "not_requested" | "not_passed" | "synced" | "not_configured" | "contract_mismatch" | "failed";
+    completionPercentage: number | null;
+    score: number | null;
+  } = {
+    status: body?.syncPlatformProgress ? (passed ? "failed" : "not_passed") : "not_requested",
+    completionPercentage: null,
+    score: null,
+  };
+
+  // Only the standard /leren host asks for platform progress synchronization.
+  // The QA/lab harness leaves this false, so it never writes normal learner progress.
+  if (body?.syncPlatformProgress && passed) {
+    try {
+      context ??= await requireAdaptiveLearningContext(adaptiveModule6CourseSlug, adaptiveModule6SourceModuleId);
+      platformProgress = await syncAdaptiveModule6PlatformProgress(context, answers);
+    } catch (error) {
+      if (error instanceof AdaptiveAccessError) {
+        platformProgress = { status: "failed", completionPercentage: null, score: null };
+      } else {
+        console.error("adaptive_platform_progress_context_failed", error);
+        platformProgress = { status: "failed", completionPercentage: null, score: null };
+      }
+    }
+  }
+
   return NextResponse.json({
     correct,
     total: results.length,
@@ -127,5 +159,6 @@ export async function POST(request: Request) {
     profileUpdate,
     persistence,
     transitionIds,
+    platformProgress,
   });
 }
