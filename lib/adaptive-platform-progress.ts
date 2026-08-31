@@ -1,6 +1,6 @@
 import "server-only";
 
-import { assessmentQuestions } from "./solution-architecture-module-6";
+import { assessmentQuestions as module6AssessmentQuestions } from "./solution-architecture-module-6";
 import {
   eawPublishableKey,
   eawSupabaseUrl,
@@ -22,7 +22,13 @@ export type AdaptivePlatformProgressResult = {
   score: number | null;
 };
 
-const adaptiveAnswerKey: Record<string, number> = {
+export type AdaptiveAssessmentQuestion = {
+  id: string;
+  question: string;
+  options: readonly string[];
+};
+
+const module6AnswerKey: Record<string, number> = {
   "m6-assess-01": 1,
   "m6-assess-02": 1,
   "m6-assess-03": 1,
@@ -32,7 +38,24 @@ function normalize(value: unknown) {
   return String(value ?? "").replace(/\s+/g, " ").trim();
 }
 
-function validateQuestionContract(context: AdaptiveLearningContext) {
+export function shouldSyncAdaptivePlatformProgress(
+  request: Request,
+  explicitFlag?: boolean,
+) {
+  if (explicitFlag === true) return true;
+  const referer = request.headers.get("referer");
+  if (!referer) return false;
+  try {
+    return new URL(referer).pathname.startsWith("/leren/");
+  } catch {
+    return false;
+  }
+}
+
+function validateQuestionContract(
+  context: AdaptiveLearningContext,
+  assessmentQuestions: readonly AdaptiveAssessmentQuestion[],
+) {
   const quiz = Array.isArray(context.module.quiz) ? context.module.quiz : [];
   if (quiz.length !== assessmentQuestions.length) return false;
 
@@ -47,7 +70,11 @@ function validateQuestionContract(context: AdaptiveLearningContext) {
   });
 }
 
-async function validateConfiguredAnswerKey(context: AdaptiveLearningContext) {
+async function validateConfiguredAnswerKey(
+  context: AdaptiveLearningContext,
+  assessmentQuestions: readonly AdaptiveAssessmentQuestion[],
+  adaptiveAnswerKey: Readonly<Record<string, number>>,
+) {
   const response = await fetch(
     `${eawSupabaseUrl}/rest/v1/course_modules?id=eq.${encodeURIComponent(context.module.id)}&select=system_instruction&limit=1`,
     {
@@ -80,18 +107,22 @@ async function validateConfiguredAnswerKey(context: AdaptiveLearningContext) {
 
 /**
  * Synchronizes a passed adaptive mastery check with the existing EAW progress
- * mechanism. This deliberately reuses record-progress / complete_module_item
- * instead of creating a second completion model.
+ * mechanism. The host platform remains the owner of official course progress.
  *
  * Fail closed: question text, options AND the central configured answer key
  * must match before any standard platform progress is written.
  */
-export async function syncAdaptiveModule6PlatformProgress(
+export async function syncAdaptiveModulePlatformProgress(
   context: AdaptiveLearningContext,
+  assessmentQuestions: readonly AdaptiveAssessmentQuestion[],
+  adaptiveAnswerKey: Readonly<Record<string, number>>,
   adaptiveAnswers: Record<string, number>,
 ): Promise<AdaptivePlatformProgressResult> {
   try {
-    if (!validateQuestionContract(context) || !(await validateConfiguredAnswerKey(context))) {
+    if (
+      !validateQuestionContract(context, assessmentQuestions)
+      || !(await validateConfiguredAnswerKey(context, assessmentQuestions, adaptiveAnswerKey))
+    ) {
       return { status: "contract_mismatch", completionPercentage: null, score: null };
     }
 
@@ -149,4 +180,17 @@ export async function syncAdaptiveModule6PlatformProgress(
     console.error("adaptive_platform_progress_sync_failed", error);
     return { status: "failed", completionPercentage: null, score: null };
   }
+}
+
+/** Backwards-compatible Module 6 wrapper. */
+export function syncAdaptiveModule6PlatformProgress(
+  context: AdaptiveLearningContext,
+  adaptiveAnswers: Record<string, number>,
+) {
+  return syncAdaptiveModulePlatformProgress(
+    context,
+    module6AssessmentQuestions,
+    module6AnswerKey,
+    adaptiveAnswers,
+  );
 }
