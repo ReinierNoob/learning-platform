@@ -1,6 +1,9 @@
 import { redirect } from "next/navigation";
 import { isAdaptiveLearningEnabled } from "../../../../../lib/adaptive-runtime";
 import { getAccessToken, getCourseBySlug, getEawLoginUrl, getLearningAccess, getPublishedModule, getSessionUser, startCourse } from "../../../../../lib/platform";
+import { AdaptiveModule1LearningExperience } from "./adaptive-module1-experience";
+import { AdaptiveModule2LearningExperience } from "./adaptive-module2-experience";
+import { AdaptiveModule3LearningExperience } from "./adaptive-module3-experience";
 import { AdaptiveModule4LearningExperience } from "./adaptive-module4-experience";
 import { AdaptiveModule5LearningExperience } from "./adaptive-module5-experience";
 import { AdaptiveModule6LearningExperience } from "./adaptive-module6-experience";
@@ -31,30 +34,27 @@ export default async function ModulePage({ params }: { params: Promise<{ slug: s
     return <main className="shell"><section className="hero"><p className="eyebrow">Nog niet beschikbaar</p><h1>Deze module is nog niet gepubliceerd.</h1><a className="button" href={`/leren/${slug}`}>Terug naar de training</a></section></main>;
   }
 
-  // Adaptive learning deliberately reuses the normal session, entitlement, course-start
-  // and published-module checks above. Modules 4, 5 and 6 have independent preview flags,
-  // while adaptive presentation remains hard-disabled in production.
+  // Adaptive learning deliberately reuses the normal session, entitlement,
+  // course-start and published-module checks above. Modules 1–6 have independent
+  // preview flags, while adaptive presentation remains hard-disabled in production.
   if (isAdaptiveLearningEnabled(slug, sourceModuleId)) {
+    if (sourceModuleId === 1) {
+      return <AdaptiveModule1LearningExperience courseTitle={course.title} courseSlug={slug} userEmail={user.email ?? "ingelogde cursist"} />;
+    }
+    if (sourceModuleId === 2) {
+      return <AdaptiveModule2LearningExperience courseTitle={course.title} courseSlug={slug} userEmail={user.email ?? "ingelogde cursist"} />;
+    }
+    if (sourceModuleId === 3) {
+      return <AdaptiveModule3LearningExperience courseTitle={course.title} courseSlug={slug} userEmail={user.email ?? "ingelogde cursist"} />;
+    }
     if (sourceModuleId === 4) {
-      return <AdaptiveModule4LearningExperience
-        courseTitle={course.title}
-        courseSlug={slug}
-        userEmail={user.email ?? "ingelogde cursist"}
-      />;
+      return <AdaptiveModule4LearningExperience courseTitle={course.title} courseSlug={slug} userEmail={user.email ?? "ingelogde cursist"} />;
     }
     if (sourceModuleId === 5) {
-      return <AdaptiveModule5LearningExperience
-        courseTitle={course.title}
-        courseSlug={slug}
-        userEmail={user.email ?? "ingelogde cursist"}
-      />;
+      return <AdaptiveModule5LearningExperience courseTitle={course.title} courseSlug={slug} userEmail={user.email ?? "ingelogde cursist"} />;
     }
     if (sourceModuleId === 6) {
-      return <AdaptiveModule6LearningExperience
-        courseTitle={course.title}
-        courseSlug={slug}
-        userEmail={user.email ?? "ingelogde cursist"}
-      />;
+      return <AdaptiveModule6LearningExperience courseTitle={course.title} courseSlug={slug} userEmail={user.email ?? "ingelogde cursist"} />;
     }
   }
 
