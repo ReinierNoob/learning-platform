@@ -38,11 +38,28 @@ const stakeholderViews: Record<Stakeholder, { doel: string; toon: string; laatWe
   },
 };
 
+function C4LevelLadder() {
+  return <section className={styles.visual} aria-labelledby="module5-c4-heading">
+    <div className={styles.visualHeader}>
+      <div><p className={styles.kicker}>C4-niveautrap</p><h3 id="module5-c4-heading">Van context naar implementatiedetail</h3></div>
+      <span>meer detail is niet automatisch beter</span>
+    </div>
+    <div className={styles.alwaysCards}>
+      <div className={styles.visualCard}><strong>1 · System Context</strong><span>Wie gebruikt het systeem en met welke externe systemen of partijen bestaat een relatie?</span></div>
+      <div className={styles.visualCard}><strong>2 · Container</strong><span>Welke uitvoerbare of opslageenheden vormen samen het systeem en hoe communiceren ze?</span></div>
+      <div className={styles.visualCard}><strong>3 · Component</strong><span>Welke grotere interne bouwblokken en verantwoordelijkheden zitten binnen een container?</span></div>
+      <div className={styles.visualCard}><strong>4 · Code</strong><span>Hoe is een component intern in code opgebouwd? Alleen tonen wanneer die detailvraag echt nodig is.</span></div>
+    </div>
+    <p className={styles.feedback}><strong>Keuzeregel:</strong> start op het grofste niveau dat de vraag van de stakeholder volledig kan beantwoorden.</p>
+  </section>;
+}
+
 function ProgressiveArchitectureCanvas({ mode }: { mode?: string }) {
   const [stakeholder, setStakeholder] = useState<Stakeholder>("wethouder");
   const view = stakeholderViews[stakeholder];
 
   if (!mode || mode === "assessment") return null;
+  if (mode === "c4-progressive") return <C4LevelLadder />;
 
   return <section className={styles.visual} aria-label="Progressive architecture canvas">
     <div className={styles.visualHeader}>
