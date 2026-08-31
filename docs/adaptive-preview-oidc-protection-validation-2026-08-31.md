@@ -53,7 +53,7 @@ Na de valide run zijn verwijderd:
 - tijdelijke `postbuild` hook;
 - tijdelijke OIDC probe-script.
 
-De reguliere buildconfiguratie is hersteld.
+De reguliere buildconfiguratie is hersteld en opnieuw gedeployed.
 
 ## Gate-status
 
