@@ -35,6 +35,16 @@ const remediationByQuestion: Record<string, string[]> = {
   "m6-assess-03": ["m6-consequenties-repair-v1"],
 };
 
+function isStandardLearningRequest(request: Request) {
+  const referer = request.headers.get("referer");
+  if (!referer) return false;
+  try {
+    return new URL(referer).pathname.startsWith("/leren/");
+  } catch {
+    return false;
+  }
+}
+
 export async function POST(request: Request) {
   if (process.env.VERCEL_ENV === "production") return new NextResponse(null, { status: 404 });
 
@@ -43,6 +53,8 @@ export async function POST(request: Request) {
     syncPlatformProgress?: boolean;
   } | null;
   const answers = body?.answers ?? {};
+  const syncPlatformProgress = body?.syncPlatformProgress === true || isStandardLearningRequest(request);
+
   const results = Object.entries(answerKey).map(([id, correctIndex]) => ({
     id,
     objectiveId: objectiveByQuestion[id],
@@ -129,24 +141,24 @@ export async function POST(request: Request) {
     completionPercentage: number | null;
     score: number | null;
   } = {
-    status: body?.syncPlatformProgress ? (passed ? "failed" : "not_passed") : "not_requested",
+    status: syncPlatformProgress ? (passed ? "failed" : "not_passed") : "not_requested",
     completionPercentage: null,
     score: null,
   };
 
-  // Only the standard /leren host asks for platform progress synchronization.
-  // The QA/lab harness leaves this false, so it never writes normal learner progress.
-  if (body?.syncPlatformProgress && passed) {
+  // The QA/lab page does not request normal platform progress. A request from
+  // the authenticated /leren host does. The referer only chooses whether sync
+  // is attempted; authentication, entitlement, published module and quiz
+  // contract are revalidated server-side before any progress write.
+  if (syncPlatformProgress && passed) {
     try {
       context ??= await requireAdaptiveLearningContext(adaptiveModule6CourseSlug, adaptiveModule6SourceModuleId);
       platformProgress = await syncAdaptiveModule6PlatformProgress(context, answers);
     } catch (error) {
-      if (error instanceof AdaptiveAccessError) {
-        platformProgress = { status: "failed", completionPercentage: null, score: null };
-      } else {
+      if (!(error instanceof AdaptiveAccessError)) {
         console.error("adaptive_platform_progress_context_failed", error);
-        platformProgress = { status: "failed", completionPercentage: null, score: null };
       }
+      platformProgress = { status: "failed", completionPercentage: null, score: null };
     }
   }
 
