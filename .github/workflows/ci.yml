@@ -34,11 +34,13 @@ jobs:
           PORT=3100 npm start > /tmp/eaw-preview.log 2>&1 &
           PREVIEW_PID=$!
           trap 'kill $PREVIEW_PID 2>/dev/null || true' EXIT
+          READY=0
           for attempt in {1..30}; do
-            if curl -fsS http://127.0.0.1:3100/ > /dev/null; then break; fi
+            if curl -sS http://127.0.0.1:3100/ > /dev/null 2>&1; then READY=1; break; fi
             sleep 1
           done
-          EAW_ADAPTIVE_BASE_URL=http://127.0.0.1:3100 node scripts/verify-adaptive-http-contracts.mjs
+          if [ "$READY" -ne 1 ]; then cat /tmp/eaw-preview.log; exit 1; fi
+          EAW_ADAPTIVE_BASE_URL=http://127.0.0.1:3100 node scripts/verify-adaptive-http-contracts.mjs || { cat /tmp/eaw-preview.log; exit 1; }
           kill $PREVIEW_PID 2>/dev/null || true
           wait $PREVIEW_PID 2>/dev/null || true
           trap - EXIT
@@ -49,11 +51,13 @@ jobs:
           VERCEL_ENV=production PORT=3101 npm start > /tmp/eaw-production.log 2>&1 &
           PRODUCTION_PID=$!
           trap 'kill $PRODUCTION_PID 2>/dev/null || true' EXIT
+          READY=0
           for attempt in {1..30}; do
-            if curl -fsS http://127.0.0.1:3101/ > /dev/null; then break; fi
+            if curl -sS http://127.0.0.1:3101/ > /dev/null 2>&1; then READY=1; break; fi
             sleep 1
           done
-          EAW_ADAPTIVE_BASE_URL=http://127.0.0.1:3101 EAW_ADAPTIVE_EXPECT_PRODUCTION_DENY=1 node scripts/verify-adaptive-http-contracts.mjs
+          if [ "$READY" -ne 1 ]; then cat /tmp/eaw-production.log; exit 1; fi
+          EAW_ADAPTIVE_BASE_URL=http://127.0.0.1:3101 EAW_ADAPTIVE_EXPECT_PRODUCTION_DENY=1 node scripts/verify-adaptive-http-contracts.mjs || { cat /tmp/eaw-production.log; exit 1; }
           kill $PRODUCTION_PID 2>/dev/null || true
           wait $PRODUCTION_PID 2>/dev/null || true
           trap - EXIT
