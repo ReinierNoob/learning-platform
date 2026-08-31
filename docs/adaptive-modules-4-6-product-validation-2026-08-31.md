@@ -83,7 +83,7 @@ Module 6 bouwt voort op stakeholdergerichte beelden en gebruikt kwaliteit als be
 ## 4. Responsive/mobile — PASS op codeniveau, live device OPEN
 
 Gevonden en hersteld tijdens deze review:
-- Module 4 gebruikte alleen `.mobileCards`; daardoor waren zijn kwaliteitsvisuals op desktop verborgen.
+- Module 4 gebruikte alleen `.mobileCards`; daardoor waren zijn kwaliteitsvisuals op desktop verborgen;
 - nieuwe `.alwaysCards`-layout toont Module 4-cards op desktop én mobiel;
 - op mobiel wordt deze layout één kolom;
 - touch targets blijven minimaal 40–44 px;
@@ -105,7 +105,9 @@ OPEN:
 - na `Volgende`, routekeuze of remediation wordt focus niet expliciet naar de nieuwe stap/heading verplaatst;
 - een echte VoiceOver/NVDA-run is nog niet uitgevoerd.
 
-Dit is een release-P1 voor toegankelijkheid/orientatie, geen productiestopper voor de huidige previewcode zolang productie hard-disabled blijft.
+Normbasis voor de releasecheck:
+- WCAG 2.2 SC 2.4.3: focusvolgorde moet betekenis en bedienbaarheid behouden;
+- WCAG 2.2 SC 4.1.3: statusmeldingen moeten programmatisch herkenbaar zijn zonder dat focus per se wordt verplaatst.
 
 ## 6. Foolproof completion — P1 OPEN
 
