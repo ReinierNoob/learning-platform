@@ -102,7 +102,7 @@ Niet blocking voor controlled content rollout, wel blocking voor productie:
 
 **Production release:** NO-GO.
 
-De rollout-GO geeft dus geen toestemming voor merge, productieflags, productie-course data of publicatie.
+De rollout-GO geeft geen toestemming voor merge, productieflags, productie-course data of publicatie.
 
 Finale technische remediation-build: commit `11885c9963a0cdda6bfc3b9764443e65c9eb0b69`, Vercel deployment `dpl_FBe1hYvxJVKuucT8CxKpKuENYKdd`, status READY.
 
