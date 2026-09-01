@@ -302,8 +302,14 @@ test('Solution Architecture complete physical learner experience', async ({ brow
   const actionTargets = mobilePage.locator('button:visible, a:visible, summary:visible');
   const targetCount = await actionTargets.count();
   for (let index = 0; index < targetCount; index += 1) {
-    const box = await actionTargets.nth(index).boundingBox();
-    if (box) expect(box.height, `mobile target ${index} height`).toBeGreaterThanOrEqual(44);
+    const target = actionTargets.nth(index);
+    const box = await target.boundingBox();
+    const descriptor = await target.evaluate((element) => {
+      const aria = element.getAttribute('aria-label')?.trim();
+      const text = (element.textContent ?? '').trim().replace(/\s+/g, ' ').slice(0, 80);
+      return `${element.tagName.toLowerCase()}:${aria || text || 'unnamed'}`;
+    });
+    if (box) expect(box.height, `mobile target ${index} ${descriptor} height`).toBeGreaterThanOrEqual(44);
   }
   await axeSeriousCritical(mobilePage, 'mobile-module-1-eva');
   await mobilePage.screenshot({ path: `${artifactsDir}/mobile-module-1-eva.png`, fullPage: true });
