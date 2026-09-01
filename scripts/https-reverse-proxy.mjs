@@ -17,11 +17,12 @@ const server = https.createServer(
     cert: fs.readFileSync(certPath),
   },
   (request, response) => {
+    const publicHost = request.headers.host ?? `localhost:${listenPort}`;
     const headers = {
       ...request.headers,
-      host: `localhost:${listenPort}`,
+      host: publicHost,
       'x-forwarded-proto': 'https',
-      'x-forwarded-host': `localhost:${listenPort}`,
+      'x-forwarded-host': publicHost,
     };
 
     const upstream = http.request(
@@ -36,9 +37,11 @@ const server = https.createServer(
         const responseHeaders = { ...upstreamResponse.headers };
         const location = responseHeaders.location;
         if (typeof location === 'string') {
+          const publicOrigin = `https://${publicHost}`;
           responseHeaders.location = location
-            .replace(`http://localhost:${targetPort}`, `https://localhost:${listenPort}`)
-            .replace(`http://localhost:${listenPort}`, `https://localhost:${listenPort}`);
+            .replace(`http://localhost:${targetPort}`, publicOrigin)
+            .replace(`http://127.0.0.1:${targetPort}`, publicOrigin)
+            .replace(`http://${publicHost}`, publicOrigin);
         }
         response.writeHead(upstreamResponse.statusCode ?? 502, responseHeaders);
         upstreamResponse.pipe(response);
@@ -55,8 +58,8 @@ const server = https.createServer(
   },
 );
 
-server.listen(listenPort, '127.0.0.1', () => {
-  console.log(`HTTPS UX proxy listening on https://localhost:${listenPort} -> http://127.0.0.1:${targetPort}`);
+server.listen({ port: listenPort, host: '::', ipv6Only: false }, () => {
+  console.log(`HTTPS UX proxy listening on https://localhost:${listenPort} (IPv4+IPv6) -> http://127.0.0.1:${targetPort}`);
 });
 
 const shutdown = () => server.close(() => process.exit(0));
