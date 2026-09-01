@@ -11,8 +11,10 @@ const assets = JSON.parse(fs.readFileSync('content/solution-architecture-present
 if (delivery.schemaVersion !== 'eaw-presenter-delivery-v1') fail('delivery_schema');
 if (delivery.courseSlug !== 'solution-architectuur-ontwerppraktijk') fail('delivery_course');
 if (delivery.storage?.bucket !== 'cursus-videos' || delivery.storage?.public !== false) fail('private_bucket_contract');
-if (delivery.storage?.projectSource !== 'VIDEO_SUPABASE_URL' || delivery.storage?.serviceRoleSource !== 'VIDEO_SUPABASE_SERVICE_ROLE_KEY') fail('media_env_contract');
+if (delivery.storage?.projectSource !== 'media_edge_function') fail('media_edge_source');
+if (delivery.storage?.serviceRoleBoundary !== 'media_supabase_internal_only') fail('service_role_boundary');
 if (delivery.storage?.signedUrlTtlSeconds !== 900) fail('ttl_contract');
+if (!String(delivery.storage?.authorizationSource ?? '').includes('get_my_learning_access')) fail('authorization_source');
 if (!Array.isArray(delivery.assets) || delivery.assets.length !== 20) fail(`delivery_asset_count:${delivery.assets?.length}`);
 if (!Array.isArray(assets.assets) || assets.assets.length !== 20) fail('presenter_registry_count');
 
@@ -42,11 +44,12 @@ if (paths.size !== 60) fail(`path_count:${paths.size}`);
 for (const required of ['getAccessToken', 'getSessionUser', 'getCourseBySlug', 'getLearningAccess', 'getPublishedModule']) {
   if (!route.includes(required)) fail(`route_access_check:${required}`);
 }
-for (const required of ['VIDEO_SUPABASE_URL', 'VIDEO_SUPABASE_SERVICE_ROLE_KEY', 'cursus-videos', 'private, no-store', 'no-referrer']) {
+for (const required of ['PRESENTER_MEDIA_EDGE_URL', 'solution-architecture-presenter-media', 'eawPublishableKey', 'x-eaw-publishable-key', 'private, no-store', 'no-referrer']) {
   if (!route.includes(required)) fail(`route_security_contract:${required}`);
 }
+if (route.includes('VIDEO_SUPABASE_SERVICE_ROLE_KEY') || route.includes('SUPABASE_SERVICE_ROLE_KEY')) fail('service_role_in_learning_runtime');
 if (route.includes('heygen.ai')) fail('runtime_heygen_dependency');
-if (!route.includes('SIGNED_URL_TTL_SECONDS = 900')) fail('route_ttl');
+if (!route.includes('EXPECTED_SIGNED_URL_TTL_SECONDS = 900')) fail('route_ttl');
 if (!route.includes('type === "captions"') || !route.includes('Content-Type": "text/vtt; charset=utf-8"')) fail('same_origin_caption_proxy');
 
 for (const required of ['controls', 'playsInline', 'preload="metadata"', 'kind="captions"', 'srcLang="nl"', '<details', '<summary>Lees transcript']) {
@@ -66,4 +69,4 @@ const transcriptEntries = (transcripts.match(/transcript:\s*"/g) ?? []).length;
 if (transcriptEntries !== 20) fail(`transcript_count:${transcriptEntries}`);
 if (transcripts.includes('heygen.ai')) fail('transcript_external_url');
 
-console.log('Solution Architecture secure presenter media source contract: PASS (20 assets / 60 private objects / entitlement route / captions / transcripts)');
+console.log('Solution Architecture secure presenter media source contract: PASS (20 assets / 60 private objects / media-edge trust boundary / entitlement route / captions / transcripts)');
