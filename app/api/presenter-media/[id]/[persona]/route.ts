@@ -10,9 +10,6 @@ import {
 
 const COURSE_SLUG = "solution-architectuur-ontwerppraktijk";
 const EXPECTED_SIGNED_URL_TTL_SECONDS = 900;
-const MEDIA_EDGE_URL =
-  process.env.PRESENTER_MEDIA_EDGE_URL ??
-  "https://jtdcinvkpprgnwvtwvms.supabase.co/functions/v1/solution-architecture-presenter-media";
 const personas = new Set(["eva", "alexander"]);
 
 export async function GET(
@@ -44,7 +41,13 @@ export async function GET(
   const module = await getPublishedModule(course.id, sourceModuleId, token);
   if (!module?.is_published) return new NextResponse("Not found", { status: 404 });
 
-  const upstream = await fetch(MEDIA_EDGE_URL, {
+  const mediaSupabaseUrl = process.env.VIDEO_SUPABASE_URL?.replace(/\/+$/, "");
+  if (!mediaSupabaseUrl) return new NextResponse("Media storage not configured", { status: 503 });
+  const mediaEdgeUrl =
+    process.env.PRESENTER_MEDIA_EDGE_URL ??
+    `${mediaSupabaseUrl}/functions/v1/solution-architecture-presenter-media`;
+
+  const upstream = await fetch(mediaEdgeUrl, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
