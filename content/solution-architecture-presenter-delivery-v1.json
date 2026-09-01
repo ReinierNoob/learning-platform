@@ -6,7 +6,7 @@
     "public": false,
     "projectSource": "media_edge_function",
     "serviceRoleBoundary": "media_supabase_internal_only",
-    "mediaEdgeUrlSource": "PRESENTER_MEDIA_EDGE_URL_with_canonical_default",
+    "mediaEdgeUrlSource": "PRESENTER_MEDIA_EDGE_URL_or_VIDEO_SUPABASE_URL_function_default",
     "signedUrlTtlSeconds": 900,
     "runtimeRoute": "/api/presenter-media/{module}/{persona}",
     "authorizationSource": "EAW_session_plus_get_my_learning_access_plus_published_module"
