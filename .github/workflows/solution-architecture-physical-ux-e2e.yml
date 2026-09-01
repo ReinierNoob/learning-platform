@@ -92,13 +92,19 @@ jobs:
           SHARE="$(node <<'NODE'
           const fs = require('fs');
           const d = JSON.parse(fs.readFileSync('/tmp/share.json','utf8'));
-          const value = typeof d === 'string'
+          let value = typeof d === 'string'
             ? d
             : (typeof d?.value === 'string' ? d.value
               : typeof d?.protectionBypass === 'string' ? d.protectionBypass
               : typeof d?.protectionBypass?.value === 'string' ? d.protectionBypass.value
               : typeof d?.secret === 'string' ? d.secret
               : '');
+          if (!value && d?.protectionBypass && typeof d.protectionBypass === 'object' && !Array.isArray(d.protectionBypass)) {
+            const entries = Object.entries(d.protectionBypass);
+            const scoped = entries.find(([, meta]) => meta && typeof meta === 'object' && ['shareable-link','shareable_link','share'].includes(String(meta.scope ?? '')));
+            const candidate = scoped ?? (entries.length === 1 ? entries[0] : null);
+            if (candidate && /^[A-Za-z0-9_-]{20,128}$/.test(candidate[0])) value = candidate[0];
+          }
           process.stdout.write(value);
           NODE
           )"
