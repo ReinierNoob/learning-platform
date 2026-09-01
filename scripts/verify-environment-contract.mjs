@@ -33,6 +33,9 @@ for (const file of runtimeRoots.flatMap(walk)) {
   if (/process\.env\.SUPABASE_(?:URL|SERVICE_ROLE_KEY)\b/.test(source)) {
     failures.push(`${file}: legacy generic SUPABASE_* runtime fallback aangetroffen`);
   }
+  if (/VIDEO_SUPABASE_SERVICE_ROLE_KEY/.test(source)) {
+    failures.push(`${file}: media service-role secret mag niet in learning runtime source worden gebruikt`);
+  }
 }
 
 const platformPath = "lib/platform.ts";
@@ -68,11 +71,14 @@ for (const [label, workflowPath, preflightName] of [
   }
   const workflow = readFileSync(workflowPath, "utf8");
   if (!workflow.includes(preflightName)) failures.push(`${label} workflow mist environment preflight`);
-  for (const key of ["EAW_SUPABASE_URL", "EAW_SUPABASE_PUBLISHABLE_KEY", "EAW_ACCOUNT_URL", "VIDEO_SUPABASE_URL", "VIDEO_SUPABASE_SERVICE_ROLE_KEY"]) {
+  for (const key of ["EAW_SUPABASE_URL", "EAW_SUPABASE_PUBLISHABLE_KEY", "EAW_ACCOUNT_URL", "VIDEO_SUPABASE_URL"]) {
     if (!workflow.includes(key)) failures.push(`${label} workflow preflight mist ${key}`);
   }
-  if (/(^|[^A-Z0-9_])SUPABASE_SERVICE_ROLE_KEY([^A-Z0-9_]|$)/m.test(workflow.replaceAll("VIDEO_SUPABASE_SERVICE_ROLE_KEY", ""))) {
-    failures.push(`${label} workflow accepteert nog generieke SUPABASE_SERVICE_ROLE_KEY als mediafallback`);
+  if (/VIDEO_SUPABASE_SERVICE_ROLE_KEY/.test(workflow)) {
+    failures.push(`${label} workflow bevat nog obsolete media service-role configuratie`);
+  }
+  if (/(^|[^A-Z0-9_])SUPABASE_SERVICE_ROLE_KEY([^A-Z0-9_]|$)/m.test(workflow)) {
+    failures.push(`${label} workflow accepteert nog generieke SUPABASE_SERVICE_ROLE_KEY`);
   }
 }
 
@@ -82,4 +88,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log("Environment contract: PASS (Vercel target env is runtime SoT; CI is hermetic; dedicated EAW/media bindings; no hardcoded Supabase runtime credentials/URLs)");
+console.log("Environment contract: PASS (Vercel target env is runtime SoT; CI is hermetic; EAW/media bindings explicit; media signing secret remains inside media Supabase; no hardcoded Supabase runtime credentials/URLs)");
