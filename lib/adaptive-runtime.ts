@@ -41,24 +41,39 @@ const adaptivePreviewFlagByModule: Readonly<Record<number, string>> = {
   [adaptiveModule10SourceModuleId]: "EAW_ADAPTIVE_MODULE10_IN_LEARNING",
 };
 
-/**
- * Persistence remains explicitly preview-gated until the production release gate is approved.
- */
-export function isAdaptivePersistenceEnabled() {
-  return process.env.VERCEL_ENV !== "production"
-    && process.env.EAW_ADAPTIVE_PERSISTENCE_ENABLED === "true";
+export function isAdaptiveSolutionArchitectureProductionEnabled() {
+  return process.env.VERCEL_ENV === "production"
+    && process.env.EAW_SOLUTION_ARCHITECTURE_PRODUCTION_ENABLED === "true";
 }
 
 /**
- * Adaptive presentation is allowlisted per course + module and hard-disabled in production.
- * The module definitions own course/module identity; this server-only registry owns preview flags.
+ * Persistence is explicit in every environment. Production additionally requires
+ * the Solution Architecture release flag so rollback remains fail-closed.
+ */
+export function isAdaptivePersistenceEnabled() {
+  if (process.env.VERCEL_ENV === "production") {
+    return isAdaptiveSolutionArchitectureProductionEnabled()
+      && process.env.EAW_ADAPTIVE_PERSISTENCE_ENABLED === "true";
+  }
+  return process.env.EAW_ADAPTIVE_PERSISTENCE_ENABLED === "true";
+}
+
+/**
+ * Adaptive presentation is allowlisted per course + module in preview.
+ * Production is enabled only for the released Solution Architecture course and
+ * only when its explicit production release flag is present.
  */
 export function isAdaptiveLearningEnabled(courseSlug: string, sourceModuleId: number) {
-  if (process.env.VERCEL_ENV === "production") return false;
   if (courseSlug !== adaptiveSolutionArchitectureCourseSlug) return false;
 
   const flag = adaptivePreviewFlagByModule[sourceModuleId];
-  return Boolean(flag) && process.env[flag] === "true";
+  if (!flag) return false;
+
+  if (process.env.VERCEL_ENV === "production") {
+    return isAdaptiveSolutionArchitectureProductionEnabled();
+  }
+
+  return process.env[flag] === "true";
 }
 
 /** Backwards-compatible helper while Module 6-specific server files are still present. */
