@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { AdaptiveModuleDefinition, AdaptiveRouteId } from "../../../lib/adaptive-module-definition";
+import SolutionArchitecturePresenterMedia from "./SolutionArchitecturePresenterMedia";
 import styles from "./adaptive-experience.module.css";
 
 type Diagnosis = {
@@ -200,6 +201,7 @@ export default function AdaptiveModuleExperience({ definition, apiBase, caseIntr
         <p>Eva stelt een paar korte vragen. Daarna krijg je een route die aansluit op wat je al beheerst.</p>
         <p className={styles.caseIntro}><strong>De casus:</strong> {caseIntro}</p>
       </section>
+      <SolutionArchitecturePresenterMedia moduleId={definition.sourceModuleId} persona="eva" />
       <section className={styles.card} aria-labelledby="adaptive-eva-heading">
         <div className={styles.persona}><span aria-hidden="true">E</span><div><small>Interviewer</small><strong id="adaptive-eva-heading">Eva</strong></div></div>
         <div className={styles.progressText}>Vraag {diagnosticIndex + 1} van {definition.diagnostics.length} · {progress}%</div>
@@ -239,6 +241,8 @@ export default function AdaptiveModuleExperience({ definition, apiBase, caseIntr
         {routeOverride ? <button className={styles.secondary} type="button" disabled={busy} onClick={() => void chooseRoute(null)}>Terug naar aanbevolen route</button> : null}
       </div> : null}
     </section>
+
+    <SolutionArchitecturePresenterMedia moduleId={definition.sourceModuleId} persona="alexander" />
 
     <div className={styles.learningGrid}>
       <section className={styles.card}>
