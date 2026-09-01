@@ -27,6 +27,9 @@ jobs:
       - name: Verify Solution Architecture release experience completeness
         run: node scripts/verify-solution-architecture-experience.mjs release
 
+      - name: Verify Solution Architecture release presenter assets
+        run: node scripts/verify-solution-architecture-presenter-assets.mjs release
+
       - name: Validate project-scoped Vercel token
         shell: bash
         run: |
