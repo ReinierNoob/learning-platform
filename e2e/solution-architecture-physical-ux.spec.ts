@@ -81,7 +81,8 @@ async function verifyPresenter(page: Page, name: 'Eva' | 'Alexander'): Promise<V
   await expect(summary).toBeVisible();
   const transcript = ((await transcriptParagraph.textContent()) ?? '').trim();
   expect(transcript.length).toBeGreaterThan(30);
-  await summary.click();
+  const isOpen = await details.evaluate((element: HTMLDetailsElement) => element.open);
+  if (!isOpen) await summary.click();
   await expect(transcriptParagraph).toBeVisible();
   await expect(transcriptParagraph).toContainText(transcript.slice(0, Math.min(40, transcript.length)));
 
