@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/workflows/solution-architecture-physical-ux-e2e.yml'
       - 'package.json'
+      - 'scripts/https-reverse-proxy.mjs'
       - 'e2e/solution-architecture-physical-ux.spec.ts'
       - 'app/leren/**'
       - 'app/api/presenter-media/**'
@@ -29,7 +30,7 @@ jobs:
     env:
       EAW_SUPABASE_URL: https://mhjykzrljvtxauaatlom.supabase.co
       EAW_SUPABASE_PUBLISHABLE_KEY: sb_publishable_qa9v9qDYMzr3Fr3h0N29gg_1Ip6gfb5
-      EAW_ACCOUNT_URL: http://localhost:3200
+      EAW_ACCOUNT_URL: https://localhost:3443
       VIDEO_SUPABASE_URL: https://jtdcinvkpprgnwvtwvms.supabase.co
       VERCEL_ENV: preview
       EAW_ADAPTIVE_PERSISTENCE_ENABLED: 'false'
@@ -44,7 +45,7 @@ jobs:
       EAW_ADAPTIVE_MODULE9_IN_LEARNING: 'true'
       EAW_ADAPTIVE_MODULE10_IN_LEARNING: 'true'
       UX_BOOTSTRAP_URL: https://mhjykzrljvtxauaatlom.supabase.co/functions/v1/github-ux-e2e-bootstrap
-      EAW_UX_BASE_URL: http://localhost:3200
+      EAW_UX_BASE_URL: https://localhost:3443
     steps:
       - uses: actions/checkout@v4
 
@@ -102,14 +103,25 @@ jobs:
           npm run build
           PORT=3200 npm start > /tmp/solution-architecture-ux-server.log 2>&1 &
           SERVER_PID=$!
-          trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
+          openssl req -x509 -newkey rsa:2048 -sha256 -days 1 -nodes \
+            -keyout /tmp/ux-key.pem -out /tmp/ux-cert.pem \
+            -subj '/CN=localhost' \
+            -addext 'subjectAltName=DNS:localhost,IP:127.0.0.1' >/dev/null 2>&1
+          UX_HTTPS_PROXY_PORT=3443 \
+          UX_HTTPS_PROXY_TARGET_PORT=3200 \
+          UX_HTTPS_PROXY_KEY=/tmp/ux-key.pem \
+          UX_HTTPS_PROXY_CERT=/tmp/ux-cert.pem \
+            node scripts/https-reverse-proxy.mjs > /tmp/solution-architecture-ux-proxy.log 2>&1 &
+          PROXY_PID=$!
+          trap 'kill $PROXY_PID $SERVER_PID 2>/dev/null || true' EXIT
           READY=0
           for attempt in $(seq 1 45); do
-            if curl --silent --fail http://localhost:3200/ >/dev/null 2>&1; then READY=1; break; fi
+            if curl --silent --fail --insecure https://localhost:3443/ >/dev/null 2>&1; then READY=1; break; fi
             sleep 1
           done
           if [ "$READY" -ne 1 ]; then
             cat /tmp/solution-architecture-ux-server.log
+            cat /tmp/solution-architecture-ux-proxy.log
             exit 1
           fi
           npx playwright test e2e/solution-architecture-physical-ux.spec.ts --workers=1 --reporter=line
@@ -124,6 +136,7 @@ jobs:
             playwright-report/**
             test-results/**
             /tmp/solution-architecture-ux-server.log
+            /tmp/solution-architecture-ux-proxy.log
           if-no-files-found: warn
           retention-days: 7
 
