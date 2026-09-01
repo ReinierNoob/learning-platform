@@ -1,0 +1,148 @@
+name: Solution Architecture physical UX E2E
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/solution-architecture-physical-ux-e2e.yml'
+      - 'package.json'
+      - 'e2e/solution-architecture-physical-ux.spec.ts'
+      - 'app/leren/**'
+      - 'app/api/presenter-media/**'
+      - 'components/adaptive/**'
+      - 'content/solution-architecture-presenter-**'
+      - 'lib/solution-architecture-presenter-**'
+      - 'lib/solution-architecture-module-**'
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: solution-architecture-physical-ux-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  physical-ux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      EAW_SUPABASE_URL: https://mhjykzrljvtxauaatlom.supabase.co
+      EAW_SUPABASE_PUBLISHABLE_KEY: sb_publishable_qa9v9qDYMzr3Fr3h0N29gg_1Ip6gfb5
+      EAW_ACCOUNT_URL: http://localhost:3200
+      VIDEO_SUPABASE_URL: https://jtdcinvkpprgnwvtwvms.supabase.co
+      VERCEL_ENV: preview
+      EAW_ADAPTIVE_PERSISTENCE_ENABLED: 'false'
+      EAW_ADAPTIVE_MODULE1_IN_LEARNING: 'true'
+      EAW_ADAPTIVE_MODULE2_IN_LEARNING: 'true'
+      EAW_ADAPTIVE_MODULE3_IN_LEARNING: 'true'
+      EAW_ADAPTIVE_MODULE4_IN_LEARNING: 'true'
+      EAW_ADAPTIVE_MODULE5_IN_LEARNING: 'true'
+      EAW_ADAPTIVE_MODULE6_IN_LEARNING: 'true'
+      EAW_ADAPTIVE_MODULE7_IN_LEARNING: 'true'
+      EAW_ADAPTIVE_MODULE8_IN_LEARNING: 'true'
+      EAW_ADAPTIVE_MODULE9_IN_LEARNING: 'true'
+      EAW_ADAPTIVE_MODULE10_IN_LEARNING: 'true'
+      UX_BOOTSTRAP_URL: https://mhjykzrljvtxauaatlom.supabase.co/functions/v1/github-ux-e2e-bootstrap
+      EAW_UX_BASE_URL: http://localhost:3200
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Install pinned Chromium runtime
+        run: npx playwright install --with-deps chromium
+
+      - name: Bootstrap temporary EAW learner through GitHub OIDC
+        shell: bash
+        run: |
+          set -euo pipefail
+          OIDC_JSON="$(curl --fail --silent --show-error \
+            --header "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=eaw-learning-platform-ux-e2e")"
+          OIDC_TOKEN="$(printf '%s' "$OIDC_JSON" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>process.stdout.write(JSON.parse(s).value||''))")"
+          test -n "$OIDC_TOKEN" || { echo '::error::GitHub OIDC token missing'; exit 1; }
+          echo "::add-mask::$OIDC_TOKEN"
+          BOOTSTRAP="$(curl --fail --silent --show-error \
+            --request POST \
+            --header "Authorization: Bearer $OIDC_TOKEN" \
+            --header 'Content-Type: application/json' \
+            --data '{"action":"create"}' \
+            "$UX_BOOTSTRAP_URL")"
+          printf '%s' "$BOOTSTRAP" > /tmp/ux-bootstrap.json
+          node <<'NODE'
+          const fs = require('fs');
+          const data = JSON.parse(fs.readFileSync('/tmp/ux-bootstrap.json','utf8'));
+          if (!data.ok || !data.token_hash || !data.user_id || !data.order_id || !data.order_item_id || !data.entitlement_id) {
+            console.error('::error::Incomplete UX bootstrap response');
+            process.exit(1);
+          }
+          const env = process.env.GITHUB_ENV;
+          const values = {
+            EAW_UX_TOKEN_HASH: data.token_hash,
+            EAW_UX_TRAINING_ID: data.training_id,
+            EAW_UX_USER_ID: data.user_id,
+            EAW_UX_ORDER_ID: data.order_id,
+            EAW_UX_ORDER_ITEM_ID: data.order_item_id,
+            EAW_UX_ENTITLEMENT_ID: data.entitlement_id,
+          };
+          for (const [key,value] of Object.entries(values)) fs.appendFileSync(env, `${key}=${value}\n`);
+          console.log(`::add-mask::${data.token_hash}`);
+          NODE
+
+      - name: Build and run physical browser gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run build
+          PORT=3200 npm start > /tmp/solution-architecture-ux-server.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
+          READY=0
+          for attempt in $(seq 1 45); do
+            if curl --silent --fail http://localhost:3200/ >/dev/null 2>&1; then READY=1; break; fi
+            sleep 1
+          done
+          if [ "$READY" -ne 1 ]; then
+            cat /tmp/solution-architecture-ux-server.log
+            exit 1
+          fi
+          npx playwright test e2e/solution-architecture-physical-ux.spec.ts --workers=1 --reporter=line
+
+      - name: Upload physical UX evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: solution-architecture-physical-ux-evidence
+          path: |
+            artifacts/solution-architecture-ux/**
+            playwright-report/**
+            test-results/**
+            /tmp/solution-architecture-ux-server.log
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Cleanup temporary EAW learner through GitHub OIDC
+        if: always() && env.EAW_UX_USER_ID != ''
+        shell: bash
+        run: |
+          set -euo pipefail
+          OIDC_JSON="$(curl --fail --silent --show-error \
+            --header "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=eaw-learning-platform-ux-e2e")"
+          OIDC_TOKEN="$(printf '%s' "$OIDC_JSON" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>process.stdout.write(JSON.parse(s).value||''))")"
+          test -n "$OIDC_TOKEN"
+          echo "::add-mask::$OIDC_TOKEN"
+          CLEANUP="$(node -e "process.stdout.write(JSON.stringify({action:'cleanup',user_id:process.env.EAW_UX_USER_ID,order_id:process.env.EAW_UX_ORDER_ID,order_item_id:process.env.EAW_UX_ORDER_ITEM_ID,entitlement_id:process.env.EAW_UX_ENTITLEMENT_ID}))")"
+          RESPONSE="$(curl --fail --silent --show-error \
+            --request POST \
+            --header "Authorization: Bearer $OIDC_TOKEN" \
+            --header 'Content-Type: application/json' \
+            --data "$CLEANUP" \
+            "$UX_BOOTSTRAP_URL")"
+          printf '%s' "$RESPONSE" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const v=JSON.parse(s);if(!v.ok)process.exit(1);console.log('OIDC UX cleanup: PASS')})"
