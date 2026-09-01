@@ -5,6 +5,7 @@ const failures = [];
 const runtimeRoots = ["app", "components", "lib"];
 const sourceExtensions = new Set([".js", ".jsx", ".mjs", ".ts", ".tsx"]);
 const legacyMediaSecretPath = "app/api/video-url/[id]/[chapter]/route.ts";
+const adaptivePreviewKeys = Array.from({ length: 10 }, (_, index) => `EAW_ADAPTIVE_MODULE${index + 1}_IN_LEARNING`);
 
 function extension(path) {
   const index = path.lastIndexOf(".");
@@ -85,6 +86,24 @@ for (const [label, workflowPath, preflightName] of [
   if (/(^|[^A-Z0-9_])SUPABASE_SERVICE_ROLE_KEY([^A-Z0-9_]|$)/m.test(workflow.replaceAll("VIDEO_SUPABASE_SERVICE_ROLE_KEY", ""))) {
     failures.push(`${label} workflow accepteert nog generieke SUPABASE_SERVICE_ROLE_KEY als mediafallback`);
   }
+  if (label === "preview") {
+    for (const key of adaptivePreviewKeys) {
+      if (!workflow.includes(key)) failures.push(`preview workflow mist branch-scoped adaptive flag ${key}`);
+    }
+    if (!workflow.includes("gitBranch")) failures.push("preview workflow borgt adaptive previewflags niet per gitBranch");
+  }
+}
+
+const physicalUxWorkflowPath = ".github/workflows/solution-architecture-physical-ux-e2e.yml";
+if (!existsSync(physicalUxWorkflowPath)) {
+  failures.push("physical UX workflow ontbreekt");
+} else {
+  const physical = readFileSync(physicalUxWorkflowPath, "utf8");
+  for (const key of adaptivePreviewKeys) {
+    if (!physical.includes(key)) failures.push(`physical UX workflow mist adaptive previewflag ${key}`);
+  }
+  if (!physical.includes("gitBranch")) failures.push("physical UX workflow configureert adaptive flags niet branch-scoped");
+  if (!physical.includes("PR_HEAD_SHA") || !physical.includes("PR_HEAD_REF")) failures.push("physical UX workflow bindt deployment niet expliciet aan PR head sha/ref");
 }
 
 if (failures.length) {
@@ -93,4 +112,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log("Environment contract: PASS (Vercel target env is runtime SoT; new presenter media uses media-edge signing; legacy video-url secret remains explicitly isolated; no hardcoded Supabase runtime credentials/URLs)");
+console.log("Environment contract: PASS (Vercel target env is runtime SoT; Solution Architecture adaptive preview flags are branch-scoped; physical UX binds an exact PR-head preview; new presenter media uses media-edge signing; legacy video-url secret remains explicitly isolated; no hardcoded Supabase runtime credentials/URLs)");
