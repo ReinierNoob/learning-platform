@@ -2,7 +2,7 @@ import { test, expect, type Browser, type BrowserContext, type Page } from '@pla
 import AxeBuilder from '@axe-core/playwright';
 import fs from 'node:fs';
 
-const baseURL = process.env.EAW_UX_BASE_URL ?? 'http://localhost:3200';
+const baseURL = process.env.EAW_UX_BASE_URL ?? 'https://localhost:3443';
 const tokenHash = process.env.EAW_UX_TOKEN_HASH ?? '';
 const trainingId = process.env.EAW_UX_TRAINING_ID ?? '25456c47-2a33-4e8e-97af-ab9ac8185953';
 const slug = 'solution-architectuur-ontwerppraktijk';
@@ -169,7 +169,7 @@ test('Solution Architecture complete physical learner experience', async ({ brow
 
   const consoleErrors: string[] = [];
   const pageErrors: string[] = [];
-  const desktop = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const desktop = await browser.newContext({ ignoreHTTPSErrors: true, viewport: { width: 1440, height: 900 } });
   const page = await desktop.newPage();
   page.on('console', (message) => { if (message.type() === 'error') consoleErrors.push(message.text()); });
   page.on('pageerror', (error) => pageErrors.push(error.message));
@@ -217,7 +217,7 @@ test('Solution Architecture complete physical learner experience', async ({ brow
   await diagnoseUnknown(page);
   await axeSeriousCritical(page, 'desktop-module-1-alexander');
 
-  const mobile = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 3, reducedMotion: 'reduce' });
+  const mobile = await browser.newContext({ ignoreHTTPSErrors: true, viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 3, reducedMotion: 'reduce' });
   await copyAuthCookies(desktop, mobile);
   const mobilePage = await mobile.newPage();
   mobilePage.on('console', (message) => { if (message.type() === 'error') consoleErrors.push(`[mobile] ${message.text()}`); });
