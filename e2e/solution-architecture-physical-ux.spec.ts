@@ -174,6 +174,12 @@ async function copyAuthCookies(source: BrowserContext, target: BrowserContext) {
   await target.addCookies(cookies);
 }
 
+async function navigateFromDocument(page: Page, targetUrl: string) {
+  await page.evaluate((url) => { window.location.href = url; }, targetUrl);
+  await expect(page).toHaveURL(targetUrl, { timeout: 15000 });
+  await page.waitForLoadState('networkidle');
+}
+
 test('Solution Architecture complete physical learner experience', async ({ browser }) => {
   test.setTimeout(240_000);
   expect(baseURL, 'EAW_UX_BASE_URL must resolve the exact READY PR deployment').not.toBe('');
@@ -203,12 +209,15 @@ test('Solution Architecture complete physical learner experience', async ({ brow
   await page.goto(eawLaunchOrigin, { waitUntil: 'domcontentloaded' });
   expect(new URL(page.url()).hostname).toBe('enterprisearchitectureworks.nl');
   const handoff = `${baseURL}/auth/handoff?token_hash=${encodeURIComponent(tokenHash)}&type=magiclink&training_id=${encodeURIComponent(trainingId)}&next=${encodeURIComponent(`/leren/${slug}/module/1`)}`;
-  await page.evaluate((url) => { window.location.href = url; }, handoff);
+  await navigateFromDocument(page, handoff);
   await expect(page).toHaveURL(new RegExp(`/leren/${slug}/module/1$`), { timeout: 15000 });
 
   const moduleResults: ModuleResult[] = [];
   for (let module = 1; module <= 10; module += 1) {
-    await page.goto(`${baseURL}/leren/${slug}/module/${module}`, { waitUntil: 'networkidle' });
+    const moduleUrl = `${baseURL}/leren/${slug}/module/${module}`;
+    if (module > 1) await navigateFromDocument(page, moduleUrl);
+    else await page.waitForLoadState('networkidle');
+    await expect(page).toHaveURL(moduleUrl);
     await expect(page.locator('h1')).toBeVisible();
     const overflowStart = await noHorizontalOverflow(page);
     expect(overflowStart, `module ${module} desktop overflow before diagnosis`).toBe(0);
@@ -228,7 +237,7 @@ test('Solution Architecture complete physical learner experience', async ({ brow
     moduleResults.push({ module, eva, alexander, horizontalOverflow: Math.max(overflowStart, overflowEnd), visualLabel });
   }
 
-  await page.goto(`${baseURL}/leren/${slug}/module/1`, { waitUntil: 'networkidle' });
+  await navigateFromDocument(page, `${baseURL}/leren/${slug}/module/1`);
   await axeSeriousCritical(page, 'desktop-module-1-eva');
   await diagnoseUnknown(page);
   await axeSeriousCritical(page, 'desktop-module-1-alexander');
@@ -251,7 +260,9 @@ test('Solution Architecture complete physical learner experience', async ({ brow
   });
   await copyAuthCookies(desktop, mobile);
   const mobilePage = await mobile.newPage();
-  await mobilePage.goto(`${baseURL}/leren/${slug}/module/1`, { waitUntil: 'networkidle' });
+  await mobilePage.goto(eawLaunchOrigin, { waitUntil: 'domcontentloaded' });
+  expect(new URL(mobilePage.url()).hostname).toBe('enterprisearchitectureworks.nl');
+  await navigateFromDocument(mobilePage, `${baseURL}/leren/${slug}/module/1`);
   await expect(mobilePage.getByRole('heading', { name: 'Eva', exact: true })).toBeVisible();
   expect(await noHorizontalOverflow(mobilePage)).toBe(0);
   const actionTargets = mobilePage.locator('button:visible, a:visible, summary:visible');
