@@ -79,6 +79,21 @@ export async function GET(
   }
 
   const target = storageTarget(videoUrl, result.signedURL);
+
+  if (type === "captions") {
+    const captions = await fetch(target, { cache: "no-store" });
+    if (!captions.ok) return new NextResponse("Captions unavailable", { status: 404 });
+    return new NextResponse(await captions.text(), {
+      status: 200,
+      headers: {
+        "Content-Type": "text/vtt; charset=utf-8",
+        "Cache-Control": "private, no-store",
+        "Referrer-Policy": "no-referrer",
+        "X-Content-Type-Options": "nosniff",
+      },
+    });
+  }
+
   if (request.nextUrl.searchParams.get("format") === "json") {
     return NextResponse.json(
       { url: target, expiresIn: SIGNED_URL_TTL_SECONDS, type },
