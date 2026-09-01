@@ -99,6 +99,14 @@ jobs:
               : typeof d?.protectionBypass?.value === 'string' ? d.protectionBypass.value
               : typeof d?.secret === 'string' ? d.secret
               : '');
+          if (!value && typeof d?.protectionBypassUrl === 'string') {
+            try {
+              const parsed = new URL(d.protectionBypassUrl);
+              value = parsed.searchParams.get('_vercel_share')
+                ?? parsed.pathname.split('/').filter(Boolean).at(-1)
+                ?? '';
+            } catch {}
+          }
           if (!value && d?.protectionBypass && typeof d.protectionBypass === 'object' && !Array.isArray(d.protectionBypass)) {
             const entries = Object.entries(d.protectionBypass);
             const scoped = entries.find(([, meta]) => meta && typeof meta === 'object' && ['shareable-link','shareable_link','share'].includes(String(meta.scope ?? '')));
