@@ -209,8 +209,9 @@ test('Solution Architecture complete physical learner experience', async ({ brow
   await page.goto(eawLaunchOrigin, { waitUntil: 'domcontentloaded' });
   expect(new URL(page.url()).hostname).toBe('enterprisearchitectureworks.nl');
   const handoff = `${baseURL}/auth/handoff?token_hash=${encodeURIComponent(tokenHash)}&type=magiclink&training_id=${encodeURIComponent(trainingId)}&next=${encodeURIComponent(`/leren/${slug}/module/1`)}`;
-  await navigateFromDocument(page, handoff);
+  await page.evaluate((url) => { window.location.href = url; }, handoff);
   await expect(page).toHaveURL(new RegExp(`/leren/${slug}/module/1$`), { timeout: 15000 });
+  await page.waitForLoadState('networkidle');
 
   const moduleResults: ModuleResult[] = [];
   for (let module = 1; module <= 10; module += 1) {
