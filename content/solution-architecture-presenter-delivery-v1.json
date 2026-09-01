@@ -4,10 +4,12 @@
   "storage": {
     "bucket": "cursus-videos",
     "public": false,
-    "projectSource": "VIDEO_SUPABASE_URL",
-    "serviceRoleSource": "VIDEO_SUPABASE_SERVICE_ROLE_KEY",
+    "projectSource": "media_edge_function",
+    "serviceRoleBoundary": "media_supabase_internal_only",
+    "mediaEdgeUrlSource": "PRESENTER_MEDIA_EDGE_URL_with_canonical_default",
     "signedUrlTtlSeconds": 900,
-    "runtimeRoute": "/api/presenter-media/{module}/{persona}"
+    "runtimeRoute": "/api/presenter-media/{module}/{persona}",
+    "authorizationSource": "EAW_session_plus_get_my_learning_access_plus_published_module"
   },
   "assets": [
     {"assetKey":"sa-m01-eva-intro-v1","videoObject":"solution-architecture/presenter/module-01/eva-intro-v1.mp4","sourceSubtitleObject":"solution-architecture/presenter/module-01/eva-intro-v1.srt","captionObject":"solution-architecture/presenter/module-01/eva-intro-v1.vtt"},
