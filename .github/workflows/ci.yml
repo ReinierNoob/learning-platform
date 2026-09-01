@@ -49,6 +49,8 @@ jobs:
         run: node scripts/verify-solution-architecture-presenter-assets.mjs generated
       - name: Verify Solution Architecture secure presenter media source contract
         run: node scripts/verify-solution-architecture-secure-media.mjs
+      - name: Verify Solution Architecture secure presenter delivery readiness
+        run: node scripts/verify-solution-architecture-presenter-assets.mjs secure
       - name: Build
         run: npm run build
       - name: Verify adaptive HTTP contracts
