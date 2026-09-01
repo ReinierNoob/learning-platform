@@ -89,7 +89,19 @@ jobs:
             --data '{"ttl":1200}' \
             "https://api.vercel.com/aliases/$DEPLOYMENT_ID/protection-bypass?teamId=$VERCEL_TEAM_ID")"
           test "$STATUS" = '200' || { cat /tmp/share.json; echo "::error::Cannot create deployment-scoped Vercel share access (HTTP $STATUS)"; exit 1; }
-          SHARE="$(node -e "const d=require('/tmp/share.json');process.stdout.write(d.value||d.protectionBypass?.value||d.secret||'')")"
+          SHARE="$(node <<'NODE'
+          const fs = require('fs');
+          const d = JSON.parse(fs.readFileSync('/tmp/share.json','utf8'));
+          const value = typeof d === 'string'
+            ? d
+            : (typeof d?.value === 'string' ? d.value
+              : typeof d?.protectionBypass === 'string' ? d.protectionBypass
+              : typeof d?.protectionBypass?.value === 'string' ? d.protectionBypass.value
+              : typeof d?.secret === 'string' ? d.secret
+              : '');
+          process.stdout.write(value);
+          NODE
+          )"
           test -n "$SHARE" || { echo '::error::Vercel share secret missing'; exit 1; }
           echo "::add-mask::$SHARE"
           {
