@@ -47,6 +47,8 @@ jobs:
         run: node scripts/verify-solution-architecture-experience.mjs identity
       - name: Verify Solution Architecture all generated presenter media
         run: node scripts/verify-solution-architecture-presenter-assets.mjs generated
+      - name: Verify Solution Architecture secure presenter media source contract
+        run: node scripts/verify-solution-architecture-secure-media.mjs
       - name: Build
         run: npm run build
       - name: Verify adaptive HTTP contracts
@@ -62,6 +64,7 @@ jobs:
           if [ "$READY" -ne 1 ]; then cat /tmp/eaw-preview.log; exit 1; fi
           EAW_ADAPTIVE_BASE_URL=http://127.0.0.1:3100 node scripts/verify-adaptive-http-contracts.mjs || { cat /tmp/eaw-preview.log; exit 1; }
           EAW_ADAPTIVE_BASE_URL=http://127.0.0.1:3100 node scripts/verify-adaptive-lab-http.mjs || { cat /tmp/eaw-preview.log; exit 1; }
+          EAW_ADAPTIVE_BASE_URL=http://127.0.0.1:3100 node scripts/verify-solution-architecture-presenter-http.mjs || { cat /tmp/eaw-preview.log; exit 1; }
           kill $PREVIEW_PID 2>/dev/null || true
           wait $PREVIEW_PID 2>/dev/null || true
           trap - EXIT
@@ -78,6 +81,7 @@ jobs:
           if [ "$READY" -ne 1 ]; then cat /tmp/eaw-production.log; exit 1; fi
           EAW_ADAPTIVE_BASE_URL=http://127.0.0.1:3101 EAW_ADAPTIVE_EXPECT_PRODUCTION_DENY=1 node scripts/verify-adaptive-http-contracts.mjs || { cat /tmp/eaw-production.log; exit 1; }
           EAW_ADAPTIVE_BASE_URL=http://127.0.0.1:3101 EAW_ADAPTIVE_EXPECT_PRODUCTION_DENY=1 node scripts/verify-adaptive-lab-http.mjs || { cat /tmp/eaw-production.log; exit 1; }
+          EAW_ADAPTIVE_BASE_URL=http://127.0.0.1:3101 node scripts/verify-solution-architecture-presenter-http.mjs || { cat /tmp/eaw-production.log; exit 1; }
           kill $PRODUCTION_PID 2>/dev/null || true
           wait $PRODUCTION_PID 2>/dev/null || true
           trap - EXIT
