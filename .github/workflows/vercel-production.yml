@@ -39,6 +39,54 @@ jobs:
             "https://api.vercel.com/v9/projects/$VERCEL_PROJECT_ID?teamId=$VERCEL_TEAM_ID")"
           test "$STATUS" = '200' || { echo "::error::Token cannot access learning-platform (HTTP $STATUS)"; exit 1; }
 
+      - name: Promote existing legacy video signing secret to production
+        shell: bash
+        run: |
+          STATUS="$(curl --silent --show-error --output /tmp/envs-before-promotion.json --write-out '%{http_code}' \
+            --header "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v10/projects/$VERCEL_PROJECT_ID/env?teamId=$VERCEL_TEAM_ID")"
+          test "$STATUS" = '200' || { echo "::error::Cannot inspect Vercel environment metadata (HTTP $STATUS)"; exit 1; }
+
+          node <<'NODE'
+          const fs = require('fs');
+          const envs = JSON.parse(fs.readFileSync('/tmp/envs-before-promotion.json','utf8')).envs ?? [];
+          const key = 'VIDEO_SUPABASE_SERVICE_ROLE_KEY';
+          const candidates = envs.filter((entry) => entry.key === key && !entry.gitBranch);
+          const hasProduction = candidates.some((entry) => Array.isArray(entry.target) && entry.target.includes('production'));
+          if (hasProduction) {
+            fs.writeFileSync('/tmp/legacy-video-secret-promotion.json', JSON.stringify({ skip: true }));
+            console.log('Legacy video signing secret already targets production.');
+            process.exit(0);
+          }
+          if (candidates.length !== 1) {
+            const safe = candidates.map((entry) => ({ id: entry.id, target: entry.target, type: entry.type, gitBranch: entry.gitBranch ?? null }));
+            console.error(`::error::Expected exactly one non-branch-scoped ${key} to promote; found ${candidates.length}: ${JSON.stringify(safe)}`);
+            process.exit(1);
+          }
+          const entry = candidates[0];
+          if (!entry.id || !Array.isArray(entry.target)) {
+            console.error(`::error::Existing ${key} has invalid environment metadata`);
+            process.exit(1);
+          }
+          const target = Array.from(new Set([...entry.target, 'production']));
+          fs.writeFileSync('/tmp/legacy-video-secret-promotion.json', JSON.stringify({ skip: false, id: entry.id, body: { target } }));
+          console.log(`Legacy video signing secret metadata resolved; promoting targets ${entry.target.join(',')} -> ${target.join(',')}.`);
+          NODE
+
+          SKIP="$(node -e "const p=require('/tmp/legacy-video-secret-promotion.json');process.stdout.write(String(Boolean(p.skip)))")"
+          if [ "$SKIP" = 'true' ]; then exit 0; fi
+          ENV_ID="$(node -e "const p=require('/tmp/legacy-video-secret-promotion.json');process.stdout.write(p.id||'')")"
+          node -e "const fs=require('fs');const p=require('/tmp/legacy-video-secret-promotion.json');fs.writeFileSync('/tmp/legacy-video-secret-patch.json',JSON.stringify(p.body))"
+          test -n "$ENV_ID" || { echo '::error::Legacy video signing secret environment ID missing'; exit 1; }
+          STATUS="$(curl --silent --show-error --output /tmp/legacy-video-secret-patch-response.json --write-out '%{http_code}' \
+            --request PATCH \
+            --url "https://api.vercel.com/v9/projects/$VERCEL_PROJECT_ID/env/$ENV_ID?teamId=$VERCEL_TEAM_ID" \
+            --header "Authorization: Bearer $VERCEL_TOKEN" \
+            --header 'Content-Type: application/json' \
+            --data-binary @/tmp/legacy-video-secret-patch.json)"
+          test "$STATUS" = '200' || { echo "::error::Could not promote existing legacy video signing secret to production (HTTP $STATUS)"; exit 1; }
+          echo 'Legacy video signing secret production target configured without reading or duplicating its value.'
+
       - name: Configure Solution Architecture production release flags
         shell: bash
         run: |
