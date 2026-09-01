@@ -39,6 +39,35 @@ jobs:
             "https://api.vercel.com/v9/projects/$VERCEL_PROJECT_ID?teamId=$VERCEL_TEAM_ID")"
           test "$STATUS" = '200' || { echo "::error::Token cannot access learning-platform (HTTP $STATUS)"; exit 1; }
 
+      - name: Configure Solution Architecture production release flags
+        shell: bash
+        run: |
+          cat > /tmp/release-env.json <<'JSON'
+          [
+            {
+              "key": "EAW_SOLUTION_ARCHITECTURE_PRODUCTION_ENABLED",
+              "value": "true",
+              "type": "plain",
+              "target": ["production"],
+              "comment": "Controlled Solution Architecture production release switch"
+            },
+            {
+              "key": "EAW_ADAPTIVE_PERSISTENCE_ENABLED",
+              "value": "true",
+              "type": "plain",
+              "target": ["production"],
+              "comment": "Persist adaptive learner state for released Solution Architecture course"
+            }
+          ]
+          JSON
+          STATUS="$(curl --silent --show-error --output /tmp/release-env-response.json --write-out '%{http_code}' \
+            --request POST \
+            --url "https://api.vercel.com/v10/projects/$VERCEL_PROJECT_ID/env?upsert=true&teamId=$VERCEL_TEAM_ID" \
+            --header "Authorization: Bearer $VERCEL_TOKEN" \
+            --header 'Content-Type: application/json' \
+            --data-binary @/tmp/release-env.json)"
+          case "$STATUS" in 200|201) ;; *) cat /tmp/release-env-response.json; echo "::error::Could not configure production release flags (HTTP $STATUS)"; exit 1 ;; esac
+
       - name: Verify required production environment keys
         shell: bash
         run: |
@@ -60,6 +89,8 @@ jobs:
             'EAW_ACCOUNT_URL',
             'VIDEO_SUPABASE_URL',
             'VIDEO_SUPABASE_SERVICE_ROLE_KEY',
+            'EAW_SOLUTION_ARCHITECTURE_PRODUCTION_ENABLED',
+            'EAW_ADAPTIVE_PERSISTENCE_ENABLED',
           ];
           const missing = required.filter((key) => !productionKeys.has(key));
           if (missing.length) {
