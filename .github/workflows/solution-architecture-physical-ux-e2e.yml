@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/solution-architecture-physical-ux-e2e.yml'
+      - '.github/workflows/vercel-preview.yml'
+      - 'scripts/verify-environment-contract.mjs'
       - 'package.json'
       - 'e2e/solution-architecture-physical-ux.spec.ts'
       - 'app/leren/**'
@@ -31,9 +33,13 @@ jobs:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       VERCEL_TEAM_ID: team_ZY5Sxra8t5DhA4S9zRTLmRnq
       VERCEL_PROJECT_ID: prj_ULEAHWZ1J4r1GDmzxDU1sGJ3uXaA
+      VERCEL_PROJECT_NAME: learning-platform
       PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - uses: actions/setup-node@v4
         with:
@@ -42,52 +48,125 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
-      - name: Install pinned Chromium runtime
-        run: npx playwright install --with-deps chromium
-
-      - name: Resolve exact READY Vercel preview and create short-lived share access
+      - name: Configure branch-scoped adaptive preview contract
         shell: bash
         run: |
           set -euo pipefail
-          test -n "$VERCEL_TOKEN" || { echo '::error::VERCEL_TOKEN missing'; exit 1; }
-          DEPLOYMENT_ID=''
-          DEPLOYMENT_URL=''
-          for attempt in $(seq 1 30); do
-            STATUS="$(curl --silent --show-error --output /tmp/deployments.json --write-out '%{http_code}' \
-              --header "Authorization: Bearer $VERCEL_TOKEN" \
-              "https://api.vercel.com/v6/deployments?projectId=$VERCEL_PROJECT_ID&teamId=$VERCEL_TEAM_ID&limit=20")"
-            test "$STATUS" = '200' || { echo "::error::Cannot inspect Vercel previews (HTTP $STATUS)"; exit 1; }
-            readarray -t MATCH < <(node <<'NODE'
+          test -n "$VERCEL_TOKEN" -a -n "$PR_HEAD_REF" || { echo '::error::Vercel token or PR head ref missing'; exit 1; }
+          node <<'NODE'
           const fs = require('fs');
-          const data = JSON.parse(fs.readFileSync('/tmp/deployments.json','utf8'));
-          const sha = process.env.PR_HEAD_SHA;
-          const deployments = Array.isArray(data.deployments) ? data.deployments : [];
-          const exact = deployments.find((item) => item?.meta?.githubCommitSha === sha);
-          if (!exact) process.exit(0);
-          const state = exact.readyState ?? exact.state ?? '';
-          if (['ERROR','CANCELED','BLOCKED'].includes(state)) {
-            console.error(`::error::Exact Vercel preview is ${state}`);
-            process.exit(2);
-          }
-          if (state === 'READY') {
-            console.log(exact.uid ?? exact.id ?? '');
-            console.log(exact.url ?? '');
-          }
+          const branch = process.env.PR_HEAD_REF;
+          const adaptiveKeys = [
+            'EAW_ADAPTIVE_MODULE1_IN_LEARNING',
+            'EAW_ADAPTIVE_MODULE2_IN_LEARNING',
+            'EAW_ADAPTIVE_MODULE3_IN_LEARNING',
+            'EAW_ADAPTIVE_MODULE4_IN_LEARNING',
+            'EAW_ADAPTIVE_MODULE5_IN_LEARNING',
+            'EAW_ADAPTIVE_MODULE6_IN_LEARNING',
+            'EAW_ADAPTIVE_MODULE7_IN_LEARNING',
+            'EAW_ADAPTIVE_MODULE8_IN_LEARNING',
+            'EAW_ADAPTIVE_MODULE9_IN_LEARNING',
+            'EAW_ADAPTIVE_MODULE10_IN_LEARNING',
+          ];
+          fs.writeFileSync('/tmp/adaptive-env.json', JSON.stringify(
+            adaptiveKeys.map((key) => ({
+              key,
+              value: 'true',
+              type: 'plain',
+              target: ['preview'],
+              gitBranch: branch,
+              comment: 'Solution Architecture physical UX/release preview contract',
+            })),
+          ));
           NODE
-            ) || exit $?
-            DEPLOYMENT_ID="${MATCH[0]:-}"
-            DEPLOYMENT_URL="${MATCH[1]:-}"
-            if [ -n "$DEPLOYMENT_ID" ] && [ -n "$DEPLOYMENT_URL" ]; then break; fi
+          STATUS="$(curl --silent --show-error --output /tmp/adaptive-env-response.json --write-out '%{http_code}' \
+            --request POST \
+            --url "https://api.vercel.com/v10/projects/$VERCEL_PROJECT_ID/env?upsert=true&teamId=$VERCEL_TEAM_ID" \
+            --header "Authorization: Bearer $VERCEL_TOKEN" \
+            --header 'Content-Type: application/json' \
+            --data-binary @/tmp/adaptive-env.json)"
+          case "$STATUS" in 200|201) ;; *) cat /tmp/adaptive-env-response.json; echo "::error::Adaptive branch env update failed (HTTP $STATUS)"; exit 1 ;; esac
+          echo "Adaptive preview flags bound to branch: $PR_HEAD_REF"
+
+      - name: Create exact PR-head physical UX preview
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 <<'PY'
+          import base64, json, os
+          from pathlib import Path
+          excluded = {'.git', '.next', 'node_modules', '.vercel'}
+          files = []
+          for path in Path('.').rglob('*'):
+              if not path.is_file() or any(part in excluded for part in path.parts):
+                  continue
+              if path.as_posix().startswith('.github/'):
+                  continue
+              files.append({
+                  'file': path.as_posix(),
+                  'data': base64.b64encode(path.read_bytes()).decode(),
+                  'encoding': 'base64',
+              })
+          payload = {
+              'name': os.environ['VERCEL_PROJECT_NAME'],
+              'project': os.environ['VERCEL_PROJECT_ID'],
+              'files': files,
+              'gitMetadata': {
+                  'remoteUrl': 'https://github.com/ReinierNoob/learning-platform',
+                  'commitRef': os.environ['PR_HEAD_REF'],
+                  'commitSha': os.environ['PR_HEAD_SHA'],
+                  'commitMessage': 'Solution Architecture physical UX exact-head preview',
+                  'ci': True,
+                  'ciType': 'github-actions',
+                  'ciGitRepoVisibility': 'public',
+              },
+              'projectSettings': {'framework': 'nextjs', 'nodeVersion': '24.x'},
+          }
+          Path('/tmp/physical-deployment.json').write_text(json.dumps(payload))
+          PY
+          STATUS="$(curl --silent --show-error --output /tmp/deploy.json --write-out '%{http_code}' \
+            --request POST \
+            --url "https://api.vercel.com/v13/deployments?teamId=$VERCEL_TEAM_ID" \
+            --header "Authorization: Bearer $VERCEL_TOKEN" \
+            --header 'Content-Type: application/json' \
+            --data-binary @/tmp/physical-deployment.json)"
+          case "$STATUS" in 200|201) ;; *) cat /tmp/deploy.json; echo "::error::Physical UX deployment failed (HTTP $STATUS)"; exit 1 ;; esac
+          DEPLOYMENT_URL="$(node -e "const d=require('/tmp/deploy.json');process.stdout.write(d.url||'')")"
+          DEPLOYMENT_ID="$(node -e "const d=require('/tmp/deploy.json');process.stdout.write(d.id||d.uid||'')")"
+          test -n "$DEPLOYMENT_URL" -a -n "$DEPLOYMENT_ID" || { echo '::error::Physical UX deployment URL/ID missing'; exit 1; }
+          {
+            echo "EAW_UX_BASE_URL=https://$DEPLOYMENT_URL"
+            echo "EAW_UX_DEPLOYMENT_ID=$DEPLOYMENT_ID"
+          } >> "$GITHUB_ENV"
+          echo "Physical UX deployment created: $DEPLOYMENT_ID / $DEPLOYMENT_URL / $PR_HEAD_SHA" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Install pinned Chromium runtime
+        run: npx playwright install --with-deps chromium
+
+      - name: Confirm exact preview READY and create short-lived share access
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${EAW_UX_DEPLOYMENT_ID:-}" -a -n "${EAW_UX_BASE_URL:-}" || { echo '::error::Physical UX deployment binding missing'; exit 1; }
+          for attempt in $(seq 1 30); do
+            STATUS="$(curl --silent --show-error --output /tmp/status.json --write-out '%{http_code}' \
+              --header "Authorization: Bearer $VERCEL_TOKEN" \
+              "https://api.vercel.com/v13/deployments/$EAW_UX_DEPLOYMENT_ID?teamId=$VERCEL_TEAM_ID")"
+            test "$STATUS" = '200' || { echo "::error::Cannot inspect physical UX deployment (HTTP $STATUS)"; exit 1; }
+            STATE="$(node -e "const d=require('/tmp/status.json');process.stdout.write(d.readyState||d.state||'')")"
+            if [ "$STATE" = 'READY' ]; then break; fi
+            if [ "$STATE" = 'ERROR' ] || [ "$STATE" = 'CANCELED' ] || [ "$STATE" = 'BLOCKED' ]; then cat /tmp/status.json; echo "::error::Physical UX preview is $STATE"; exit 1; fi
             sleep 5
           done
-          test -n "$DEPLOYMENT_ID" -a -n "$DEPLOYMENT_URL" || { echo '::error::Exact PR-head Vercel preview did not become READY'; exit 1; }
+          STATE="$(node -e "const d=require('/tmp/status.json');process.stdout.write(d.readyState||d.state||'')")"
+          test "$STATE" = 'READY' || { echo '::error::Physical UX preview did not become READY'; exit 1; }
 
           STATUS="$(curl --silent --show-error --output /tmp/share.json --write-out '%{http_code}' \
             --request PATCH \
             --header "Authorization: Bearer $VERCEL_TOKEN" \
             --header 'Content-Type: application/json' \
             --data '{"ttl":1200}' \
-            "https://api.vercel.com/aliases/$DEPLOYMENT_ID/protection-bypass?teamId=$VERCEL_TEAM_ID")"
+            "https://api.vercel.com/aliases/$EAW_UX_DEPLOYMENT_ID/protection-bypass?teamId=$VERCEL_TEAM_ID")"
           test "$STATUS" = '200' || { cat /tmp/share.json; echo "::error::Cannot create deployment-scoped Vercel share access (HTTP $STATUS)"; exit 1; }
           SHARE="$(node <<'NODE'
           const fs = require('fs');
@@ -119,11 +198,10 @@ jobs:
           test -n "$SHARE" || { echo '::error::Vercel share secret missing'; exit 1; }
           echo "::add-mask::$SHARE"
           {
-            echo "EAW_UX_BASE_URL=https://$DEPLOYMENT_URL"
             echo "EAW_UX_VERCEL_SHARE=$SHARE"
-            echo "EAW_UX_VERCEL_PROTECTION_ID=$DEPLOYMENT_ID"
+            echo "EAW_UX_VERCEL_PROTECTION_ID=$EAW_UX_DEPLOYMENT_ID"
           } >> "$GITHUB_ENV"
-          echo "Physical UX target: $DEPLOYMENT_ID / $DEPLOYMENT_URL / $PR_HEAD_SHA" >> "$GITHUB_STEP_SUMMARY"
+          echo "Exact physical UX preview READY: $EAW_UX_DEPLOYMENT_ID / $EAW_UX_BASE_URL / $PR_HEAD_SHA"
 
       - name: Bootstrap temporary EAW learner through GitHub OIDC
         shell: bash
