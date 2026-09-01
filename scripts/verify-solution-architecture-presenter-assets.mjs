@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 
 const mode = process.argv[2] ?? 'wave1';
-if (!new Set(['wave1','generated','release']).has(mode)) {
+if (!new Set(['wave1','generated','secure','release']).has(mode)) {
   throw new Error(`solution_architecture_presenter_assets_unknown_mode:${mode}`);
 }
 
@@ -44,11 +44,13 @@ for (const a of selected) {
   if (!(Number(a.durationSeconds) > 0)) fail(`duration:${a.assetKey}`);
   if (a.subtitleArtifact !== 'generated') fail(`subtitle:${a.assetKey}`);
   if (a.failure !== null) fail(`failure:${a.assetKey}`);
+  if (mode === 'secure' || mode === 'release') {
+    if (a.secureDelivery !== 'ready') fail(`secure_delivery:${a.assetKey}`);
+  }
   if (mode === 'release') {
     if (a.captionReview !== 'ready') fail(`caption_review:${a.assetKey}`);
     if (a.transcriptReview !== 'ready') fail(`transcript_review:${a.assetKey}`);
     if (a.physicalPlaybackReview !== 'ready') fail(`playback_review:${a.assetKey}`);
-    if (a.secureDelivery !== 'ready') fail(`secure_delivery:${a.assetKey}`);
   }
 }
 
