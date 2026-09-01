@@ -7,6 +7,7 @@ const vercelShare = process.env.EAW_UX_VERCEL_SHARE ?? '';
 const tokenHash = process.env.EAW_UX_TOKEN_HASH ?? '';
 const trainingId = process.env.EAW_UX_TRAINING_ID ?? '25456c47-2a33-4e8e-97af-ab9ac8185953';
 const slug = 'solution-architectuur-ontwerppraktijk';
+const eawLaunchOrigin = 'https://enterprisearchitectureworks.nl';
 const artifactsDir = 'artifacts/solution-architecture-ux';
 const screenshotModules = new Set([1, 5, 7, 10]);
 
@@ -196,9 +197,14 @@ test('Solution Architecture complete physical learner experience', async ({ brow
   expect(new URL(page.url()).hostname).toBe(new URL(baseURL).hostname);
   expect(bypassProbe?.status(), 'Vercel bypass probe must reach fail-closed presenter API').toBe(401);
 
+  // Reproduce the real EAW launch boundary instead of entering the handoff from
+  // the address bar. The learning proxy intentionally rejects Sec-Fetch-Site:none
+  // on /leren/*, while the real launch originates cross-site from EAW.
+  await page.goto(eawLaunchOrigin, { waitUntil: 'domcontentloaded' });
+  expect(new URL(page.url()).hostname).toBe('enterprisearchitectureworks.nl');
   const handoff = `${baseURL}/auth/handoff?token_hash=${encodeURIComponent(tokenHash)}&type=magiclink&training_id=${encodeURIComponent(trainingId)}&next=${encodeURIComponent(`/leren/${slug}/module/1`)}`;
-  await page.goto(handoff, { waitUntil: 'networkidle' });
-  await expect(page).toHaveURL(new RegExp(`/leren/${slug}/module/1$`));
+  await page.evaluate((url) => { window.location.href = url; }, handoff);
+  await expect(page).toHaveURL(new RegExp(`/leren/${slug}/module/1$`), { timeout: 15000 });
 
   const moduleResults: ModuleResult[] = [];
   for (let module = 1; module <= 10; module += 1) {
