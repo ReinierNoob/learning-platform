@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "eaw-presenter-assets-v1",
+  "courseSlug": "solution-architectuur-ontwerppraktijk",
+  "provider": "heygen",
+  "transport": "v3_create_video_from_avatar",
+  "wave": "wave-1",
+  "modules": [1,4,6,10],
+  "assets": [
+    {"assetKey":"sa-m01-eva-intro-v1","module":1,"persona":"eva","videoId":"4a98866731eab935ce76e7ea6954ea64","durationSeconds":26.592,"renderStatus":"completed","subtitleArtifact":"generated","captionReview":"pending","transcriptReview":"script_basis_ready","physicalPlaybackReview":"pending","failure":null},
+    {"assetKey":"sa-m01-alexander-explainer-v1","module":1,"persona":"alexander","videoId":"067466cf79e9febf46bd43d0650c5552","durationSeconds":29.52,"renderStatus":"completed","subtitleArtifact":"generated","captionReview":"pending","transcriptReview":"script_basis_ready","physicalPlaybackReview":"pending","failure":null},
+    {"assetKey":"sa-m04-eva-intro-v1","module":4,"persona":"eva","videoId":"d9dc454d8c22f3f2529a9273c3043fdd","durationSeconds":25.128,"renderStatus":"completed","subtitleArtifact":"generated","captionReview":"pending","transcriptReview":"script_basis_ready","physicalPlaybackReview":"pending","failure":null},
+    {"assetKey":"sa-m04-alexander-explainer-v1","module":4,"persona":"alexander","videoId":"053deb44ce45a9c0136a5bda955c68af","durationSeconds":29.088,"renderStatus":"completed","subtitleArtifact":"generated","captionReview":"pending","transcriptReview":"script_basis_ready","physicalPlaybackReview":"pending","failure":null},
+    {"assetKey":"sa-m06-eva-intro-v1","module":6,"persona":"eva","videoId":"b9c1684572a365bd001de1b36faadbcb","durationSeconds":21.048,"renderStatus":"completed","subtitleArtifact":"generated","captionReview":"pending","transcriptReview":"script_basis_ready","physicalPlaybackReview":"pending","failure":null},
+    {"assetKey":"sa-m06-alexander-explainer-v1","module":6,"persona":"alexander","videoId":"36c6f25f7e8c8360f7913cebfafd582c","durationSeconds":31.368,"renderStatus":"completed","subtitleArtifact":"generated","captionReview":"pending","transcriptReview":"script_basis_ready","physicalPlaybackReview":"pending","failure":null},
+    {"assetKey":"sa-m10-eva-intro-v1","module":10,"persona":"eva","videoId":"202c1eedfd84830444d87c30964c4d58","durationSeconds":29.712,"renderStatus":"completed","subtitleArtifact":"generated","captionReview":"pending","transcriptReview":"script_basis_ready","physicalPlaybackReview":"pending","failure":null},
+    {"assetKey":"sa-m10-alexander-explainer-v1","module":10,"persona":"alexander","videoId":"54c8dd038efdb76e4e34078c0a4b22a5","durationSeconds":36.6247,"renderStatus":"completed","subtitleArtifact":"generated","captionReview":"pending","transcriptReview":"script_basis_ready","physicalPlaybackReview":"pending","failure":null}
+  ],
+  "gatePolicy": {
+    "technicalRenderRequires": ["renderStatus=completed","subtitleArtifact=generated","failure=null"],
+    "scaleToWave2Requires": ["captionReview=ready","physicalPlaybackReview=ready"],
+    "releaseRequires": ["20 presenter assets","captionReview=ready","transcriptReview=ready","physicalPlaybackReview=ready","secure delivery integrated"]
+  }
+}
