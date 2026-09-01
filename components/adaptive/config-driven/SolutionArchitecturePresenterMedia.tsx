@@ -19,6 +19,7 @@ export default function SolutionArchitecturePresenterMedia({ moduleId, persona }
   const videoSrc = `/api/presenter-media/${moduleId}/${persona}`;
   const captionsSrc = `/api/presenter-media/${moduleId}/${persona}?type=captions`;
   const headingId = `presenter-${moduleId}-${persona}-heading`;
+  const mediaKey = `${moduleId}-${persona}`;
 
   return (
     <section className={styles.panel} aria-labelledby={headingId}>
@@ -31,7 +32,7 @@ export default function SolutionArchitecturePresenterMedia({ moduleId, persona }
       </div>
 
       <div className={styles.videoFrame}>
-        <video className={styles.video} controls playsInline preload="metadata">
+        <video key={mediaKey} className={styles.video} controls playsInline preload="metadata">
           <source src={videoSrc} type="video/mp4" />
           <track kind="captions" src={captionsSrc} srcLang="nl" label="Nederlands" default />
           Je browser ondersteunt deze video niet. Gebruik het transcript hieronder.
