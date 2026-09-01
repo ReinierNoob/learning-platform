@@ -6,7 +6,6 @@ on:
     paths:
       - '.github/workflows/solution-architecture-physical-ux-e2e.yml'
       - 'package.json'
-      - 'scripts/https-reverse-proxy.mjs'
       - 'e2e/solution-architecture-physical-ux.spec.ts'
       - 'app/leren/**'
       - 'app/api/presenter-media/**'
@@ -28,24 +27,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      EAW_SUPABASE_URL: https://mhjykzrljvtxauaatlom.supabase.co
-      EAW_SUPABASE_PUBLISHABLE_KEY: sb_publishable_qa9v9qDYMzr3Fr3h0N29gg_1Ip6gfb5
-      EAW_ACCOUNT_URL: https://localhost:3443
-      VIDEO_SUPABASE_URL: https://jtdcinvkpprgnwvtwvms.supabase.co
-      VERCEL_ENV: preview
-      EAW_ADAPTIVE_PERSISTENCE_ENABLED: 'false'
-      EAW_ADAPTIVE_MODULE1_IN_LEARNING: 'true'
-      EAW_ADAPTIVE_MODULE2_IN_LEARNING: 'true'
-      EAW_ADAPTIVE_MODULE3_IN_LEARNING: 'true'
-      EAW_ADAPTIVE_MODULE4_IN_LEARNING: 'true'
-      EAW_ADAPTIVE_MODULE5_IN_LEARNING: 'true'
-      EAW_ADAPTIVE_MODULE6_IN_LEARNING: 'true'
-      EAW_ADAPTIVE_MODULE7_IN_LEARNING: 'true'
-      EAW_ADAPTIVE_MODULE8_IN_LEARNING: 'true'
-      EAW_ADAPTIVE_MODULE9_IN_LEARNING: 'true'
-      EAW_ADAPTIVE_MODULE10_IN_LEARNING: 'true'
       UX_BOOTSTRAP_URL: https://mhjykzrljvtxauaatlom.supabase.co/functions/v1/github-ux-e2e-bootstrap
-      EAW_UX_BASE_URL: https://localhost:3443
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_TEAM_ID: team_ZY5Sxra8t5DhA4S9zRTLmRnq
+      VERCEL_PROJECT_ID: prj_ULEAHWZ1J4r1GDmzxDU1sGJ3uXaA
+      PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
     steps:
       - uses: actions/checkout@v4
 
@@ -58,6 +44,60 @@ jobs:
 
       - name: Install pinned Chromium runtime
         run: npx playwright install --with-deps chromium
+
+      - name: Resolve exact READY Vercel preview and create short-lived share access
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$VERCEL_TOKEN" || { echo '::error::VERCEL_TOKEN missing'; exit 1; }
+          DEPLOYMENT_ID=''
+          DEPLOYMENT_URL=''
+          for attempt in $(seq 1 30); do
+            STATUS="$(curl --silent --show-error --output /tmp/deployments.json --write-out '%{http_code}' \
+              --header "Authorization: Bearer $VERCEL_TOKEN" \
+              "https://api.vercel.com/v6/deployments?projectId=$VERCEL_PROJECT_ID&teamId=$VERCEL_TEAM_ID&limit=20")"
+            test "$STATUS" = '200' || { echo "::error::Cannot inspect Vercel previews (HTTP $STATUS)"; exit 1; }
+            readarray -t MATCH < <(node <<'NODE'
+          const fs = require('fs');
+          const data = JSON.parse(fs.readFileSync('/tmp/deployments.json','utf8'));
+          const sha = process.env.PR_HEAD_SHA;
+          const deployments = Array.isArray(data.deployments) ? data.deployments : [];
+          const exact = deployments.find((item) => item?.meta?.githubCommitSha === sha);
+          if (!exact) process.exit(0);
+          const state = exact.readyState ?? exact.state ?? '';
+          if (['ERROR','CANCELED','BLOCKED'].includes(state)) {
+            console.error(`::error::Exact Vercel preview is ${state}`);
+            process.exit(2);
+          }
+          if (state === 'READY') {
+            console.log(exact.uid ?? exact.id ?? '');
+            console.log(exact.url ?? '');
+          }
+          NODE
+            ) || exit $?
+            DEPLOYMENT_ID="${MATCH[0]:-}"
+            DEPLOYMENT_URL="${MATCH[1]:-}"
+            if [ -n "$DEPLOYMENT_ID" ] && [ -n "$DEPLOYMENT_URL" ]; then break; fi
+            sleep 5
+          done
+          test -n "$DEPLOYMENT_ID" -a -n "$DEPLOYMENT_URL" || { echo '::error::Exact PR-head Vercel preview did not become READY'; exit 1; }
+
+          STATUS="$(curl --silent --show-error --output /tmp/share.json --write-out '%{http_code}' \
+            --request PATCH \
+            --header "Authorization: Bearer $VERCEL_TOKEN" \
+            --header 'Content-Type: application/json' \
+            --data '{"ttl":1200}' \
+            "https://api.vercel.com/aliases/$DEPLOYMENT_ID/protection-bypass?teamId=$VERCEL_TEAM_ID")"
+          test "$STATUS" = '200' || { cat /tmp/share.json; echo "::error::Cannot create deployment-scoped Vercel share access (HTTP $STATUS)"; exit 1; }
+          SHARE="$(node -e "const d=require('/tmp/share.json');process.stdout.write(d.value||d.protectionBypass?.value||d.secret||'')")"
+          test -n "$SHARE" || { echo '::error::Vercel share secret missing'; exit 1; }
+          echo "::add-mask::$SHARE"
+          {
+            echo "EAW_UX_BASE_URL=https://$DEPLOYMENT_URL"
+            echo "EAW_UX_VERCEL_SHARE=$SHARE"
+            echo "EAW_UX_VERCEL_PROTECTION_ID=$DEPLOYMENT_ID"
+          } >> "$GITHUB_ENV"
+          echo "Physical UX target: $DEPLOYMENT_ID / $DEPLOYMENT_URL / $PR_HEAD_SHA" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Bootstrap temporary EAW learner through GitHub OIDC
         shell: bash
@@ -83,48 +123,19 @@ jobs:
             console.error('::error::Incomplete UX bootstrap response');
             process.exit(1);
           }
-          const env = process.env.GITHUB_ENV;
-          const values = {
+          for (const [key,value] of Object.entries({
             EAW_UX_TOKEN_HASH: data.token_hash,
             EAW_UX_TRAINING_ID: data.training_id,
             EAW_UX_USER_ID: data.user_id,
             EAW_UX_ORDER_ID: data.order_id,
             EAW_UX_ORDER_ITEM_ID: data.order_item_id,
             EAW_UX_ENTITLEMENT_ID: data.entitlement_id,
-          };
-          for (const [key,value] of Object.entries(values)) fs.appendFileSync(env, `${key}=${value}\n`);
+          })) fs.appendFileSync(process.env.GITHUB_ENV, `${key}=${value}\n`);
           console.log(`::add-mask::${data.token_hash}`);
           NODE
 
-      - name: Build and run physical browser gate
-        shell: bash
-        run: |
-          set -euo pipefail
-          npm run build
-          PORT=3200 npm start > /tmp/solution-architecture-ux-server.log 2>&1 &
-          SERVER_PID=$!
-          openssl req -x509 -newkey rsa:2048 -sha256 -days 1 -nodes \
-            -keyout /tmp/ux-key.pem -out /tmp/ux-cert.pem \
-            -subj '/CN=localhost' \
-            -addext 'subjectAltName=DNS:localhost,IP:127.0.0.1' >/dev/null 2>&1
-          UX_HTTPS_PROXY_PORT=3443 \
-          UX_HTTPS_PROXY_TARGET_PORT=3200 \
-          UX_HTTPS_PROXY_KEY=/tmp/ux-key.pem \
-          UX_HTTPS_PROXY_CERT=/tmp/ux-cert.pem \
-            node scripts/https-reverse-proxy.mjs > /tmp/solution-architecture-ux-proxy.log 2>&1 &
-          PROXY_PID=$!
-          trap 'kill $PROXY_PID $SERVER_PID 2>/dev/null || true' EXIT
-          READY=0
-          for attempt in $(seq 1 45); do
-            if curl --silent --fail --insecure https://localhost:3443/ >/dev/null 2>&1; then READY=1; break; fi
-            sleep 1
-          done
-          if [ "$READY" -ne 1 ]; then
-            cat /tmp/solution-architecture-ux-server.log
-            cat /tmp/solution-architecture-ux-proxy.log
-            exit 1
-          fi
-          npx playwright test e2e/solution-architecture-physical-ux.spec.ts --workers=1 --reporter=line
+      - name: Run physical browser gate on exact Vercel preview
+        run: npx playwright test e2e/solution-architecture-physical-ux.spec.ts --workers=1 --reporter=line
 
       - name: Upload physical UX evidence
         if: always()
@@ -135,8 +146,6 @@ jobs:
             artifacts/solution-architecture-ux/**
             playwright-report/**
             test-results/**
-            /tmp/solution-architecture-ux-server.log
-            /tmp/solution-architecture-ux-proxy.log
           if-no-files-found: warn
           retention-days: 7
 
@@ -159,3 +168,18 @@ jobs:
             --data "$CLEANUP" \
             "$UX_BOOTSTRAP_URL")"
           printf '%s' "$RESPONSE" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const v=JSON.parse(s);if(!v.ok)process.exit(1);console.log('OIDC UX cleanup: PASS')})"
+
+      - name: Revoke temporary Vercel share access
+        if: always() && env.EAW_UX_VERCEL_SHARE != '' && env.EAW_UX_VERCEL_PROTECTION_ID != ''
+        shell: bash
+        run: |
+          set -euo pipefail
+          BODY="$(node -e "process.stdout.write(JSON.stringify({revoke:{secret:process.env.EAW_UX_VERCEL_SHARE,regenerate:false}}))")"
+          STATUS="$(curl --silent --show-error --output /tmp/share-revoke.json --write-out '%{http_code}' \
+            --request PATCH \
+            --header "Authorization: Bearer $VERCEL_TOKEN" \
+            --header 'Content-Type: application/json' \
+            --data "$BODY" \
+            "https://api.vercel.com/aliases/$EAW_UX_VERCEL_PROTECTION_ID/protection-bypass?teamId=$VERCEL_TEAM_ID")"
+          test "$STATUS" = '200' || { cat /tmp/share-revoke.json; echo "::error::Vercel share revoke failed (HTTP $STATUS)"; exit 1; }
+          echo 'Vercel deployment share cleanup: PASS'
