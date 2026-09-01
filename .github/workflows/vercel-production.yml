@@ -59,6 +59,7 @@ jobs:
             'EAW_SUPABASE_PUBLISHABLE_KEY',
             'EAW_ACCOUNT_URL',
             'VIDEO_SUPABASE_URL',
+            'VIDEO_SUPABASE_SERVICE_ROLE_KEY',
           ];
           const missing = required.filter((key) => !productionKeys.has(key));
           if (missing.length) {
@@ -100,7 +101,7 @@ jobs:
                   'ciType': 'github-actions',
                   'ciGitRepoVisibility': 'public',
               },
-              'projectSettings': {'framework': 'nextjs', 'nodeVersion': '24.x'},
+              'projectSettings': {'framework':'nextjs','nodeVersion':'24.x'},
           }
           Path('/tmp/deployment.json').write_text(json.dumps(payload))
           PY
