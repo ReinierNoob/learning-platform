@@ -45,8 +45,8 @@ jobs:
         run: node scripts/verify-solution-architecture-experience.mjs visual
       - name: Verify Solution Architecture canonical avatar identities
         run: node scripts/verify-solution-architecture-experience.mjs identity
-      - name: Verify Solution Architecture Wave 1 generated presenter media
-        run: node scripts/verify-solution-architecture-presenter-assets.mjs wave1
+      - name: Verify Solution Architecture all generated presenter media
+        run: node scripts/verify-solution-architecture-presenter-assets.mjs generated
       - name: Build
         run: npm run build
       - name: Verify adaptive HTTP contracts
