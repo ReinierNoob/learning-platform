@@ -39,53 +39,60 @@ jobs:
             "https://api.vercel.com/v9/projects/$VERCEL_PROJECT_ID?teamId=$VERCEL_TEAM_ID")"
           test "$STATUS" = '200' || { echo "::error::Token cannot access learning-platform (HTTP $STATUS)"; exit 1; }
 
-      - name: Promote existing legacy video signing secret to production
+      - name: Ensure legacy video signing secret has production scope
         shell: bash
         run: |
-          STATUS="$(curl --silent --show-error --output /tmp/envs-before-promotion.json --write-out '%{http_code}' \
+          STATUS="$(curl --silent --show-error --output /tmp/envs-decrypted.json --write-out '%{http_code}' \
             --header "Authorization: Bearer $VERCEL_TOKEN" \
-            "https://api.vercel.com/v10/projects/$VERCEL_PROJECT_ID/env?teamId=$VERCEL_TEAM_ID")"
-          test "$STATUS" = '200' || { echo "::error::Cannot inspect Vercel environment metadata (HTTP $STATUS)"; exit 1; }
+            "https://api.vercel.com/v10/projects/$VERCEL_PROJECT_ID/env?decrypt=true&teamId=$VERCEL_TEAM_ID")"
+          test "$STATUS" = '200' || { echo "::error::Cannot inspect Vercel environment configuration (HTTP $STATUS)"; exit 1; }
 
           node <<'NODE'
           const fs = require('fs');
-          const envs = JSON.parse(fs.readFileSync('/tmp/envs-before-promotion.json','utf8')).envs ?? [];
+          const envs = JSON.parse(fs.readFileSync('/tmp/envs-decrypted.json','utf8')).envs ?? [];
           const key = 'VIDEO_SUPABASE_SERVICE_ROLE_KEY';
-          const candidates = envs.filter((entry) => entry.key === key && !entry.gitBranch);
-          const hasProduction = candidates.some((entry) => Array.isArray(entry.target) && entry.target.includes('production'));
-          if (hasProduction) {
-            fs.writeFileSync('/tmp/legacy-video-secret-promotion.json', JSON.stringify({ skip: true }));
-            console.log('Legacy video signing secret already targets production.');
+          const matching = envs.filter((entry) => entry.key === key);
+          const production = matching.filter((entry) => Array.isArray(entry.target) && entry.target.includes('production'));
+          if (production.length) {
+            fs.writeFileSync('/tmp/legacy-video-secret-action.json', JSON.stringify({ skip: true }), { mode: 0o600 });
+            console.log('Legacy video signing secret already has production scope.');
             process.exit(0);
           }
-          if (candidates.length !== 1) {
-            const safe = candidates.map((entry) => ({ id: entry.id, target: entry.target, type: entry.type, gitBranch: entry.gitBranch ?? null }));
-            console.error(`::error::Expected exactly one non-branch-scoped ${key} to promote; found ${candidates.length}: ${JSON.stringify(safe)}`);
+          const preview = matching.filter((entry) => Array.isArray(entry.target) && entry.target.includes('preview'));
+          const safe = preview.map((entry) => ({ id: entry.id, target: entry.target, type: entry.type, gitBranch: entry.gitBranch ?? null, decrypted: entry.decrypted ?? null }));
+          if (!preview.length) {
+            console.error(`::error::No existing Preview ${key} found to clone safely.`);
             process.exit(1);
           }
-          const entry = candidates[0];
-          if (!entry.id || !Array.isArray(entry.target)) {
-            console.error(`::error::Existing ${key} has invalid environment metadata`);
+          const values = new Set(preview.map((entry) => typeof entry.value === 'string' ? entry.value : '').filter(Boolean));
+          if (values.size !== 1) {
+            console.error(`::error::Preview ${key} entries do not resolve to exactly one decrypted value; refusing production clone. Metadata: ${JSON.stringify(safe)}`);
             process.exit(1);
           }
-          const target = Array.from(new Set([...entry.target, 'production']));
-          fs.writeFileSync('/tmp/legacy-video-secret-promotion.json', JSON.stringify({ skip: false, id: entry.id, body: { target } }));
-          console.log(`Legacy video signing secret metadata resolved; promoting targets ${entry.target.join(',')} -> ${target.join(',')}.`);
+          const value = [...values][0];
+          const payload = [{
+            key,
+            value,
+            type: 'encrypted',
+            target: ['production'],
+            comment: 'Production copy of existing Vercel-managed legacy chapter video signing secret',
+          }];
+          fs.writeFileSync('/tmp/legacy-video-secret-production.json', JSON.stringify(payload), { mode: 0o600 });
+          fs.writeFileSync('/tmp/legacy-video-secret-action.json', JSON.stringify({ skip: false }), { mode: 0o600 });
+          console.log(`Resolved ${preview.length} Preview ${key} configuration(s) to one consistent value; production copy prepared without logging the value.`);
           NODE
 
-          SKIP="$(node -e "const p=require('/tmp/legacy-video-secret-promotion.json');process.stdout.write(String(Boolean(p.skip)))")"
-          if [ "$SKIP" = 'true' ]; then exit 0; fi
-          ENV_ID="$(node -e "const p=require('/tmp/legacy-video-secret-promotion.json');process.stdout.write(p.id||'')")"
-          node -e "const fs=require('fs');const p=require('/tmp/legacy-video-secret-promotion.json');fs.writeFileSync('/tmp/legacy-video-secret-patch.json',JSON.stringify(p.body))"
-          test -n "$ENV_ID" || { echo '::error::Legacy video signing secret environment ID missing'; exit 1; }
-          STATUS="$(curl --silent --show-error --output /tmp/legacy-video-secret-patch-response.json --write-out '%{http_code}' \
-            --request PATCH \
-            --url "https://api.vercel.com/v9/projects/$VERCEL_PROJECT_ID/env/$ENV_ID?teamId=$VERCEL_TEAM_ID" \
+          SKIP="$(node -e "const p=require('/tmp/legacy-video-secret-action.json');process.stdout.write(String(Boolean(p.skip)))")"
+          if [ "$SKIP" = 'true' ]; then rm -f /tmp/envs-decrypted.json; exit 0; fi
+          STATUS="$(curl --silent --show-error --output /tmp/legacy-video-secret-production-response.json --write-out '%{http_code}' \
+            --request POST \
+            --url "https://api.vercel.com/v10/projects/$VERCEL_PROJECT_ID/env?upsert=true&teamId=$VERCEL_TEAM_ID" \
             --header "Authorization: Bearer $VERCEL_TOKEN" \
             --header 'Content-Type: application/json' \
-            --data-binary @/tmp/legacy-video-secret-patch.json)"
-          test "$STATUS" = '200' || { echo "::error::Could not promote existing legacy video signing secret to production (HTTP $STATUS)"; exit 1; }
-          echo 'Legacy video signing secret production target configured without reading or duplicating its value.'
+            --data-binary @/tmp/legacy-video-secret-production.json)"
+          rm -f /tmp/envs-decrypted.json /tmp/legacy-video-secret-production.json
+          case "$STATUS" in 200|201) ;; *) echo "::error::Could not create production-scoped legacy video signing secret (HTTP $STATUS)"; exit 1 ;; esac
+          echo 'Production-scoped legacy video signing secret configured inside Vercel.'
 
       - name: Configure Solution Architecture production release flags
         shell: bash
@@ -114,7 +121,7 @@ jobs:
             --header "Authorization: Bearer $VERCEL_TOKEN" \
             --header 'Content-Type: application/json' \
             --data-binary @/tmp/release-env.json)"
-          case "$STATUS" in 200|201) ;; *) cat /tmp/release-env-response.json; echo "::error::Could not configure production release flags (HTTP $STATUS)"; exit 1 ;; esac
+          case "$STATUS" in 200|201) ;; *) echo "::error::Could not configure production release flags (HTTP $STATUS)"; exit 1 ;; esac
 
       - name: Verify required production environment keys
         shell: bash
@@ -175,7 +182,7 @@ jobs:
                   'remoteUrl': 'https://github.com/ReinierNoob/learning-platform',
                   'commitRef': os.environ.get('GITHUB_REF_NAME', 'main'),
                   'commitSha': os.environ.get('GITHUB_SHA', ''),
-                  'commitMessage': 'EAW learning-platform production deploy',
+                  'commitMessage': 'EAW learning-platform gated production deploy',
                   'ci': True,
                   'ciType': 'github-actions',
                   'ciGitRepoVisibility': 'public',
@@ -185,7 +192,7 @@ jobs:
           Path('/tmp/deployment.json').write_text(json.dumps(payload))
           PY
 
-      - name: Deploy production
+      - name: Deploy gated production candidate
         id: deploy
         shell: bash
         run: |
@@ -202,7 +209,7 @@ jobs:
           echo "url=https://$URL" >> "$GITHUB_OUTPUT"
           echo "deployment_id=$ID" >> "$GITHUB_OUTPUT"
 
-      - name: Confirm production READY
+      - name: Confirm gated production candidate READY
         shell: bash
         run: |
           ID='${{ steps.deploy.outputs.deployment_id }}'
@@ -212,8 +219,42 @@ jobs:
               "https://api.vercel.com/v13/deployments/$ID?teamId=$VERCEL_TEAM_ID")"
             test "$STATUS" = '200' || exit 1
             STATE="$(node -e "const d=require('/tmp/status.json');process.stdout.write(d.readyState||'')")"
-            if [ "$STATE" = 'READY' ]; then echo 'Learning production READY.'; exit 0; fi
+            if [ "$STATE" = 'READY' ]; then echo 'Gated learning production candidate READY.'; exit 0; fi
             if [ "$STATE" = 'ERROR' ] || [ "$STATE" = 'CANCELED' ] || [ "$STATE" = 'BLOCKED' ]; then exit 1; fi
             sleep 10
           done
           echo '::error::Production deployment did not become READY'; exit 1
+
+      - name: Promote gated deployment to production domains
+        shell: bash
+        run: |
+          ID='${{ steps.deploy.outputs.deployment_id }}'
+          STATUS="$(curl --silent --show-error --output /tmp/promote.json --write-out '%{http_code}' \
+            --request POST \
+            --header "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v10/projects/$VERCEL_PROJECT_ID/promote/$ID?teamId=$VERCEL_TEAM_ID")"
+          case "$STATUS" in 200|201|202) ;; *) echo "::error::Could not promote gated deployment (HTTP $STATUS)"; exit 1 ;; esac
+
+          for attempt in 1 2 3; do
+            STATUS="$(curl --silent --show-error --output /tmp/aliases.json --write-out '%{http_code}' \
+              --header "Authorization: Bearer $VERCEL_TOKEN" \
+              "https://api.vercel.com/v2/deployments/$ID/aliases?teamId=$VERCEL_TEAM_ID")"
+            test "$STATUS" = '200' || exit 1
+            node <<'NODE'
+            const fs = require('fs');
+            const body = JSON.parse(fs.readFileSync('/tmp/aliases.json','utf8'));
+            const aliases = body.aliases ?? body;
+            const names = Array.isArray(aliases)
+              ? aliases.map((item) => typeof item === 'string' ? item : item.alias ?? item.domain ?? item.url ?? '')
+              : [];
+            if (!names.includes('leren.enterprisearchitectureworks.nl')) process.exit(1);
+            console.log('Production alias is pinned to the gated deployment.');
+            NODE
+            if [ "$?" = '0' ]; then
+              if [ "$attempt" = '3' ]; then exit 0; fi
+              sleep 5
+            else
+              sleep 5
+            fi
+          done
+          echo '::error::Production alias did not remain pinned to the gated deployment'; exit 1
