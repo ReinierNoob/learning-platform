@@ -34,6 +34,7 @@ jobs:
       VERCEL_TEAM_ID: team_ZY5Sxra8t5DhA4S9zRTLmRnq
       VERCEL_PROJECT_ID: prj_ULEAHWZ1J4r1GDmzxDU1sGJ3uXaA
       VERCEL_PROJECT_NAME: learning-platform
+      VERCEL_GITHUB_REPO_ID: '1335281630'
       PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
       PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
     steps:
@@ -88,49 +89,41 @@ jobs:
           case "$STATUS" in 200|201) ;; *) cat /tmp/adaptive-env-response.json; echo "::error::Adaptive branch env update failed (HTTP $STATUS)"; exit 1 ;; esac
           echo "Adaptive preview flags bound to branch: $PR_HEAD_REF"
 
-      - name: Create exact PR-head physical UX preview
+      - name: Create exact PR-head Git-source physical UX preview
         shell: bash
         run: |
           set -euo pipefail
-          python3 <<'PY'
-          import base64, json, os
-          from pathlib import Path
-          excluded = {'.git', '.next', 'node_modules', '.vercel'}
-          files = []
-          for path in Path('.').rglob('*'):
-              if not path.is_file() or any(part in excluded for part in path.parts):
-                  continue
-              if path.as_posix().startswith('.github/'):
-                  continue
-              files.append({
-                  'file': path.as_posix(),
-                  'data': base64.b64encode(path.read_bytes()).decode(),
-                  'encoding': 'base64',
-              })
-          payload = {
-              'name': os.environ['VERCEL_PROJECT_NAME'],
-              'project': os.environ['VERCEL_PROJECT_ID'],
-              'files': files,
-              'gitMetadata': {
-                  'remoteUrl': 'https://github.com/ReinierNoob/learning-platform',
-                  'commitRef': os.environ['PR_HEAD_REF'],
-                  'commitSha': os.environ['PR_HEAD_SHA'],
-                  'commitMessage': 'Solution Architecture physical UX exact-head preview',
-                  'ci': True,
-                  'ciType': 'github-actions',
-                  'ciGitRepoVisibility': 'public',
-              },
-              'projectSettings': {'framework': 'nextjs', 'nodeVersion': '24.x'},
-          }
-          Path('/tmp/physical-deployment.json').write_text(json.dumps(payload))
-          PY
+          node <<'NODE'
+          const fs = require('fs');
+          const payload = {
+            name: process.env.VERCEL_PROJECT_NAME,
+            project: process.env.VERCEL_PROJECT_ID,
+            gitSource: {
+              type: 'github',
+              repoId: Number(process.env.VERCEL_GITHUB_REPO_ID),
+              ref: process.env.PR_HEAD_REF,
+              sha: process.env.PR_HEAD_SHA,
+            },
+            gitMetadata: {
+              remoteUrl: 'https://github.com/ReinierNoob/learning-platform',
+              commitRef: process.env.PR_HEAD_REF,
+              commitSha: process.env.PR_HEAD_SHA,
+              commitMessage: 'Solution Architecture physical UX exact-head preview',
+              ci: true,
+              ciType: 'github-actions',
+              ciGitRepoVisibility: 'public',
+            },
+            projectSettings: { framework: 'nextjs', nodeVersion: '24.x' },
+          };
+          fs.writeFileSync('/tmp/physical-deployment.json', JSON.stringify(payload));
+          NODE
           STATUS="$(curl --silent --show-error --output /tmp/deploy.json --write-out '%{http_code}' \
             --request POST \
             --url "https://api.vercel.com/v13/deployments?teamId=$VERCEL_TEAM_ID" \
             --header "Authorization: Bearer $VERCEL_TOKEN" \
             --header 'Content-Type: application/json' \
             --data-binary @/tmp/physical-deployment.json)"
-          case "$STATUS" in 200|201) ;; *) cat /tmp/deploy.json; echo "::error::Physical UX deployment failed (HTTP $STATUS)"; exit 1 ;; esac
+          case "$STATUS" in 200|201) ;; *) cat /tmp/deploy.json; echo "::error::Physical UX Git-source deployment failed (HTTP $STATUS)"; exit 1 ;; esac
           DEPLOYMENT_URL="$(node -e "const d=require('/tmp/deploy.json');process.stdout.write(d.url||'')")"
           DEPLOYMENT_ID="$(node -e "const d=require('/tmp/deploy.json');process.stdout.write(d.id||d.uid||'')")"
           test -n "$DEPLOYMENT_URL" -a -n "$DEPLOYMENT_ID" || { echo '::error::Physical UX deployment URL/ID missing'; exit 1; }
@@ -138,7 +131,7 @@ jobs:
             echo "EAW_UX_BASE_URL=https://$DEPLOYMENT_URL"
             echo "EAW_UX_DEPLOYMENT_ID=$DEPLOYMENT_ID"
           } >> "$GITHUB_ENV"
-          echo "Physical UX deployment created: $DEPLOYMENT_ID / $DEPLOYMENT_URL / $PR_HEAD_SHA" >> "$GITHUB_STEP_SUMMARY"
+          echo "Physical UX Git-source deployment created: $DEPLOYMENT_ID / $DEPLOYMENT_URL / $PR_HEAD_REF / $PR_HEAD_SHA" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Install pinned Chromium runtime
         run: npx playwright install --with-deps chromium
@@ -160,6 +153,9 @@ jobs:
           done
           STATE="$(node -e "const d=require('/tmp/status.json');process.stdout.write(d.readyState||d.state||'')")"
           test "$STATE" = 'READY' || { echo '::error::Physical UX preview did not become READY'; exit 1; }
+          DEPLOYED_SHA="$(node -e "const d=require('/tmp/status.json');process.stdout.write(d.meta?.githubCommitSha||'')")"
+          DEPLOYED_REF="$(node -e "const d=require('/tmp/status.json');process.stdout.write(d.meta?.githubCommitRef||'')")"
+          test "$DEPLOYED_SHA" = "$PR_HEAD_SHA" -a "$DEPLOYED_REF" = "$PR_HEAD_REF" || { echo "::error::Physical UX preview source mismatch: $DEPLOYED_REF / $DEPLOYED_SHA"; exit 1; }
 
           STATUS="$(curl --silent --show-error --output /tmp/share.json --write-out '%{http_code}' \
             --request PATCH \
@@ -201,7 +197,7 @@ jobs:
             echo "EAW_UX_VERCEL_SHARE=$SHARE"
             echo "EAW_UX_VERCEL_PROTECTION_ID=$EAW_UX_DEPLOYMENT_ID"
           } >> "$GITHUB_ENV"
-          echo "Exact physical UX preview READY: $EAW_UX_DEPLOYMENT_ID / $EAW_UX_BASE_URL / $PR_HEAD_SHA"
+          echo "Exact physical UX preview READY: $EAW_UX_DEPLOYMENT_ID / $EAW_UX_BASE_URL / $PR_HEAD_REF / $PR_HEAD_SHA"
 
       - name: Bootstrap temporary EAW learner through GitHub OIDC
         shell: bash
