@@ -240,17 +240,17 @@ jobs:
               --header "Authorization: Bearer $VERCEL_TOKEN" \
               "https://api.vercel.com/v2/deployments/$ID/aliases?teamId=$VERCEL_TEAM_ID")"
             test "$STATUS" = '200' || exit 1
-            node <<'NODE'
-            const fs = require('fs');
-            const body = JSON.parse(fs.readFileSync('/tmp/aliases.json','utf8'));
-            const aliases = body.aliases ?? body;
-            const names = Array.isArray(aliases)
-              ? aliases.map((item) => typeof item === 'string' ? item : item.alias ?? item.domain ?? item.url ?? '')
-              : [];
-            if (!names.includes('leren.enterprisearchitectureworks.nl')) process.exit(1);
-            console.log('Production alias is pinned to the gated deployment.');
-            NODE
-            if [ "$?" = '0' ]; then
+            if node <<'NODE'
+          const fs = require('fs');
+          const body = JSON.parse(fs.readFileSync('/tmp/aliases.json','utf8'));
+          const aliases = body.aliases ?? body;
+          const names = Array.isArray(aliases)
+            ? aliases.map((item) => typeof item === 'string' ? item : item.alias ?? item.domain ?? item.url ?? '')
+            : [];
+          if (!names.includes('leren.enterprisearchitectureworks.nl')) process.exit(1);
+          console.log('Production alias is pinned to the gated deployment.');
+          NODE
+            then
               if [ "$attempt" = '3' ]; then exit 0; fi
               sleep 5
             else
