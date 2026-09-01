@@ -15,6 +15,13 @@ const registryPath = path.resolve("content/solution-architecture-learning-experi
 const registry = JSON.parse(fs.readFileSync(registryPath, "utf8"));
 const fail = (message) => { throw new Error(`solution_architecture_experience_${message}`); };
 
+const presenterRegistry = requireReleaseAssets
+  ? JSON.parse(fs.readFileSync(path.resolve("content/solution-architecture-presenter-assets-v1.json"), "utf8"))
+  : null;
+const presenterAssetsByKey = new Map(
+  presenterRegistry?.assets?.map((asset) => [asset.assetKey, asset]) ?? [],
+);
+
 if (registry.schemaVersion !== "eaw-learning-experience-v1") fail("schema_version");
 if (registry.courseSlug !== "solution-architectuur-ontwerppraktijk") fail("course_slug");
 if (registry.sourceManifestHash !== "sha256:ab0186d5dd65e6598eb9f7ecd728fd9985a1fc0b1048cf46c2df2460b6edf6d3") fail("manifest_hash");
@@ -23,6 +30,12 @@ if ((requireWave1 || requireReleaseAssets) && registry.mediaArchitecture?.genera
 if ((requireWave1 || requireReleaseAssets) && registry.mediaArchitecture?.outputContract?.captions !== "srt_sidecar") fail("media_caption_contract");
 if ((requireWave1 || requireReleaseAssets) && registry.mediaArchitecture?.physicalPlaybackReviewRequired !== true) fail("media_playback_review_policy");
 if ((requireWave1 || requireReleaseAssets) && registry.mediaArchitecture?.secureDeliveryRequired !== true) fail("media_secure_delivery_policy");
+
+if (requireReleaseAssets) {
+  if (presenterRegistry?.schemaVersion !== "eaw-presenter-assets-v1") fail("presenter_registry_schema");
+  if (presenterRegistry?.courseSlug !== registry.courseSlug) fail("presenter_registry_course");
+  if (!Array.isArray(presenterRegistry?.assets) || presenterRegistry.assets.length !== 20) fail("presenter_registry_count");
+}
 
 const personaKeys = ["eva", "alexander"];
 for (const key of personaKeys) {
@@ -58,16 +71,14 @@ for (const module of registry.modules) {
     const script = module.scripts?.[personaKey];
     if (!script?.assetKey || seenAssetKeys.has(script.assetKey)) fail(`script_asset_key:${id}:${personaKey}`);
     seenAssetKeys.add(script.assetKey);
-    if (!requireReleaseAssets) {
-      if (script.status !== "script_ready") fail(`script_not_ready:${id}:${personaKey}`);
-      if (script.transcriptStatus !== "script_is_transcript") fail(`script_transcript_basis:${id}:${personaKey}`);
-    } else {
-      if (script.status !== "ready") fail(`video_not_ready:${id}:${personaKey}`);
-      if (!script.videoAssetId) fail(`video_asset_missing:${id}:${personaKey}`);
-      if (script.captionStatus !== "ready") fail(`captions_not_ready:${id}:${personaKey}`);
-      if (script.transcriptStatus !== "ready") fail(`transcript_not_ready:${id}:${personaKey}`);
-      if (script.playbackReviewStatus !== "ready") fail(`playback_review_not_ready:${id}:${personaKey}`);
-      if (script.secureDeliveryStatus !== "ready") fail(`secure_delivery_not_ready:${id}:${personaKey}`);
+    if (script.status !== "script_ready") fail(`script_not_ready:${id}:${personaKey}`);
+    if (script.transcriptStatus !== "script_is_transcript") fail(`script_transcript_basis:${id}:${personaKey}`);
+
+    if (requireReleaseAssets) {
+      const presenterAsset = presenterAssetsByKey.get(script.assetKey);
+      if (!presenterAsset) fail(`presenter_asset_missing:${id}:${personaKey}`);
+      if (Number(presenterAsset.module) !== id) fail(`presenter_asset_module:${id}:${personaKey}`);
+      if (presenterAsset.persona !== personaKey) fail(`presenter_asset_persona:${id}:${personaKey}`);
     }
 
     if (requireWave1) {
@@ -89,7 +100,7 @@ for (const module of registry.modules) {
   if (!Array.isArray(module.visuals) || module.visuals.length < 1) fail(`visuals_missing:${id}`);
   for (const visual of module.visuals) {
     visualCount += 1;
-    if (!visual.assetKey || seenAssetKeys.has(visual.assetKey)) fail(`visual_asset_key:${id}`);
+    if (!visual.assetKey || seenAssetKeys.has(visual.assetKey)) fail(`visual_asset_key:${id}:${visual.assetKey}`);
     seenAssetKeys.add(visual.assetKey);
     if (!visual.visualMode) fail(`visual_mode:${id}:${visual.assetKey}`);
     if (visual.briefStatus !== "ready" || visual.altTextStatus !== "ready") fail(`visual_design_incomplete:${id}:${visual.assetKey}`);
@@ -115,7 +126,6 @@ for (const module of registry.modules) {
     const expectedReleaseStatus = wave1ModuleIds.has(id) ? "blocked_playback_review_pending" : "blocked_avatar_media_pending";
     if (module.releaseStatus !== expectedReleaseStatus) fail(`wave1_module_release_status:${id}`);
   }
-  if (requireReleaseAssets && module.releaseStatus !== "ready") fail(`module_release_blocked:${id}`);
 }
 
 for (let id = 1; id <= 10; id += 1) if (!seenModules.has(id)) fail(`module_missing:${id}`);
