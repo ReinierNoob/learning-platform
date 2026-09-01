@@ -1,8 +1,9 @@
-import { test, expect, type Browser, type BrowserContext, type Page } from '@playwright/test';
+import { test, expect, type BrowserContext, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import fs from 'node:fs';
 
-const baseURL = process.env.EAW_UX_BASE_URL ?? 'https://localhost:3443';
+const baseURL = process.env.EAW_UX_BASE_URL ?? '';
+const vercelShare = process.env.EAW_UX_VERCEL_SHARE ?? '';
 const tokenHash = process.env.EAW_UX_TOKEN_HASH ?? '';
 const trainingId = process.env.EAW_UX_TRAINING_ID ?? '25456c47-2a33-4e8e-97af-ab9ac8185953';
 const slug = 'solution-architectuur-ontwerppraktijk';
@@ -164,15 +165,20 @@ async function copyAuthCookies(source: BrowserContext, target: BrowserContext) {
 }
 
 test('Solution Architecture complete physical learner experience', async ({ browser }) => {
-  test.setTimeout(180_000);
+  test.setTimeout(240_000);
+  expect(baseURL, 'EAW_UX_BASE_URL must resolve the exact READY PR deployment').not.toBe('');
+  expect(vercelShare, 'EAW_UX_VERCEL_SHARE must be a short-lived deployment-scoped share secret').not.toBe('');
   expect(tokenHash, 'EAW_UX_TOKEN_HASH must be provided by OIDC bootstrap').not.toBe('');
 
   const consoleErrors: string[] = [];
   const pageErrors: string[] = [];
-  const desktop = await browser.newContext({ ignoreHTTPSErrors: true, viewport: { width: 1440, height: 900 } });
+  const desktop = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   const page = await desktop.newPage();
   page.on('console', (message) => { if (message.type() === 'error') consoleErrors.push(message.text()); });
   page.on('pageerror', (error) => pageErrors.push(error.message));
+
+  await page.goto(`${baseURL}/?_vercel_share=${encodeURIComponent(vercelShare)}`, { waitUntil: 'networkidle' });
+  expect(new URL(page.url()).hostname).toBe(new URL(baseURL).hostname);
 
   const handoff = `${baseURL}/auth/handoff?token_hash=${encodeURIComponent(tokenHash)}&type=magiclink&training_id=${encodeURIComponent(trainingId)}&next=${encodeURIComponent(`/leren/${slug}/module/1`)}`;
   await page.goto(handoff, { waitUntil: 'networkidle' });
@@ -217,7 +223,7 @@ test('Solution Architecture complete physical learner experience', async ({ brow
   await diagnoseUnknown(page);
   await axeSeriousCritical(page, 'desktop-module-1-alexander');
 
-  const mobile = await browser.newContext({ ignoreHTTPSErrors: true, viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 3, reducedMotion: 'reduce' });
+  const mobile = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, deviceScaleFactor: 3, reducedMotion: 'reduce' });
   await copyAuthCookies(desktop, mobile);
   const mobilePage = await mobile.newPage();
   mobilePage.on('console', (message) => { if (message.type() === 'error') consoleErrors.push(`[mobile] ${message.text()}`); });
@@ -243,6 +249,7 @@ test('Solution Architecture complete physical learner experience', async ({ brow
 
   const report = {
     generatedAt: new Date().toISOString(),
+    target: { baseURL, deploymentHost: new URL(baseURL).hostname },
     viewportDesktop: { width: 1440, height: 900 },
     viewportMobile: { width: 390, height: 844, hasTouch: true, reducedMotion: true },
     modules: moduleResults,
