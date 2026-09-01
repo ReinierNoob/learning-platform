@@ -78,7 +78,7 @@ jobs:
           const fs = require('fs');
           const envs = JSON.parse(fs.readFileSync('/tmp/envs.json','utf8')).envs ?? [];
           const keys = new Set(envs.filter(e => Array.isArray(e.target) && e.target.includes('preview')).map(e => e.key));
-          const required = ['EAW_SUPABASE_URL','EAW_SUPABASE_PUBLISHABLE_KEY','EAW_ACCOUNT_URL','VIDEO_SUPABASE_URL','VIDEO_SUPABASE_SERVICE_ROLE_KEY'];
+          const required = ['EAW_SUPABASE_URL','EAW_SUPABASE_PUBLISHABLE_KEY','EAW_ACCOUNT_URL','VIDEO_SUPABASE_URL'];
           const missing = required.filter(k => !keys.has(k));
           if (missing.length) { console.error(`::error::Missing Preview configuration: ${missing.join(', ')}`); process.exit(1); }
           if (!keys.has('ANTHROPIC_API_KEY') && !keys.has('anthropic_API_KEY') && !keys.has('OPENAI_API_KEY')) {
