@@ -18,9 +18,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const module = await getPublishedModule(trainingId, sourceModuleId, token);
   if (!module?.is_published) return new NextResponse("Not found", { status: 404 });
 
-  const videoUrl = process.env.VIDEO_SUPABASE_URL ?? process.env.SUPABASE_URL ?? "https://jtdcinvkpprgnwvtwvms.supabase.co";
-  const serviceKey = process.env.VIDEO_SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!serviceKey) return new NextResponse("Video storage not configured", { status: 503 });
+  const videoUrl = process.env.VIDEO_SUPABASE_URL;
+  const serviceKey = process.env.VIDEO_SUPABASE_SERVICE_ROLE_KEY;
+  if (!videoUrl || !serviceKey) return new NextResponse("Video storage not configured", { status: 503 });
 
   const objectPath = `module${sourceModuleId}/${chapter}.mp4`;
   const expiresIn = 1800;

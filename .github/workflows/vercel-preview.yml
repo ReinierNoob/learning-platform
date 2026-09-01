@@ -50,13 +50,28 @@ jobs:
         run: |
           node <<'NODE'
           const fs = require('fs');
+          const branch = process.env.GITHUB_REF_NAME;
+          if (!branch) throw new Error('GITHUB_REF_NAME missing');
+          const adaptiveKeys = [
+            'EAW_ADAPTIVE_MODULE1_IN_LEARNING',
+            'EAW_ADAPTIVE_MODULE2_IN_LEARNING',
+            'EAW_ADAPTIVE_MODULE3_IN_LEARNING',
+            'EAW_ADAPTIVE_MODULE4_IN_LEARNING',
+            'EAW_ADAPTIVE_MODULE5_IN_LEARNING',
+            'EAW_ADAPTIVE_MODULE6_IN_LEARNING',
+            'EAW_ADAPTIVE_MODULE7_IN_LEARNING',
+            'EAW_ADAPTIVE_MODULE8_IN_LEARNING',
+            'EAW_ADAPTIVE_MODULE9_IN_LEARNING',
+            'EAW_ADAPTIVE_MODULE10_IN_LEARNING',
+          ];
           fs.writeFileSync('/tmp/env.json', JSON.stringify([
             { key: 'EAW_SUPABASE_URL', value: process.env.EAW_SUPABASE_URL, type: 'plain', target: ['preview'] },
             { key: 'EAW_SUPABASE_PUBLISHABLE_KEY', value: process.env.EAW_SUPABASE_PUBLISHABLE_KEY, type: 'plain', target: ['preview'] },
             { key: 'EAW_ACCOUNT_URL', value: `${process.env.EAW_PREVIEW_URL}/account`, type: 'plain', target: ['preview'] },
             { key: 'VIDEO_SUPABASE_URL', value: process.env.VIDEO_SUPABASE_URL, type: 'plain', target: ['preview'] },
             { key: 'ANTHROPIC_MODEL', value: 'claude-sonnet-5', type: 'plain', target: ['preview'] },
-            { key: 'OPENAI_MODEL', value: 'gpt-5-mini', type: 'plain', target: ['preview'] }
+            { key: 'OPENAI_MODEL', value: 'gpt-5-mini', type: 'plain', target: ['preview'] },
+            ...adaptiveKeys.map((key) => ({ key, value: 'true', type: 'plain', target: ['preview'], gitBranch: branch })),
           ]));
           NODE
           STATUS="$(curl --silent --show-error --output /tmp/env-response.json --write-out '%{http_code}' \
@@ -77,11 +92,27 @@ jobs:
           node <<'NODE'
           const fs = require('fs');
           const envs = JSON.parse(fs.readFileSync('/tmp/envs.json','utf8')).envs ?? [];
-          const keys = new Set(envs.filter(e => Array.isArray(e.target) && e.target.includes('preview')).map(e => e.key));
-          const required = ['EAW_SUPABASE_URL','EAW_SUPABASE_PUBLISHABLE_KEY','EAW_ACCOUNT_URL','VIDEO_SUPABASE_URL'];
+          const previewEntries = envs.filter(e => Array.isArray(e.target) && e.target.includes('preview'));
+          const keys = new Set(previewEntries.map(e => e.key));
+          const required = ['EAW_SUPABASE_URL','EAW_SUPABASE_PUBLISHABLE_KEY','EAW_ACCOUNT_URL','VIDEO_SUPABASE_URL','VIDEO_SUPABASE_SERVICE_ROLE_KEY'];
           const missing = required.filter(k => !keys.has(k));
-          if (!keys.has('VIDEO_SUPABASE_SERVICE_ROLE_KEY') && !keys.has('SUPABASE_SERVICE_ROLE_KEY')) missing.push('media service key');
           if (missing.length) { console.error(`::error::Missing Preview configuration: ${missing.join(', ')}`); process.exit(1); }
+          const adaptiveKeys = [
+            'EAW_ADAPTIVE_MODULE1_IN_LEARNING',
+            'EAW_ADAPTIVE_MODULE2_IN_LEARNING',
+            'EAW_ADAPTIVE_MODULE3_IN_LEARNING',
+            'EAW_ADAPTIVE_MODULE4_IN_LEARNING',
+            'EAW_ADAPTIVE_MODULE5_IN_LEARNING',
+            'EAW_ADAPTIVE_MODULE6_IN_LEARNING',
+            'EAW_ADAPTIVE_MODULE7_IN_LEARNING',
+            'EAW_ADAPTIVE_MODULE8_IN_LEARNING',
+            'EAW_ADAPTIVE_MODULE9_IN_LEARNING',
+            'EAW_ADAPTIVE_MODULE10_IN_LEARNING',
+          ];
+          const branch = process.env.GITHUB_REF_NAME;
+          const branchAdaptive = new Set(previewEntries.filter(e => e.gitBranch === branch).map(e => e.key));
+          const missingAdaptive = adaptiveKeys.filter(key => !branchAdaptive.has(key));
+          if (missingAdaptive.length) { console.error(`::error::Missing branch-scoped adaptive Preview configuration: ${missingAdaptive.join(', ')}`); process.exit(1); }
           if (!keys.has('ANTHROPIC_API_KEY') && !keys.has('anthropic_API_KEY') && !keys.has('OPENAI_API_KEY')) {
             console.log('::warning::No Alexander AI key configured; tutor will return ai_not_configured.');
           }

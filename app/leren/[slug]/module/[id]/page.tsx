@@ -1,5 +1,16 @@
 import { redirect } from "next/navigation";
+import { isAdaptiveLearningEnabled } from "../../../../../lib/adaptive-runtime";
 import { getAccessToken, getCourseBySlug, getEawLoginUrl, getLearningAccess, getPublishedModule, getSessionUser, startCourse } from "../../../../../lib/platform";
+import { AdaptiveModule1LearningExperience } from "./adaptive-module1-experience";
+import { AdaptiveModule2LearningExperience } from "./adaptive-module2-experience";
+import { AdaptiveModule3LearningExperience } from "./adaptive-module3-experience";
+import { AdaptiveModule4LearningExperience } from "./adaptive-module4-experience";
+import { AdaptiveModule5LearningExperience } from "./adaptive-module5-experience";
+import { AdaptiveModule6LearningExperience } from "./adaptive-module6-experience";
+import { AdaptiveModule7LearningExperience } from "./adaptive-module7-experience";
+import { AdaptiveModule8LearningExperience } from "./adaptive-module8-experience";
+import { AdaptiveModule9LearningExperience } from "./adaptive-module9-experience";
+import { AdaptiveModule10LearningExperience } from "./adaptive-module10-experience";
 import { QuizClient } from "./learning-client";
 
 export default async function ModulePage({ params }: { params: Promise<{ slug: string; id: string }> }) {
@@ -25,6 +36,22 @@ export default async function ModulePage({ params }: { params: Promise<{ slug: s
   const module = await getPublishedModule(course.id, sourceModuleId, token);
   if (!module) {
     return <main className="shell"><section className="hero"><p className="eyebrow">Nog niet beschikbaar</p><h1>Deze module is nog niet gepubliceerd.</h1><a className="button" href={`/leren/${slug}`}>Terug naar de training</a></section></main>;
+  }
+
+  // Adaptive learning deliberately reuses the normal session, entitlement,
+  // course-start and published-module checks above. Modules 1–10 have independent
+  // preview flags, while adaptive presentation remains hard-disabled in production.
+  if (isAdaptiveLearningEnabled(slug, sourceModuleId)) {
+    if (sourceModuleId === 1) return <AdaptiveModule1LearningExperience courseTitle={course.title} courseSlug={slug} userEmail={user.email ?? "ingelogde cursist"} />;
+    if (sourceModuleId === 2) return <AdaptiveModule2LearningExperience courseTitle={course.title} courseSlug={slug} userEmail={user.email ?? "ingelogde cursist"} />;
+    if (sourceModuleId === 3) return <AdaptiveModule3LearningExperience courseTitle={course.title} courseSlug={slug} userEmail={user.email ?? "ingelogde cursist"} />;
+    if (sourceModuleId === 4) return <AdaptiveModule4LearningExperience courseTitle={course.title} courseSlug={slug} userEmail={user.email ?? "ingelogde cursist"} />;
+    if (sourceModuleId === 5) return <AdaptiveModule5LearningExperience courseTitle={course.title} courseSlug={slug} userEmail={user.email ?? "ingelogde cursist"} />;
+    if (sourceModuleId === 6) return <AdaptiveModule6LearningExperience courseTitle={course.title} courseSlug={slug} userEmail={user.email ?? "ingelogde cursist"} />;
+    if (sourceModuleId === 7) return <AdaptiveModule7LearningExperience courseTitle={course.title} courseSlug={slug} userEmail={user.email ?? "ingelogde cursist"} />;
+    if (sourceModuleId === 8) return <AdaptiveModule8LearningExperience courseTitle={course.title} courseSlug={slug} userEmail={user.email ?? "ingelogde cursist"} />;
+    if (sourceModuleId === 9) return <AdaptiveModule9LearningExperience courseTitle={course.title} courseSlug={slug} userEmail={user.email ?? "ingelogde cursist"} />;
+    if (sourceModuleId === 10) return <AdaptiveModule10LearningExperience courseTitle={course.title} courseSlug={slug} userEmail={user.email ?? "ingelogde cursist"} />;
   }
 
   const chapters = module.chapters ?? [];

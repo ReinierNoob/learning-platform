@@ -24,6 +24,12 @@ function failureRedirect(request: NextRequest, reason: string) {
   return response;
 }
 
+function shouldUseSecureSessionCookie(request: NextRequest) {
+  if (request.nextUrl.protocol === "https:") return true;
+  const hostname = request.nextUrl.hostname.toLowerCase();
+  return hostname !== "localhost" && hostname !== "127.0.0.1" && hostname !== "::1";
+}
+
 // Temporary compatibility route for zero-downtime rollout. Once the OAuth
 // Authorization Code + PKCE flow has been proven in production, remove this
 // route together with the create-learning-handoff Edge Function.
@@ -80,7 +86,7 @@ export async function GET(request: NextRequest) {
   const response = NextResponse.redirect(new URL(next, request.url));
   response.cookies.set(accessCookieName, accessToken, {
     httpOnly: true,
-    secure: true,
+    secure: shouldUseSecureSessionCookie(request),
     sameSite: "lax",
     path: "/",
   });

@@ -10,21 +10,12 @@ const configuredEawPublishableKey =
   process.env.EAW_SUPABASE_PUBLISHABLE_KEY ??
   process.env.NEXT_PUBLIC_EAW_SUPABASE_PUBLISHABLE_KEY;
 
-// Supabase publishable keys are intentionally public credentials. Production
-// is pinned to the active key for the EAW project so a stale Vercel environment
-// value cannot break authenticated Data API calls after OAuth succeeds.
-const productionEawPublishableKey =
-  "sb_publishable_N3wnY2NWs4QrF45TsOLuhQ_qaHbfv4W";
-
-if (!configuredEawSupabaseUrl) {
-  throw new Error("Missing EAW_SUPABASE_URL");
+if (!configuredEawSupabaseUrl || !configuredEawPublishableKey) {
+  throw new Error("Missing EAW_SUPABASE_URL or EAW_SUPABASE_PUBLISHABLE_KEY");
 }
 
 export const eawSupabaseUrl = configuredEawSupabaseUrl;
-export const eawPublishableKey =
-  process.env.VERCEL_ENV === "production"
-    ? productionEawPublishableKey
-    : configuredEawPublishableKey ?? productionEawPublishableKey;
+export const eawPublishableKey = configuredEawPublishableKey;
 
 export const accessCookieName = "eaw_learning_access_token";
 export const refreshCookieName = "eaw_learning_refresh_token";
@@ -41,7 +32,7 @@ export type SessionUser = { id: string; email?: string | null };
 export type LearningAccess = {
   training_id: string;
   course_slug: string;
-  launch_path: string;
+  launch_path: string | null;
   entitlement_id: string | null;
   entitlement_status: string | null;
   can_access: boolean;
@@ -73,7 +64,6 @@ export type Course = {
   slug: string;
   title: string;
   description: string | null;
-  launch_path: string;
 };
 
 export type CourseModule = {
@@ -191,7 +181,7 @@ export async function startCourse(trainingId: string, token: string): Promise<Co
 
 export async function getCourseBySlug(slug: string, token?: string | null): Promise<Course | null> {
   const response = await fetch(
-    `${eawSupabaseUrl}/rest/v1/courses?slug=eq.${encodeURIComponent(slug)}&status=eq.published&select=id,slug,title,description,launch_path&limit=1`,
+    `${eawSupabaseUrl}/rest/v1/courses?slug=eq.${encodeURIComponent(slug)}&status=eq.published&select=id,slug,title,description&limit=1`,
     { headers: authHeaders(token), cache: "no-store" },
   );
   if (!response.ok) return null;

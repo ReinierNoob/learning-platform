@@ -13,6 +13,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      EAW_SUPABASE_URL: https://ci.invalid
+      EAW_SUPABASE_PUBLISHABLE_KEY: ci_publishable_key_not_used
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -20,8 +23,67 @@ jobs:
           node-version: '24'
       - name: Install dependencies
         run: npm install --no-audit --no-fund
+      - name: Verify environment contract
+        run: node scripts/verify-environment-contract.mjs
+      - name: Verify adaptive route convergence
+        run: npm run verify:adaptive-routes
+      - name: Export Solution Architecture course manifest
+        env:
+          EAW_MANIFEST_SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+          NODE_OPTIONS: --conditions=react-server
+        run: npx --yes tsx@4.20.6 scripts/export-solution-architecture-course-manifest.ts /tmp/solution-architecture-course-manifest.json
+      - name: Upload Solution Architecture course manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: solution-architecture-course-manifest
+          path: /tmp/solution-architecture-course-manifest.json
+          retention-days: 3
+          if-no-files-found: error
+      - name: Verify Solution Architecture learning experience design completeness
+        run: node scripts/verify-solution-architecture-experience.mjs design
+      - name: Verify Solution Architecture visual experience completeness
+        run: node scripts/verify-solution-architecture-experience.mjs visual
+      - name: Verify Solution Architecture canonical avatar identities
+        run: node scripts/verify-solution-architecture-experience.mjs identity
+      - name: Verify Solution Architecture all generated presenter media
+        run: node scripts/verify-solution-architecture-presenter-assets.mjs generated
+      - name: Verify Solution Architecture secure presenter media source contract
+        run: node scripts/verify-solution-architecture-secure-media.mjs
+      - name: Verify Solution Architecture secure presenter delivery readiness
+        run: node scripts/verify-solution-architecture-presenter-assets.mjs secure
       - name: Build
         run: npm run build
-        env:
-          EAW_SUPABASE_URL: https://mhjykzrljvtxauaatlom.supabase.co
-          EAW_SUPABASE_PUBLISHABLE_KEY: sb_publishable_qa9v9qDYMzr3Fr3h0N29gg_1Ip6gfb5
+      - name: Verify adaptive HTTP contracts
+        run: |
+          PORT=3100 npm start > /tmp/eaw-preview.log 2>&1 &
+          PREVIEW_PID=$!
+          trap 'kill $PREVIEW_PID 2>/dev/null || true' EXIT
+          READY=0
+          for attempt in {1..30}; do
+            if curl -sS http://127.0.0.1:3100/ > /dev/null 2>&1; then READY=1; break; fi
+            sleep 1
+          done
+          if [ "$READY" -ne 1 ]; then cat /tmp/eaw-preview.log; exit 1; fi
+          EAW_ADAPTIVE_BASE_URL=http://127.0.0.1:3100 node scripts/verify-adaptive-http-contracts.mjs || { cat /tmp/eaw-preview.log; exit 1; }
+          EAW_ADAPTIVE_BASE_URL=http://127.0.0.1:3100 node scripts/verify-adaptive-lab-http.mjs || { cat /tmp/eaw-preview.log; exit 1; }
+          EAW_ADAPTIVE_BASE_URL=http://127.0.0.1:3100 node scripts/verify-solution-architecture-presenter-http.mjs || { cat /tmp/eaw-preview.log; exit 1; }
+          kill $PREVIEW_PID 2>/dev/null || true
+          wait $PREVIEW_PID 2>/dev/null || true
+          trap - EXIT
+      - name: Verify adaptive production hard deny
+        run: |
+          VERCEL_ENV=production PORT=3101 npm start > /tmp/eaw-production.log 2>&1 &
+          PRODUCTION_PID=$!
+          trap 'kill $PRODUCTION_PID 2>/dev/null || true' EXIT
+          READY=0
+          for attempt in {1..30}; do
+            if curl -sS http://127.0.0.1:3101/ > /dev/null 2>&1; then READY=1; break; fi
+            sleep 1
+          done
+          if [ "$READY" -ne 1 ]; then cat /tmp/eaw-production.log; exit 1; fi
+          EAW_ADAPTIVE_BASE_URL=http://127.0.0.1:3101 EAW_ADAPTIVE_EXPECT_PRODUCTION_DENY=1 node scripts/verify-adaptive-http-contracts.mjs || { cat /tmp/eaw-production.log; exit 1; }
+          EAW_ADAPTIVE_BASE_URL=http://127.0.0.1:3101 EAW_ADAPTIVE_EXPECT_PRODUCTION_DENY=1 node scripts/verify-adaptive-lab-http.mjs || { cat /tmp/eaw-production.log; exit 1; }
+          EAW_ADAPTIVE_BASE_URL=http://127.0.0.1:3101 node scripts/verify-solution-architecture-presenter-http.mjs || { cat /tmp/eaw-production.log; exit 1; }
+          kill $PRODUCTION_PID 2>/dev/null || true
+          wait $PRODUCTION_PID 2>/dev/null || true
+          trap - EXIT

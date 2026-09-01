@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "eaw-presenter-delivery-v1",
+  "courseSlug": "solution-architectuur-ontwerppraktijk",
+  "storage": {
+    "bucket": "cursus-videos",
+    "public": false,
+    "projectSource": "media_edge_function",
+    "serviceRoleBoundary": "media_supabase_internal_only",
+    "mediaEdgeUrlSource": "PRESENTER_MEDIA_EDGE_URL_or_VIDEO_SUPABASE_URL_function_default",
+    "signedUrlTtlSeconds": 900,
+    "runtimeRoute": "/api/presenter-media/{module}/{persona}",
+    "authorizationSource": "EAW_session_plus_get_my_learning_access_plus_published_module"
+  },
+  "assets": [
+    {"assetKey":"sa-m01-eva-intro-v1","videoObject":"solution-architecture/presenter/module-01/eva-intro-v1.mp4","sourceSubtitleObject":"solution-architecture/presenter/module-01/eva-intro-v1.srt","captionObject":"solution-architecture/presenter/module-01/eva-intro-v1.vtt"},
+    {"assetKey":"sa-m01-alexander-explainer-v1","videoObject":"solution-architecture/presenter/module-01/alexander-explainer-v1.mp4","sourceSubtitleObject":"solution-architecture/presenter/module-01/alexander-explainer-v1.srt","captionObject":"solution-architecture/presenter/module-01/alexander-explainer-v1.vtt"},
+    {"assetKey":"sa-m02-eva-intro-v1","videoObject":"solution-architecture/presenter/module-02/eva-intro-v1.mp4","sourceSubtitleObject":"solution-architecture/presenter/module-02/eva-intro-v1.srt","captionObject":"solution-architecture/presenter/module-02/eva-intro-v1.vtt"},
+    {"assetKey":"sa-m02-alexander-explainer-v1","videoObject":"solution-architecture/presenter/module-02/alexander-explainer-v1.mp4","sourceSubtitleObject":"solution-architecture/presenter/module-02/alexander-explainer-v1.srt","captionObject":"solution-architecture/presenter/module-02/alexander-explainer-v1.vtt"},
+    {"assetKey":"sa-m03-eva-intro-v1","videoObject":"solution-architecture/presenter/module-03/eva-intro-v1.mp4","sourceSubtitleObject":"solution-architecture/presenter/module-03/eva-intro-v1.srt","captionObject":"solution-architecture/presenter/module-03/eva-intro-v1.vtt"},
+    {"assetKey":"sa-m03-alexander-explainer-v1","videoObject":"solution-architecture/presenter/module-03/alexander-explainer-v1.mp4","sourceSubtitleObject":"solution-architecture/presenter/module-03/alexander-explainer-v1.srt","captionObject":"solution-architecture/presenter/module-03/alexander-explainer-v1.vtt"},
+    {"assetKey":"sa-m04-eva-intro-v1","videoObject":"solution-architecture/presenter/module-04/eva-intro-v1.mp4","sourceSubtitleObject":"solution-architecture/presenter/module-04/eva-intro-v1.srt","captionObject":"solution-architecture/presenter/module-04/eva-intro-v1.vtt"},
+    {"assetKey":"sa-m04-alexander-explainer-v1","videoObject":"solution-architecture/presenter/module-04/alexander-explainer-v1.mp4","sourceSubtitleObject":"solution-architecture/presenter/module-04/alexander-explainer-v1.srt","captionObject":"solution-architecture/presenter/module-04/alexander-explainer-v1.vtt"},
+    {"assetKey":"sa-m05-eva-intro-v1","videoObject":"solution-architecture/presenter/module-05/eva-intro-v1.mp4","sourceSubtitleObject":"solution-architecture/presenter/module-05/eva-intro-v1.srt","captionObject":"solution-architecture/presenter/module-05/eva-intro-v1.vtt"},
+    {"assetKey":"sa-m05-alexander-explainer-v1","videoObject":"solution-architecture/presenter/module-05/alexander-explainer-v1.mp4","sourceSubtitleObject":"solution-architecture/presenter/module-05/alexander-explainer-v1.srt","captionObject":"solution-architecture/presenter/module-05/alexander-explainer-v1.vtt"},
+    {"assetKey":"sa-m06-eva-intro-v1","videoObject":"solution-architecture/presenter/module-06/eva-intro-v1.mp4","sourceSubtitleObject":"solution-architecture/presenter/module-06/eva-intro-v1.srt","captionObject":"solution-architecture/presenter/module-06/eva-intro-v1.vtt"},
+    {"assetKey":"sa-m06-alexander-explainer-v1","videoObject":"solution-architecture/presenter/module-06/alexander-explainer-v1.mp4","sourceSubtitleObject":"solution-architecture/presenter/module-06/alexander-explainer-v1.srt","captionObject":"solution-architecture/presenter/module-06/alexander-explainer-v1.vtt"},
+    {"assetKey":"sa-m07-eva-intro-v1","videoObject":"solution-architecture/presenter/module-07/eva-intro-v1.mp4","sourceSubtitleObject":"solution-architecture/presenter/module-07/eva-intro-v1.srt","captionObject":"solution-architecture/presenter/module-07/eva-intro-v1.vtt"},
+    {"assetKey":"sa-m07-alexander-explainer-v1","videoObject":"solution-architecture/presenter/module-07/alexander-explainer-v1.mp4","sourceSubtitleObject":"solution-architecture/presenter/module-07/alexander-explainer-v1.srt","captionObject":"solution-architecture/presenter/module-07/alexander-explainer-v1.vtt"},
+    {"assetKey":"sa-m08-eva-intro-v1","videoObject":"solution-architecture/presenter/module-08/eva-intro-v1.mp4","sourceSubtitleObject":"solution-architecture/presenter/module-08/eva-intro-v1.srt","captionObject":"solution-architecture/presenter/module-08/eva-intro-v1.vtt"},
+    {"assetKey":"sa-m08-alexander-explainer-v1","videoObject":"solution-architecture/presenter/module-08/alexander-explainer-v1.mp4","sourceSubtitleObject":"solution-architecture/presenter/module-08/alexander-explainer-v1.srt","captionObject":"solution-architecture/presenter/module-08/alexander-explainer-v1.vtt"},
+    {"assetKey":"sa-m09-eva-intro-v1","videoObject":"solution-architecture/presenter/module-09/eva-intro-v1.mp4","sourceSubtitleObject":"solution-architecture/presenter/module-09/eva-intro-v1.srt","captionObject":"solution-architecture/presenter/module-09/eva-intro-v1.vtt"},
+    {"assetKey":"sa-m09-alexander-explainer-v1","videoObject":"solution-architecture/presenter/module-09/alexander-explainer-v1.mp4","sourceSubtitleObject":"solution-architecture/presenter/module-09/alexander-explainer-v1.srt","captionObject":"solution-architecture/presenter/module-09/alexander-explainer-v1.vtt"},
+    {"assetKey":"sa-m10-eva-intro-v1","videoObject":"solution-architecture/presenter/module-10/eva-intro-v1.mp4","sourceSubtitleObject":"solution-architecture/presenter/module-10/eva-intro-v1.srt","captionObject":"solution-architecture/presenter/module-10/eva-intro-v1.vtt"},
+    {"assetKey":"sa-m10-alexander-explainer-v1","videoObject":"solution-architecture/presenter/module-10/alexander-explainer-v1.mp4","sourceSubtitleObject":"solution-architecture/presenter/module-10/alexander-explainer-v1.srt","captionObject":"solution-architecture/presenter/module-10/alexander-explainer-v1.vtt"}
+  ]
+}
