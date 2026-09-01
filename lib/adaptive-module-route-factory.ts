@@ -2,7 +2,7 @@ import "server-only";
 
 import { NextResponse } from "next/server";
 import type { AdaptiveModuleDefinition, AdaptiveRouteId } from "./adaptive-module-definition";
-import { adaptiveAccessStatus, adaptiveSchemaVersion, isAdaptivePersistenceEnabled } from "./adaptive-runtime";
+import { adaptiveAccessStatus, adaptiveSchemaVersion, isAdaptivePersistenceEnabled, isAdaptiveSolutionArchitectureProductionEnabled } from "./adaptive-runtime";
 import {
   AdaptiveAccessError,
   getAdaptiveStateForLearner,
@@ -38,12 +38,12 @@ export type AdaptiveServerModuleContract = {
   diagnose: (answers: Record<string, string>) => AdaptiveDiagnosis;
   observe: (interventionId: string, rawAnswer: unknown) => AdaptiveTutorObservation | null;
   answerKey: Readonly<Record<string, number>>;
-  remediationByQuestion: Readonly<Record<string, string[]>>;
+  remediationByQuestion: Readonly<Record<string, string[]> >;
   logPrefix: string;
 };
 
 function productionDenied() {
-  return process.env.VERCEL_ENV === "production";
+  return process.env.VERCEL_ENV === "production" && !isAdaptiveSolutionArchitectureProductionEnabled();
 }
 
 function isRoute(value: unknown): value is AdaptiveRouteId {
