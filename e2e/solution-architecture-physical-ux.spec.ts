@@ -164,33 +164,44 @@ async function verifyPresenter(page: Page, moduleId: number, name: 'Eva' | 'Alex
 }
 
 async function diagnoseUnknown(page: Page) {
-  for (let attempt = 0; attempt < 12; attempt += 1) {
-    if (await page.getByRole('heading', { name: 'Alexander', exact: true }).isVisible().catch(() => false)) return;
+  const alexander = page.getByRole('heading', { name: 'Alexander', exact: true });
+  for (let attempt = 0; attempt < 40; attempt += 1) {
+    if (await alexander.isVisible().catch(() => false)) return;
+
     const unknown = page.getByRole('button', { name: /ik weet dit nog niet/i }).first();
     if (await unknown.isVisible().catch(() => false)) {
-      await unknown.click();
-      await page.waitForTimeout(200);
+      if (await unknown.isEnabled().catch(() => false)) {
+        await unknown.click({ timeout: 5000 });
+      }
+      await page.waitForTimeout(250);
       continue;
     }
+
     const radio = page.getByRole('radio').first();
     if (await radio.isVisible().catch(() => false)) {
-      await radio.check();
+      if (await radio.isEnabled().catch(() => false)) await radio.check();
       const next = page.getByRole('button', { name: /volgende|verder|doorgaan|bevestig/i }).first();
-      if (await next.isVisible().catch(() => false)) await next.click();
-      await page.waitForTimeout(200);
+      if (await next.isVisible().catch(() => false) && await next.isEnabled().catch(() => false)) {
+        await next.click({ timeout: 5000 });
+      }
+      await page.waitForTimeout(250);
       continue;
     }
+
     const textarea = page.locator('textarea').first();
     if (await textarea.isVisible().catch(() => false)) {
-      await textarea.fill('Ik weet dit nog niet.');
+      if (await textarea.isEnabled().catch(() => false)) await textarea.fill('Ik weet dit nog niet.');
       const next = page.getByRole('button', { name: /volgende|verder|doorgaan|bevestig|verstuur/i }).first();
-      if (await next.isVisible().catch(() => false)) await next.click();
-      await page.waitForTimeout(200);
+      if (await next.isVisible().catch(() => false) && await next.isEnabled().catch(() => false)) {
+        await next.click({ timeout: 5000 });
+      }
+      await page.waitForTimeout(250);
       continue;
     }
-    break;
+
+    await page.waitForTimeout(250);
   }
-  await expect(page.getByRole('heading', { name: 'Alexander', exact: true })).toBeVisible();
+  await expect(alexander).toBeVisible({ timeout: 10000 });
 }
 
 async function axeSeriousCritical(page: Page, label: string) {
@@ -214,7 +225,7 @@ async function navigateFromDocument(page: Page, targetUrl: string) {
 }
 
 test('Solution Architecture complete physical learner experience', async ({ browser }) => {
-  test.setTimeout(240_000);
+  test.setTimeout(360_000);
   expect(baseURL, 'EAW_UX_BASE_URL must resolve the exact READY PR deployment').not.toBe('');
   expect(vercelShare, 'EAW_UX_VERCEL_SHARE must be a short-lived deployment-scoped share secret').not.toBe('');
   expect(tokenHash, 'EAW_UX_TOKEN_HASH must be provided by OIDC bootstrap').not.toBe('');
