@@ -5,7 +5,7 @@ import {
   getLearningAccess,
   getPublishedModule,
   getSessionUser,
-} from "../../../../../../lib/platform";
+} from "../../../../../lib/platform";
 
 const COURSE_SLUG = "solution-architectuur-ontwerppraktijk";
 const MEDIA_BUCKET = "cursus-videos";
