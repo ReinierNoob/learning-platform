@@ -11,6 +11,17 @@ const eawLaunchOrigin = 'https://enterprisearchitectureworks.nl';
 const artifactsDir = 'artifacts/solution-architecture-ux';
 const screenshotModules = new Set([1, 5, 7, 10]);
 
+type PresenterAssetRegistryEntry = {
+  assetKey: string;
+  module: number;
+  persona: 'eva' | 'alexander';
+  durationSeconds: number;
+};
+
+const presenterAssetRegistry = JSON.parse(
+  fs.readFileSync('content/solution-architecture-presenter-assets-v1.json', 'utf8'),
+) as { assets: PresenterAssetRegistryEntry[] };
+
 type VideoResult = {
   width: number;
   height: number;
@@ -59,6 +70,13 @@ function multisetSimilarity(expected: string, actual: string) {
   return expectedWords.length ? matched / expectedWords.length : 0;
 }
 
+function expectedPresenterDuration(moduleId: number, name: 'Eva' | 'Alexander') {
+  const persona = name === 'Eva' ? 'eva' : 'alexander';
+  const asset = presenterAssetRegistry.assets.find((entry) => entry.module === moduleId && entry.persona === persona);
+  if (!asset) throw new Error(`presenter_asset_missing:${moduleId}:${persona}`);
+  return asset.durationSeconds;
+}
+
 async function noHorizontalOverflow(page: Page) {
   return page.evaluate(() => Math.max(0, document.documentElement.scrollWidth - window.innerWidth));
 }
@@ -69,7 +87,7 @@ async function presenterSection(page: Page, name: 'Eva' | 'Alexander') {
   return heading.locator('xpath=ancestor::section[1]');
 }
 
-async function verifyPresenter(page: Page, name: 'Eva' | 'Alexander'): Promise<VideoResult> {
+async function verifyPresenter(page: Page, moduleId: number, name: 'Eva' | 'Alexander'): Promise<VideoResult> {
   const section = await presenterSection(page, name);
   const video = section.locator('video');
   await expect(video).toBeVisible();
@@ -114,6 +132,12 @@ async function verifyPresenter(page: Page, name: 'Eva' | 'Alexander'): Promise<V
       captionText: cues.map((cue) => cue.text).join(' '),
     };
   });
+
+  const expectedDuration = expectedPresenterDuration(moduleId, name);
+  expect(
+    Math.abs(media.duration - expectedDuration),
+    `${name} module ${moduleId} video duration must match the canonical presenter asset`,
+  ).toBeLessThanOrEqual(0.75);
 
   const captionSimilarity = multisetSimilarity(transcript, media.captionText);
   expect(media.width).toBeGreaterThan(0);
@@ -231,10 +255,10 @@ test('Solution Architecture complete physical learner experience', async ({ brow
     await expect(page.locator('h1')).toBeVisible();
     const overflowStart = await noHorizontalOverflow(page);
     expect(overflowStart, `module ${module} desktop overflow before diagnosis`).toBe(0);
-    const eva = await verifyPresenter(page, 'Eva');
+    const eva = await verifyPresenter(page, module, 'Eva');
     await diagnoseUnknown(page);
     await page.waitForLoadState('networkidle');
-    const alexander = await verifyPresenter(page, 'Alexander');
+    const alexander = await verifyPresenter(page, module, 'Alexander');
     const visual = page.locator('section[aria-label]').filter({ hasNot: page.locator('video') }).first();
     const visualLabel = await visual.getAttribute('aria-label').catch(() => null);
     expect(visualLabel, `module ${module} semantic visual missing`).toBeTruthy();
