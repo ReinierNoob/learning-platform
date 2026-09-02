@@ -102,10 +102,6 @@ jobs:
             }
             fs.appendFileSync(process.env.GITHUB_ENV, `${key}=${values[0]}\n`);
           }
-          const legacyVideoSecret = 'VIDEO_SUPABASE_SERVICE_ROLE_KEY';
-          if (!productionKeys.has(legacyVideoSecret)) {
-            console.log(`::warning::${legacyVideoSecret} is not configured for production; the isolated legacy video-url route remains fail-closed (503). Solution Architecture presenter media does not depend on this secret.`);
-          }
           console.log('Production environment key contract: PASS');
           NODE
           rm -f /tmp/envs.json
