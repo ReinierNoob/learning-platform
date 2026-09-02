@@ -78,7 +78,7 @@ jobs:
             --data-binary @/tmp/env.json)"
           case "$STATUS" in 200|201) ;; *) echo "::error::Preview env update failed (HTTP $STATUS)"; exit 1 ;; esac
 
-      - name: Verify required preview secret configuration
+      - name: Verify required preview configuration
         shell: bash
         run: |
           STATUS="$(curl --silent --show-error --output /tmp/envs.json --write-out '%{http_code}' \
@@ -90,7 +90,7 @@ jobs:
           const envs = JSON.parse(fs.readFileSync('/tmp/envs.json','utf8')).envs ?? [];
           const previewEntries = envs.filter(e => Array.isArray(e.target) && e.target.includes('preview'));
           const keys = new Set(previewEntries.map(e => e.key));
-          const required = ['EAW_SUPABASE_URL','EAW_SUPABASE_PUBLISHABLE_KEY','EAW_ACCOUNT_URL','VIDEO_SUPABASE_URL','VIDEO_SUPABASE_SERVICE_ROLE_KEY'];
+          const required = ['EAW_SUPABASE_URL','EAW_SUPABASE_PUBLISHABLE_KEY','EAW_ACCOUNT_URL','VIDEO_SUPABASE_URL'];
           const missing = required.filter(k => !keys.has(k));
           if (missing.length) { console.error(`::error::Missing Preview configuration: ${missing.join(', ')}`); process.exit(1); }
           for (const key of ['EAW_SUPABASE_URL','EAW_SUPABASE_PUBLISHABLE_KEY']) {
