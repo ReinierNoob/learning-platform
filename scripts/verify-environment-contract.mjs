@@ -62,6 +62,39 @@ if (!existsSync(courseVideoRoutePath)) {
   }
 }
 
+const secureVideoEdgePath = "supabase/functions/secure-video-url/index.ts";
+if (!existsSync(secureVideoEdgePath)) {
+  failures.push("secure-video-url edge source ontbreekt uit versiebeheer");
+} else {
+  const edge = readFileSync(secureVideoEdgePath, "utf8");
+  if (/https:\/\/[a-z0-9]{20}\.supabase\.co/i.test(edge) || /sb_publishable_[A-Za-z0-9_-]+/.test(edge)) {
+    failures.push("secure-video-url edge bevat hardcoded Supabase projectbinding");
+  }
+  for (const contract of ["SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "p_course_id", "createSignedUrl", "x-eaw-publishable-key"]) {
+    if (!edge.includes(contract)) failures.push(`secure-video-url edge mist contract ${contract}`);
+  }
+}
+
+const uxBootstrapEdgePath = "supabase/functions/github-ux-e2e-bootstrap/index.ts";
+if (!existsSync(uxBootstrapEdgePath)) {
+  failures.push("GitHub UX E2E bootstrap edge source ontbreekt uit versiebeheer");
+} else {
+  const bootstrap = readFileSync(uxBootstrapEdgePath, "utf8");
+  if (/https:\/\/[a-z0-9]{20}\.supabase\.co/i.test(bootstrap) || /sb_publishable_[A-Za-z0-9_-]+/.test(bootstrap)) {
+    failures.push("GitHub UX E2E bootstrap edge bevat hardcoded Supabase projectbinding");
+  }
+  for (const contract of [
+    "https://token.actions.githubusercontent.com",
+    "eaw-learning-platform-ux-e2e",
+    "ReinierNoob/learning-platform/.github/workflows/solution-architecture-physical-ux-e2e.yml@",
+    "SUPABASE_URL",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "solution-architectuur-ontwerppraktijk",
+  ]) {
+    if (!bootstrap.includes(contract)) failures.push(`GitHub UX E2E bootstrap edge mist contract ${contract}`);
+  }
+}
+
 const platformPath = "lib/platform.ts";
 if (!existsSync(platformPath)) {
   failures.push("lib/platform.ts ontbreekt");
@@ -134,6 +167,12 @@ if (!existsSync(physicalUxWorkflowPath)) {
   }
   if (!physical.includes("gitBranch")) failures.push("physical UX workflow configureert adaptive flags niet branch-scoped");
   if (!physical.includes("PR_HEAD_SHA") || !physical.includes("PR_HEAD_REF")) failures.push("physical UX workflow bindt deployment niet expliciet aan PR head sha/ref");
+  if (/UX_BOOTSTRAP_URL:\s*https:\/\/[a-z0-9]+\.supabase\.co/i.test(physical)) {
+    failures.push("physical UX workflow hardcodet een Supabase bootstrapproject in plaats van de Vercel EAW SoT te volgen");
+  }
+  for (const contract of ["Resolve current EAW UX bootstrap target from Vercel SoT", "EAW_SUPABASE_URL", "decrypt=true", "github-ux-e2e-bootstrap"]) {
+    if (!physical.includes(contract)) failures.push(`physical UX workflow mist bootstrap-SoT contract ${contract}`);
+  }
 }
 
 if (failures.length) {
@@ -142,4 +181,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log("Environment contract: PASS (Vercel target env is runtime SoT; preview and production validate the concrete EAW Supabase URL/key pair before deployment; preview is no longer an EAW Supabase config writer; course and presenter media signing stay inside Supabase edge functions; no media service-role secret is present in Vercel runtime; Solution Architecture adaptive preview flags are branch-scoped; physical UX binds an exact PR-head preview; no hardcoded Supabase runtime credentials/URLs)");
+console.log("Environment contract: PASS (Vercel target env is runtime SoT; preview, production and physical UX bootstrap derive/validate the current EAW Supabase binding; course and presenter media signing stay inside versioned Supabase edge functions; no media service-role secret is present in Vercel runtime; Solution Architecture adaptive preview flags are branch-scoped; physical UX binds an exact PR-head preview; no hardcoded Supabase runtime credentials/URLs)");
