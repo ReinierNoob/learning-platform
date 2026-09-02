@@ -4,7 +4,6 @@ import { join } from "node:path";
 const failures = [];
 const runtimeRoots = ["app", "components", "lib"];
 const sourceExtensions = new Set([".js", ".jsx", ".mjs", ".ts", ".tsx"]);
-const legacyMediaSecretPath = "app/api/video-url/[id]/[chapter]/route.ts";
 const adaptivePreviewKeys = Array.from({ length: 10 }, (_, index) => `EAW_ADAPTIVE_MODULE${index + 1}_IN_LEARNING`);
 
 function extension(path) {
@@ -35,8 +34,8 @@ for (const file of runtimeRoots.flatMap(walk)) {
   if (/process\.env\.SUPABASE_(?:URL|SERVICE_ROLE_KEY)\b/.test(source)) {
     failures.push(`${file}: legacy generic SUPABASE_* runtime fallback aangetroffen`);
   }
-  if (/VIDEO_SUPABASE_SERVICE_ROLE_KEY/.test(source) && file !== legacyMediaSecretPath) {
-    failures.push(`${file}: media service-role secret is alleen tijdelijk toegestaan in de bestaande legacy video-url route`);
+  if (/VIDEO_SUPABASE_SERVICE_ROLE_KEY/.test(source)) {
+    failures.push(`${file}: media service-role secret mag niet in de Vercel runtime worden gebruikt`);
   }
 }
 
@@ -45,6 +44,22 @@ if (!existsSync(presenterRoutePath)) {
   failures.push("presenter media route ontbreekt");
 } else if (readFileSync(presenterRoutePath, "utf8").includes("VIDEO_SUPABASE_SERVICE_ROLE_KEY")) {
   failures.push("presenter media route mag geen media service-role secret gebruiken");
+}
+
+const courseVideoRoutePath = "app/api/video-url/[id]/[chapter]/route.ts";
+if (!existsSync(courseVideoRoutePath)) {
+  failures.push("course video route ontbreekt");
+} else {
+  const courseVideo = readFileSync(courseVideoRoutePath, "utf8");
+  if (!courseVideo.includes("functions/v1/secure-video-url")) {
+    failures.push("course video route delegeert signing niet aan secure-video-url edge");
+  }
+  if (!courseVideo.includes("x-eaw-publishable-key")) {
+    failures.push("course video route stuurt de publishable-key contractheader niet naar secure-video-url");
+  }
+  if (courseVideo.includes("VIDEO_SUPABASE_SERVICE_ROLE_KEY")) {
+    failures.push("course video route bevat nog een Vercel media service-role dependency");
+  }
 }
 
 const platformPath = "lib/platform.ts";
@@ -71,7 +86,7 @@ if (!existsSync(ciPath)) {
 }
 
 for (const [label, workflowPath, preflightName] of [
-  ["preview", ".github/workflows/vercel-preview.yml", "Verify required preview secret configuration"],
+  ["preview", ".github/workflows/vercel-preview.yml", "Verify required preview configuration"],
   ["production", ".github/workflows/vercel-production.yml", "Verify required production environment keys"],
 ]) {
   if (!existsSync(workflowPath)) {
@@ -80,11 +95,14 @@ for (const [label, workflowPath, preflightName] of [
   }
   const workflow = readFileSync(workflowPath, "utf8");
   if (!workflow.includes(preflightName)) failures.push(`${label} workflow mist environment preflight`);
-  for (const key of ["EAW_SUPABASE_URL", "EAW_SUPABASE_PUBLISHABLE_KEY", "EAW_ACCOUNT_URL", "VIDEO_SUPABASE_URL", "VIDEO_SUPABASE_SERVICE_ROLE_KEY"]) {
+  for (const key of ["EAW_SUPABASE_URL", "EAW_SUPABASE_PUBLISHABLE_KEY", "EAW_ACCOUNT_URL", "VIDEO_SUPABASE_URL"]) {
     if (!workflow.includes(key)) failures.push(`${label} workflow preflight mist ${key}`);
   }
-  if (/(^|[^A-Z0-9_])SUPABASE_SERVICE_ROLE_KEY([^A-Z0-9_]|$)/m.test(workflow.replaceAll("VIDEO_SUPABASE_SERVICE_ROLE_KEY", ""))) {
-    failures.push(`${label} workflow accepteert nog generieke SUPABASE_SERVICE_ROLE_KEY als mediafallback`);
+  if (/VIDEO_SUPABASE_SERVICE_ROLE_KEY/.test(workflow)) {
+    failures.push(`${label} workflow bevat nog een media service-role dependency`);
+  }
+  if (/(^|[^A-Z0-9_])SUPABASE_SERVICE_ROLE_KEY([^A-Z0-9_]|$)/m.test(workflow)) {
+    failures.push(`${label} workflow accepteert generieke SUPABASE_SERVICE_ROLE_KEY als runtimefallback`);
   }
   if (/EAW_SUPABASE_URL:\s*https:\/\//.test(workflow)) {
     failures.push(`${label} workflow hardcodet EAW_SUPABASE_URL en schendt Vercel target env SoT`);
@@ -124,4 +142,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log("Environment contract: PASS (Vercel target env is runtime SoT; preview and production validate the concrete EAW Supabase URL/key pair before deployment; preview is no longer an EAW Supabase config writer; Solution Architecture adaptive preview flags are branch-scoped; physical UX binds an exact PR-head preview; new presenter media uses media-edge signing; legacy video-url secret remains explicitly isolated; no hardcoded Supabase runtime credentials/URLs)");
+console.log("Environment contract: PASS (Vercel target env is runtime SoT; preview and production validate the concrete EAW Supabase URL/key pair before deployment; preview is no longer an EAW Supabase config writer; course and presenter media signing stay inside Supabase edge functions; no media service-role secret is present in Vercel runtime; Solution Architecture adaptive preview flags are branch-scoped; physical UX binds an exact PR-head preview; no hardcoded Supabase runtime credentials/URLs)");
