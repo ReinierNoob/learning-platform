@@ -1,0 +1,141 @@
+name: Restore legacy course video signing
+
+on:
+  push:
+    branches:
+      - hotfix/restore-togaf-access-20260902
+
+permissions:
+  contents: read
+
+concurrency:
+  group: restore-legacy-course-video-signing
+  cancel-in-progress: false
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_TEAM_ID: team_ZY5Sxra8t5DhA4S9zRTLmRnq
+      VERCEL_PROJECT_ID: prj_ULEAHWZ1J4r1GDmzxDU1sGJ3uXaA
+      VERCEL_PROJECT_NAME: learning-platform
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate project-scoped Vercel token
+        shell: bash
+        run: |
+          test -n "$VERCEL_TOKEN" || { echo '::error::VERCEL_TOKEN missing'; exit 1; }
+          STATUS="$(curl --silent --show-error --output /tmp/project.json --write-out '%{http_code}' \
+            --header "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v9/projects/$VERCEL_PROJECT_ID?teamId=$VERCEL_TEAM_ID")"
+          test "$STATUS" = '200' || { echo "::error::Token cannot access learning-platform (HTTP $STATUS)"; exit 1; }
+
+      - name: Clone existing preview video signing secret to production
+        shell: bash
+        run: |
+          STATUS="$(curl --silent --show-error --output /tmp/envs-decrypted.json --write-out '%{http_code}' \
+            --header "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v10/projects/$VERCEL_PROJECT_ID/env?decrypt=true&teamId=$VERCEL_TEAM_ID")"
+          test "$STATUS" = '200' || { echo "::error::Cannot inspect Vercel environment configuration (HTTP $STATUS)"; exit 1; }
+
+          node <<'NODE'
+          const fs = require('fs');
+          const envs = JSON.parse(fs.readFileSync('/tmp/envs-decrypted.json','utf8')).envs ?? [];
+          const key = 'VIDEO_SUPABASE_SERVICE_ROLE_KEY';
+          const production = envs.filter((entry) => entry.key === key && Array.isArray(entry.target) && entry.target.includes('production'));
+          if (production.some((entry) => typeof entry.value === 'string' && entry.value.length > 0)) {
+            fs.writeFileSync('/tmp/action.json', JSON.stringify({ skip: true }), { mode: 0o600 });
+            console.log('Production video signing secret already configured.');
+            process.exit(0);
+          }
+          const preview = envs.filter((entry) => entry.key === key && Array.isArray(entry.target) && entry.target.includes('preview'));
+          const values = [...new Set(preview.map((entry) => typeof entry.value === 'string' ? entry.value : '').filter(Boolean))];
+          if (values.length !== 1) {
+            console.error(`::error::Expected exactly one existing Preview ${key} value; found ${values.length}.`);
+            process.exit(1);
+          }
+          fs.writeFileSync('/tmp/secret.json', JSON.stringify([{
+            key,
+            value: values[0],
+            type: 'encrypted',
+            target: ['production'],
+            comment: 'Legacy TOGAF chapter video signing secret; isolated to video-url route',
+          }]), { mode: 0o600 });
+          fs.writeFileSync('/tmp/action.json', JSON.stringify({ skip: false }), { mode: 0o600 });
+          console.log('Existing preview video signing secret resolved; production copy prepared without logging its value.');
+          NODE
+
+          SKIP="$(node -e "const p=require('/tmp/action.json');process.stdout.write(String(Boolean(p.skip)))")"
+          if [ "$SKIP" = 'true' ]; then rm -f /tmp/envs-decrypted.json /tmp/action.json; exit 0; fi
+          STATUS="$(curl --silent --show-error --output /tmp/secret-response.json --write-out '%{http_code}' \
+            --request POST \
+            --url "https://api.vercel.com/v10/projects/$VERCEL_PROJECT_ID/env?upsert=true&teamId=$VERCEL_TEAM_ID" \
+            --header "Authorization: Bearer $VERCEL_TOKEN" \
+            --header 'Content-Type: application/json' \
+            --data-binary @/tmp/secret.json)"
+          rm -f /tmp/envs-decrypted.json /tmp/secret.json /tmp/action.json
+          case "$STATUS" in 200|201) ;; *) echo "::error::Could not configure production video signing secret (HTTP $STATUS)"; exit 1 ;; esac
+          echo 'Production video signing secret configured.'
+
+      - name: Prepare production deployment payload
+        shell: bash
+        run: |
+          python3 <<'PY'
+          import base64, json, os
+          from pathlib import Path
+          excluded = {'.git', '.next', 'node_modules', '.vercel'}
+          files=[]
+          for p in Path('.').rglob('*'):
+              if not p.is_file() or any(part in excluded for part in p.parts) or p.as_posix().startswith('.github/'):
+                  continue
+              files.append({'file':p.as_posix(),'data':base64.b64encode(p.read_bytes()).decode(),'encoding':'base64'})
+          payload={
+              'name':os.environ['VERCEL_PROJECT_NAME'],
+              'project':os.environ['VERCEL_PROJECT_ID'],
+              'target':'production',
+              'files':files,
+              'gitMetadata':{
+                  'remoteUrl':'https://github.com/ReinierNoob/learning-platform',
+                  'commitRef':'main',
+                  'commitMessage':'Restore legacy TOGAF course video signing',
+                  'ci':True,'ciType':'github-actions','ciGitRepoVisibility':'public'
+              },
+              'projectSettings':{'framework':'nextjs','nodeVersion':'24.x'}
+          }
+          Path('/tmp/deployment.json').write_text(json.dumps(payload))
+          PY
+
+      - name: Deploy repaired production artifact
+        id: deploy
+        shell: bash
+        run: |
+          STATUS="$(curl --silent --show-error --output /tmp/deploy.json --write-out '%{http_code}' \
+            --request POST \
+            --url "https://api.vercel.com/v13/deployments?teamId=$VERCEL_TEAM_ID" \
+            --header "Authorization: Bearer $VERCEL_TOKEN" \
+            --header 'Content-Type: application/json' \
+            --data-binary @/tmp/deployment.json)"
+          case "$STATUS" in 200|201) ;; *) cat /tmp/deploy.json; echo "::error::Production deployment failed (HTTP $STATUS)"; exit 1 ;; esac
+          URL="$(node -e "const d=require('/tmp/deploy.json');process.stdout.write(d.url||'')")"
+          ID="$(node -e "const d=require('/tmp/deploy.json');process.stdout.write(d.id||d.uid||'')")"
+          test -n "$URL" -a -n "$ID" || { echo '::error::Deployment URL/ID missing'; exit 1; }
+          echo "deployment_id=$ID" >> "$GITHUB_OUTPUT"
+
+      - name: Confirm repaired production READY
+        shell: bash
+        run: |
+          ID='${{ steps.deploy.outputs.deployment_id }}'
+          for attempt in $(seq 1 40); do
+            STATUS="$(curl --silent --show-error --output /tmp/status.json --write-out '%{http_code}' \
+              --header "Authorization: Bearer $VERCEL_TOKEN" \
+              "https://api.vercel.com/v13/deployments/$ID?teamId=$VERCEL_TEAM_ID")"
+            test "$STATUS" = '200' || exit 1
+            STATE="$(node -e "const d=require('/tmp/status.json');process.stdout.write(d.readyState||'')")"
+            if [ "$STATE" = 'READY' ]; then echo 'Repaired learning production READY.'; exit 0; fi
+            if [ "$STATE" = 'ERROR' ] || [ "$STATE" = 'CANCELED' ] || [ "$STATE" = 'BLOCKED' ]; then exit 1; fi
+            sleep 10
+          done
+          echo '::error::Production deployment did not become READY'; exit 1
