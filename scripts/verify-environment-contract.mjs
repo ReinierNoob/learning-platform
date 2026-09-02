@@ -4,7 +4,6 @@ import { join } from "node:path";
 const failures = [];
 const runtimeRoots = ["app", "components", "lib"];
 const sourceExtensions = new Set([".js", ".jsx", ".mjs", ".ts", ".tsx"]);
-const legacyMediaSecretPath = "app/api/video-url/[id]/[chapter]/route.ts";
 const adaptivePreviewKeys = Array.from({ length: 10 }, (_, index) => `EAW_ADAPTIVE_MODULE${index + 1}_IN_LEARNING`);
 
 function extension(path) {
@@ -35,8 +34,8 @@ for (const file of runtimeRoots.flatMap(walk)) {
   if (/process\.env\.SUPABASE_(?:URL|SERVICE_ROLE_KEY)\b/.test(source)) {
     failures.push(`${file}: legacy generic SUPABASE_* runtime fallback aangetroffen`);
   }
-  if (/VIDEO_SUPABASE_SERVICE_ROLE_KEY/.test(source) && file !== legacyMediaSecretPath) {
-    failures.push(`${file}: media service-role secret is alleen tijdelijk toegestaan in de bestaande legacy video-url route`);
+  if (/VIDEO_SUPABASE_SERVICE_ROLE_KEY/.test(source)) {
+    failures.push(`${file}: media service-role secret mag niet in de Vercel runtime worden gebruikt`);
   }
 }
 
@@ -45,6 +44,55 @@ if (!existsSync(presenterRoutePath)) {
   failures.push("presenter media route ontbreekt");
 } else if (readFileSync(presenterRoutePath, "utf8").includes("VIDEO_SUPABASE_SERVICE_ROLE_KEY")) {
   failures.push("presenter media route mag geen media service-role secret gebruiken");
+}
+
+const courseVideoRoutePath = "app/api/video-url/[id]/[chapter]/route.ts";
+if (!existsSync(courseVideoRoutePath)) {
+  failures.push("course video route ontbreekt");
+} else {
+  const courseVideo = readFileSync(courseVideoRoutePath, "utf8");
+  if (!courseVideo.includes("functions/v1/secure-video-url")) {
+    failures.push("course video route delegeert signing niet aan secure-video-url edge");
+  }
+  if (!courseVideo.includes("x-eaw-publishable-key")) {
+    failures.push("course video route stuurt de publishable-key contractheader niet naar secure-video-url");
+  }
+  if (courseVideo.includes("VIDEO_SUPABASE_SERVICE_ROLE_KEY")) {
+    failures.push("course video route bevat nog een Vercel media service-role dependency");
+  }
+}
+
+const secureVideoEdgePath = "supabase/functions/secure-video-url/index.ts";
+if (!existsSync(secureVideoEdgePath)) {
+  failures.push("secure-video-url edge source ontbreekt uit versiebeheer");
+} else {
+  const edge = readFileSync(secureVideoEdgePath, "utf8");
+  if (/https:\/\/[a-z0-9]{20}\.supabase\.co/i.test(edge) || /sb_publishable_[A-Za-z0-9_-]+/.test(edge)) {
+    failures.push("secure-video-url edge bevat hardcoded Supabase projectbinding");
+  }
+  for (const contract of ["SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "p_course_id", "createSignedUrl", "x-eaw-publishable-key"]) {
+    if (!edge.includes(contract)) failures.push(`secure-video-url edge mist contract ${contract}`);
+  }
+}
+
+const uxBootstrapEdgePath = "supabase/functions/github-ux-e2e-bootstrap/index.ts";
+if (!existsSync(uxBootstrapEdgePath)) {
+  failures.push("GitHub UX E2E bootstrap edge source ontbreekt uit versiebeheer");
+} else {
+  const bootstrap = readFileSync(uxBootstrapEdgePath, "utf8");
+  if (/https:\/\/[a-z0-9]{20}\.supabase\.co/i.test(bootstrap) || /sb_publishable_[A-Za-z0-9_-]+/.test(bootstrap)) {
+    failures.push("GitHub UX E2E bootstrap edge bevat hardcoded Supabase projectbinding");
+  }
+  for (const contract of [
+    "https://token.actions.githubusercontent.com",
+    "eaw-learning-platform-ux-e2e",
+    "ReinierNoob/learning-platform/.github/workflows/solution-architecture-physical-ux-e2e.yml@",
+    "SUPABASE_URL",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "solution-architectuur-ontwerppraktijk",
+  ]) {
+    if (!bootstrap.includes(contract)) failures.push(`GitHub UX E2E bootstrap edge mist contract ${contract}`);
+  }
 }
 
 const platformPath = "lib/platform.ts";
@@ -71,7 +119,7 @@ if (!existsSync(ciPath)) {
 }
 
 for (const [label, workflowPath, preflightName] of [
-  ["preview", ".github/workflows/vercel-preview.yml", "Verify required preview secret configuration"],
+  ["preview", ".github/workflows/vercel-preview.yml", "Verify required preview configuration"],
   ["production", ".github/workflows/vercel-production.yml", "Verify required production environment keys"],
 ]) {
   if (!existsSync(workflowPath)) {
@@ -80,11 +128,26 @@ for (const [label, workflowPath, preflightName] of [
   }
   const workflow = readFileSync(workflowPath, "utf8");
   if (!workflow.includes(preflightName)) failures.push(`${label} workflow mist environment preflight`);
-  for (const key of ["EAW_SUPABASE_URL", "EAW_SUPABASE_PUBLISHABLE_KEY", "EAW_ACCOUNT_URL", "VIDEO_SUPABASE_URL", "VIDEO_SUPABASE_SERVICE_ROLE_KEY"]) {
+  for (const key of ["EAW_SUPABASE_URL", "EAW_SUPABASE_PUBLISHABLE_KEY", "EAW_ACCOUNT_URL", "VIDEO_SUPABASE_URL"]) {
     if (!workflow.includes(key)) failures.push(`${label} workflow preflight mist ${key}`);
   }
-  if (/(^|[^A-Z0-9_])SUPABASE_SERVICE_ROLE_KEY([^A-Z0-9_]|$)/m.test(workflow.replaceAll("VIDEO_SUPABASE_SERVICE_ROLE_KEY", ""))) {
-    failures.push(`${label} workflow accepteert nog generieke SUPABASE_SERVICE_ROLE_KEY als mediafallback`);
+  if (/VIDEO_SUPABASE_SERVICE_ROLE_KEY/.test(workflow)) {
+    failures.push(`${label} workflow bevat nog een media service-role dependency`);
+  }
+  if (/(^|[^A-Z0-9_])SUPABASE_SERVICE_ROLE_KEY([^A-Z0-9_]|$)/m.test(workflow)) {
+    failures.push(`${label} workflow accepteert generieke SUPABASE_SERVICE_ROLE_KEY als runtimefallback`);
+  }
+  if (/EAW_SUPABASE_URL:\s*https:\/\//.test(workflow)) {
+    failures.push(`${label} workflow hardcodet EAW_SUPABASE_URL en schendt Vercel target env SoT`);
+  }
+  if (/EAW_SUPABASE_PUBLISHABLE_KEY:\s*sb_publishable_/.test(workflow)) {
+    failures.push(`${label} workflow hardcodet EAW_SUPABASE_PUBLISHABLE_KEY en schendt Vercel target env SoT`);
+  }
+  if (!workflow.includes("decrypt=true")) {
+    failures.push(`${label} workflow leest de concrete Vercel targetwaarden niet voor contractvalidatie`);
+  }
+  if (!workflow.includes("rest/v1/courses?select=id&limit=1")) {
+    failures.push(`${label} workflow valideert de EAW Supabase URL/key-combinatie niet live vóór deployment`);
   }
   if (label === "preview") {
     for (const key of adaptivePreviewKeys) {
@@ -104,6 +167,12 @@ if (!existsSync(physicalUxWorkflowPath)) {
   }
   if (!physical.includes("gitBranch")) failures.push("physical UX workflow configureert adaptive flags niet branch-scoped");
   if (!physical.includes("PR_HEAD_SHA") || !physical.includes("PR_HEAD_REF")) failures.push("physical UX workflow bindt deployment niet expliciet aan PR head sha/ref");
+  if (/UX_BOOTSTRAP_URL:\s*https:\/\/[a-z0-9]+\.supabase\.co/i.test(physical)) {
+    failures.push("physical UX workflow hardcodet een Supabase bootstrapproject in plaats van de Vercel EAW SoT te volgen");
+  }
+  for (const contract of ["Resolve current EAW UX bootstrap target from Vercel SoT", "EAW_SUPABASE_URL", "decrypt=true", "github-ux-e2e-bootstrap"]) {
+    if (!physical.includes(contract)) failures.push(`physical UX workflow mist bootstrap-SoT contract ${contract}`);
+  }
 }
 
 if (failures.length) {
@@ -112,4 +181,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log("Environment contract: PASS (Vercel target env is runtime SoT; Solution Architecture adaptive preview flags are branch-scoped; physical UX binds an exact PR-head preview; new presenter media uses media-edge signing; legacy video-url secret remains explicitly isolated; no hardcoded Supabase runtime credentials/URLs)");
+console.log("Environment contract: PASS (Vercel target env is runtime SoT; preview, production and physical UX bootstrap derive/validate the current EAW Supabase binding; course and presenter media signing stay inside versioned Supabase edge functions; no media service-role secret is present in Vercel runtime; Solution Architecture adaptive preview flags are branch-scoped; physical UX binds an exact PR-head preview; no hardcoded Supabase runtime credentials/URLs)");

@@ -1,5 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAccessToken, getLearningAccess, getPublishedModule, getSessionUser } from "../../../../../lib/platform";
+import {
+  eawPublishableKey,
+  getAccessToken,
+  getLearningAccess,
+  getPublishedModule,
+  getSessionUser,
+} from "../../../../../lib/platform";
+
+const EXPECTED_SIGNED_URL_TTL_SECONDS = 900;
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string; chapter: string }> }) {
   const { id, chapter } = await params;
@@ -18,33 +26,35 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const module = await getPublishedModule(trainingId, sourceModuleId, token);
   if (!module?.is_published) return new NextResponse("Not found", { status: 404 });
 
-  const videoUrl = process.env.VIDEO_SUPABASE_URL;
-  const serviceKey = process.env.VIDEO_SUPABASE_SERVICE_ROLE_KEY;
-  if (!videoUrl || !serviceKey) return new NextResponse("Video storage not configured", { status: 503 });
+  const videoUrl = process.env.VIDEO_SUPABASE_URL?.replace(/\/+$/, "");
+  if (!videoUrl) return new NextResponse("Video storage not configured", { status: 503 });
+  const videoSignerUrl = process.env.COURSE_VIDEO_EDGE_URL ?? `${videoUrl}/functions/v1/secure-video-url`;
 
-  const objectPath = `module${sourceModuleId}/${chapter}.mp4`;
-  const expiresIn = 1800;
-  const signed = await fetch(`${videoUrl}/storage/v1/object/sign/cursus-videos/${objectPath}`, {
+  const signed = await fetch(videoSignerUrl, {
     method: "POST",
-    headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ expiresIn }),
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "x-eaw-publishable-key": eawPublishableKey,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ courseId: trainingId, moduleId: sourceModuleId, chapter }),
     cache: "no-store",
   });
 
-  const result = await signed.json().catch(() => ({}));
-  if (!signed.ok || !result.signedURL) return new NextResponse("Video unavailable", { status: 404 });
-
-  const baseUrl = videoUrl.replace(/\/+$/, "");
-  const signedPath = result.signedURL.startsWith("/") ? result.signedURL : `/${result.signedURL}`;
-  const storagePrefix = signedPath.startsWith("/storage/v1/") ? "" : "/storage/v1";
-  const target = result.signedURL.startsWith("http") ? result.signedURL : `${baseUrl}${storagePrefix}${signedPath}`;
+  const result = await signed.json().catch(() => ({})) as { signed_url?: string; expires_in?: number };
+  if (!signed.ok || typeof result.signed_url !== "string" || result.expires_in !== EXPECTED_SIGNED_URL_TTL_SECONDS) {
+    return new NextResponse("Video unavailable", { status: signed.ok ? 502 : signed.status });
+  }
 
   if (request.nextUrl.searchParams.get("format") === "json") {
     return NextResponse.json(
-      { url: target, expiresIn },
-      { headers: { "Cache-Control": "private, no-store" } },
+      { url: result.signed_url, expiresIn: result.expires_in },
+      { headers: { "Cache-Control": "private, no-store", "Referrer-Policy": "no-referrer" } },
     );
   }
 
-  return NextResponse.redirect(target, 307);
+  const response = NextResponse.redirect(result.signed_url, 307);
+  response.headers.set("Cache-Control", "private, no-store");
+  response.headers.set("Referrer-Policy", "no-referrer");
+  return response;
 }

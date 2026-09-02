@@ -26,8 +26,6 @@ jobs:
       VERCEL_PROJECT_ID: prj_ULEAHWZ1J4r1GDmzxDU1sGJ3uXaA
       VERCEL_PROJECT_NAME: learning-platform
       EAW_PREVIEW_URL: https://enterprise-architecture-works-git-2668d7-reiniernoobs-projects.vercel.app
-      EAW_SUPABASE_URL: https://mhjykzrljvtxauaatlom.supabase.co
-      EAW_SUPABASE_PUBLISHABLE_KEY: sb_publishable_qa9v9qDYMzr3Fr3h0N29gg_1Ip6gfb5
       VIDEO_SUPABASE_URL: https://jtdcinvkpprgnwvtwvms.supabase.co
     steps:
       - uses: actions/checkout@v4
@@ -65,8 +63,6 @@ jobs:
             'EAW_ADAPTIVE_MODULE10_IN_LEARNING',
           ];
           fs.writeFileSync('/tmp/env.json', JSON.stringify([
-            { key: 'EAW_SUPABASE_URL', value: process.env.EAW_SUPABASE_URL, type: 'plain', target: ['preview'] },
-            { key: 'EAW_SUPABASE_PUBLISHABLE_KEY', value: process.env.EAW_SUPABASE_PUBLISHABLE_KEY, type: 'plain', target: ['preview'] },
             { key: 'EAW_ACCOUNT_URL', value: `${process.env.EAW_PREVIEW_URL}/account`, type: 'plain', target: ['preview'] },
             { key: 'VIDEO_SUPABASE_URL', value: process.env.VIDEO_SUPABASE_URL, type: 'plain', target: ['preview'] },
             { key: 'ANTHROPIC_MODEL', value: 'claude-sonnet-5', type: 'plain', target: ['preview'] },
@@ -82,21 +78,27 @@ jobs:
             --data-binary @/tmp/env.json)"
           case "$STATUS" in 200|201) ;; *) echo "::error::Preview env update failed (HTTP $STATUS)"; exit 1 ;; esac
 
-      - name: Verify required preview secret configuration
+      - name: Verify required preview configuration
         shell: bash
         run: |
           STATUS="$(curl --silent --show-error --output /tmp/envs.json --write-out '%{http_code}' \
             --header "Authorization: Bearer $VERCEL_TOKEN" \
-            "https://api.vercel.com/v10/projects/$VERCEL_PROJECT_ID/env?teamId=$VERCEL_TEAM_ID")"
+            "https://api.vercel.com/v10/projects/$VERCEL_PROJECT_ID/env?decrypt=true&teamId=$VERCEL_TEAM_ID")"
           test "$STATUS" = '200' || { echo "::error::Cannot inspect Preview env keys (HTTP $STATUS)"; exit 1; }
           node <<'NODE'
           const fs = require('fs');
           const envs = JSON.parse(fs.readFileSync('/tmp/envs.json','utf8')).envs ?? [];
           const previewEntries = envs.filter(e => Array.isArray(e.target) && e.target.includes('preview'));
           const keys = new Set(previewEntries.map(e => e.key));
-          const required = ['EAW_SUPABASE_URL','EAW_SUPABASE_PUBLISHABLE_KEY','EAW_ACCOUNT_URL','VIDEO_SUPABASE_URL','VIDEO_SUPABASE_SERVICE_ROLE_KEY'];
+          const required = ['EAW_SUPABASE_URL','EAW_SUPABASE_PUBLISHABLE_KEY','EAW_ACCOUNT_URL','VIDEO_SUPABASE_URL'];
           const missing = required.filter(k => !keys.has(k));
           if (missing.length) { console.error(`::error::Missing Preview configuration: ${missing.join(', ')}`); process.exit(1); }
+          for (const key of ['EAW_SUPABASE_URL','EAW_SUPABASE_PUBLISHABLE_KEY']) {
+            const matches = previewEntries.filter(e => e.key === key && !e.gitBranch);
+            const values = [...new Set(matches.map(e => typeof e.value === 'string' ? e.value : '').filter(Boolean))];
+            if (values.length !== 1) { console.error(`::error::Preview ${key} must resolve to exactly one Vercel target value`); process.exit(1); }
+            fs.appendFileSync(process.env.GITHUB_ENV, `${key}=${values[0]}\n`);
+          }
           const adaptiveKeys = [
             'EAW_ADAPTIVE_MODULE1_IN_LEARNING',
             'EAW_ADAPTIVE_MODULE2_IN_LEARNING',
@@ -117,6 +119,16 @@ jobs:
             console.log('::warning::No Alexander AI key configured; tutor will return ai_not_configured.');
           }
           NODE
+          rm -f /tmp/envs.json
+
+      - name: Validate preview EAW Supabase runtime binding
+        shell: bash
+        run: |
+          STATUS="$(curl --silent --show-error --output /tmp/supabase-probe.json --write-out '%{http_code}' \
+            --header "apikey: $EAW_SUPABASE_PUBLISHABLE_KEY" \
+            "$EAW_SUPABASE_URL/rest/v1/courses?select=id&limit=1")"
+          test "$STATUS" = '200' || { echo "::error::Preview EAW Supabase URL/key binding invalid (HTTP $STATUS)"; exit 1; }
+          echo 'Preview EAW Supabase runtime binding: PASS'
 
       - name: Build
         env:

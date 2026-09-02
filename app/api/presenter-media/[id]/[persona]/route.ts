@@ -43,9 +43,7 @@ export async function GET(
 
   const mediaSupabaseUrl = process.env.VIDEO_SUPABASE_URL?.replace(/\/+$/, "");
   if (!mediaSupabaseUrl) return new NextResponse("Media storage not configured", { status: 503 });
-  const mediaEdgeUrl =
-    process.env.PRESENTER_MEDIA_EDGE_URL ??
-    `${mediaSupabaseUrl}/functions/v1/solution-architecture-presenter-media`;
+  const mediaEdgeUrl = `${mediaSupabaseUrl}/functions/v1/course-presenter-media`;
 
   const upstream = await fetch(mediaEdgeUrl, {
     method: "POST",
@@ -54,7 +52,7 @@ export async function GET(
       "x-eaw-publishable-key": eawPublishableKey,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ module: sourceModuleId, persona: normalizedPersona, type }),
+    body: JSON.stringify({ courseId: course.id, module: sourceModuleId, persona: normalizedPersona, type }),
     cache: "no-store",
   });
 
