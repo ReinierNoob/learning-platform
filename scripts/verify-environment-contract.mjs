@@ -86,6 +86,18 @@ for (const [label, workflowPath, preflightName] of [
   if (/(^|[^A-Z0-9_])SUPABASE_SERVICE_ROLE_KEY([^A-Z0-9_]|$)/m.test(workflow.replaceAll("VIDEO_SUPABASE_SERVICE_ROLE_KEY", ""))) {
     failures.push(`${label} workflow accepteert nog generieke SUPABASE_SERVICE_ROLE_KEY als mediafallback`);
   }
+  if (/EAW_SUPABASE_URL:\s*https:\/\//.test(workflow)) {
+    failures.push(`${label} workflow hardcodet EAW_SUPABASE_URL en schendt Vercel target env SoT`);
+  }
+  if (/EAW_SUPABASE_PUBLISHABLE_KEY:\s*sb_publishable_/.test(workflow)) {
+    failures.push(`${label} workflow hardcodet EAW_SUPABASE_PUBLISHABLE_KEY en schendt Vercel target env SoT`);
+  }
+  if (!workflow.includes("decrypt=true")) {
+    failures.push(`${label} workflow leest de concrete Vercel targetwaarden niet voor contractvalidatie`);
+  }
+  if (!workflow.includes("rest/v1/courses?select=id&limit=1")) {
+    failures.push(`${label} workflow valideert de EAW Supabase URL/key-combinatie niet live vóór deployment`);
+  }
   if (label === "preview") {
     for (const key of adaptivePreviewKeys) {
       if (!workflow.includes(key)) failures.push(`preview workflow mist branch-scoped adaptive flag ${key}`);
@@ -112,4 +124,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log("Environment contract: PASS (Vercel target env is runtime SoT; Solution Architecture adaptive preview flags are branch-scoped; physical UX binds an exact PR-head preview; new presenter media uses media-edge signing; legacy video-url secret remains explicitly isolated; no hardcoded Supabase runtime credentials/URLs)");
+console.log("Environment contract: PASS (Vercel target env is runtime SoT; preview and production validate the concrete EAW Supabase URL/key pair before deployment; preview is no longer an EAW Supabase config writer; Solution Architecture adaptive preview flags are branch-scoped; physical UX binds an exact PR-head preview; new presenter media uses media-edge signing; legacy video-url secret remains explicitly isolated; no hardcoded Supabase runtime credentials/URLs)");
