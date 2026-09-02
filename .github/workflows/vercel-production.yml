@@ -66,23 +66,20 @@ jobs:
             --header "Authorization: Bearer $VERCEL_TOKEN" \
             --header 'Content-Type: application/json' \
             --data-binary @/tmp/release-env.json)"
-          case "$STATUS" in 200|201) ;; *) cat /tmp/release-env-response.json; echo "::error::Could not configure production release flags (HTTP $STATUS)"; exit 1 ;; esac
+          case "$STATUS" in 200|201) ;; *) echo "::error::Could not configure production release flags (HTTP $STATUS)"; exit 1 ;; esac
 
       - name: Verify required production environment keys
         shell: bash
         run: |
           STATUS="$(curl --silent --show-error --output /tmp/envs.json --write-out '%{http_code}' \
             --header "Authorization: Bearer $VERCEL_TOKEN" \
-            "https://api.vercel.com/v10/projects/$VERCEL_PROJECT_ID/env?teamId=$VERCEL_TEAM_ID")"
+            "https://api.vercel.com/v10/projects/$VERCEL_PROJECT_ID/env?decrypt=true&teamId=$VERCEL_TEAM_ID")"
           test "$STATUS" = '200' || { echo "::error::Cannot inspect production env keys (HTTP $STATUS)"; exit 1; }
           node <<'NODE'
           const fs = require('fs');
           const envs = JSON.parse(fs.readFileSync('/tmp/envs.json','utf8')).envs ?? [];
-          const productionKeys = new Set(
-            envs
-              .filter((entry) => Array.isArray(entry.target) && entry.target.includes('production'))
-              .map((entry) => entry.key),
-          );
+          const productionEntries = envs.filter((entry) => Array.isArray(entry.target) && entry.target.includes('production'));
+          const productionKeys = new Set(productionEntries.map((entry) => entry.key));
           const required = [
             'EAW_SUPABASE_URL',
             'EAW_SUPABASE_PUBLISHABLE_KEY',
@@ -96,12 +93,31 @@ jobs:
             console.error(`::error::Missing production configuration: ${missing.join(', ')}`);
             process.exit(1);
           }
+          for (const key of ['EAW_SUPABASE_URL','EAW_SUPABASE_PUBLISHABLE_KEY']) {
+            const matches = productionEntries.filter((entry) => entry.key === key && !entry.gitBranch);
+            const values = [...new Set(matches.map((entry) => typeof entry.value === 'string' ? entry.value : '').filter(Boolean))];
+            if (values.length !== 1) {
+              console.error(`::error::Production ${key} must resolve to exactly one Vercel target value`);
+              process.exit(1);
+            }
+            fs.appendFileSync(process.env.GITHUB_ENV, `${key}=${values[0]}\n`);
+          }
           const legacyVideoSecret = 'VIDEO_SUPABASE_SERVICE_ROLE_KEY';
           if (!productionKeys.has(legacyVideoSecret)) {
             console.log(`::warning::${legacyVideoSecret} is not configured for production; the isolated legacy video-url route remains fail-closed (503). Solution Architecture presenter media does not depend on this secret.`);
           }
           console.log('Production environment key contract: PASS');
           NODE
+          rm -f /tmp/envs.json
+
+      - name: Validate production EAW Supabase runtime binding
+        shell: bash
+        run: |
+          STATUS="$(curl --silent --show-error --output /tmp/supabase-probe.json --write-out '%{http_code}' \
+            --header "apikey: $EAW_SUPABASE_PUBLISHABLE_KEY" \
+            "$EAW_SUPABASE_URL/rest/v1/courses?select=id&limit=1")"
+          test "$STATUS" = '200' || { echo "::error::Production EAW Supabase URL/key binding invalid (HTTP $STATUS)"; exit 1; }
+          echo 'Production EAW Supabase runtime binding: PASS'
 
       - name: Prepare production deployment payload
         shell: bash
