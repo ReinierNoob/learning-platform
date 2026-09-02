@@ -5,6 +5,7 @@ const route = fs.readFileSync('app/api/presenter-media/[id]/[persona]/route.ts',
 const component = fs.readFileSync('components/adaptive/config-driven/SolutionArchitecturePresenterMedia.tsx', 'utf8');
 const experience = fs.readFileSync('components/adaptive/config-driven/AdaptiveModuleExperience.tsx', 'utf8');
 const transcripts = fs.readFileSync('lib/solution-architecture-presenter-transcripts.ts', 'utf8');
+const edgeSource = fs.readFileSync('supabase/functions/course-presenter-media/index.ts', 'utf8');
 const delivery = JSON.parse(fs.readFileSync('content/solution-architecture-presenter-delivery-v1.json', 'utf8'));
 const assets = JSON.parse(fs.readFileSync('content/solution-architecture-presenter-assets-v1.json', 'utf8'));
 
@@ -44,13 +45,20 @@ if (paths.size !== 60) fail(`path_count:${paths.size}`);
 for (const required of ['getAccessToken', 'getSessionUser', 'getCourseBySlug', 'getLearningAccess', 'getPublishedModule']) {
   if (!route.includes(required)) fail(`route_access_check:${required}`);
 }
-for (const required of ['PRESENTER_MEDIA_EDGE_URL', 'solution-architecture-presenter-media', 'eawPublishableKey', 'x-eaw-publishable-key', 'private, no-store', 'no-referrer']) {
+for (const required of ['VIDEO_SUPABASE_URL', 'course-presenter-media', 'courseId: course.id', 'eawPublishableKey', 'x-eaw-publishable-key', 'private, no-store', 'no-referrer']) {
   if (!route.includes(required)) fail(`route_security_contract:${required}`);
 }
+if (route.includes('PRESENTER_MEDIA_EDGE_URL') || route.includes('solution-architecture-presenter-media')) fail('legacy_presenter_signer_route');
 if (route.includes('VIDEO_SUPABASE_SERVICE_ROLE_KEY') || route.includes('SUPABASE_SERVICE_ROLE_KEY')) fail('service_role_in_learning_runtime');
 if (route.includes('heygen.ai')) fail('runtime_heygen_dependency');
 if (!route.includes('EXPECTED_SIGNED_URL_TTL_SECONDS = 900')) fail('route_ttl');
 if (!route.includes('type === "captions"') || !route.includes('Content-Type": "text/vtt; charset=utf-8"')) fail('same_origin_caption_proxy');
+
+for (const required of ['EAW_SUPABASE_URL', 'SUPABASE_URL', 'get_my_learning_access', 'course_presenter_media_assets', 'SUPABASE_SERVICE_ROLE_KEY']) {
+  if (!edgeSource.includes(required)) fail(`edge_contract:${required}`);
+}
+if (edgeSource.includes('mhjykzrljvtxauaatlom') || edgeSource.includes('sb_publishable_')) fail('edge_hardcoded_eaw_binding');
+if (!edgeSource.includes('EAW_SUPABASE_URL = (Deno.env.get("EAW_SUPABASE_URL") ?? MEDIA_SUPABASE_URL)')) fail('edge_eaw_binding_source');
 
 for (const required of ['controls', 'playsInline', 'preload="metadata"', 'kind="captions"', 'srcLang="nl"', '<details', '<summary>Lees transcript']) {
   if (!component.includes(required)) fail(`accessible_media_component:${required}`);
@@ -69,4 +77,4 @@ const transcriptEntries = (transcripts.match(/transcript:\s*"/g) ?? []).length;
 if (transcriptEntries !== 20) fail(`transcript_count:${transcriptEntries}`);
 if (transcripts.includes('heygen.ai')) fail('transcript_external_url');
 
-console.log('Solution Architecture secure presenter media source contract: PASS (20 assets / 60 private objects / media-edge trust boundary / entitlement route / captions / transcripts)');
+console.log('Solution Architecture secure presenter media source contract: PASS (20 assets / 60 private objects / generic course media-edge trust boundary / entitlement route / captions / transcripts)');
