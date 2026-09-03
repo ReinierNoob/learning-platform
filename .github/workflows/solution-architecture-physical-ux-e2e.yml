@@ -88,7 +88,7 @@ jobs:
           case "$STATUS" in 200|201) ;; *) cat /tmp/adaptive-env-response.json; echo "::error::Adaptive branch env update failed (HTTP $STATUS)"; exit 1 ;; esac
           echo "Adaptive preview flags bound to branch: $PR_HEAD_REF"
 
-      - name: Resolve current EAW UX bootstrap target from Vercel SoT
+      - name: Resolve branch-specific EAW UX bootstrap target from Vercel SoT
         shell: bash
         run: |
           set -euo pipefail
@@ -101,16 +101,30 @@ jobs:
           const envs = JSON.parse(fs.readFileSync('/tmp/ux-envs.json','utf8')).envs ?? [];
           const values = [...new Set(
             envs
-              .filter((entry) => entry.key === 'EAW_SUPABASE_URL' && Array.isArray(entry.target) && entry.target.includes('preview') && !entry.gitBranch)
+              .filter((entry) => entry.key === 'EAW_SUPABASE_URL' && Array.isArray(entry.target) && entry.target.includes('preview') && entry.gitBranch === process.env.PR_HEAD_REF)
               .map((entry) => typeof entry.value === 'string' ? entry.value.replace(/\/+$/, '') : '')
               .filter(Boolean),
           )];
           if (values.length !== 1) {
-            console.error(`::error::Preview EAW_SUPABASE_URL must resolve to exactly one Vercel target value; found ${values.length}`);
+            console.error(`::error::Branch Preview EAW_SUPABASE_URL must resolve to exactly one Vercel target value; found ${values.length}`);
+            process.exit(1);
+          }
+          if (values[0] !== 'https://mhjykzrljvtxauaatlom.supabase.co') {
+            console.error('::error::Branch preview is not bound to the approved isolated EAW test project');
+            process.exit(1);
+          }
+          const publishableKeys = envs.filter((entry) =>
+            entry.key === 'EAW_SUPABASE_PUBLISHABLE_KEY' &&
+            Array.isArray(entry.target) &&
+            entry.target.includes('preview') &&
+            entry.gitBranch === process.env.PR_HEAD_REF
+          );
+          if (publishableKeys.length !== 1) {
+            console.error(`::error::Branch Preview EAW_SUPABASE_PUBLISHABLE_KEY must resolve to exactly one Vercel entry; found ${publishableKeys.length}`);
             process.exit(1);
           }
           fs.appendFileSync(process.env.GITHUB_ENV, `UX_BOOTSTRAP_URL=${values[0]}/functions/v1/github-ux-e2e-bootstrap\n`);
-          console.log('Physical UX bootstrap target resolved from Vercel EAW runtime SoT.');
+          console.log('Physical UX bootstrap target resolved from branch-specific Vercel EAW runtime SoT.');
           NODE
           rm -f /tmp/ux-envs.json
 
