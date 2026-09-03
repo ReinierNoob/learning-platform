@@ -74,14 +74,16 @@ jobs:
             'EAW_ADAPTIVE_MODULE10_IN_LEARNING',
           ];
           fs.writeFileSync('/tmp/adaptive-env.json', JSON.stringify(
-            adaptiveKeys.map((key) => ({
+            [{ key: 'EAW_SUPABASE_URL', value: 'https://mhjykzrljvtxauaatlom.supabase.co', type: 'plain', target: ['preview'], gitBranch: branch },
+             { key: 'EAW_SUPABASE_PUBLISHABLE_KEY', value: 'sb_publishable_qa9v9qDYMzr3Fr3h0N29gg_1Ip6gfb5', type: 'plain', target: ['preview'], gitBranch: branch },
+             ...adaptiveKeys.map((key) => ({
               key,
               value: 'true',
               type: 'plain',
               target: ['preview'],
               gitBranch: branch,
               comment: 'TOGAF refactor physical UX/release preview contract',
-            })),
+            }))],
           ));
           NODE
           STATUS="$(curl --silent --show-error --output /tmp/adaptive-env-response.json --write-out '%{http_code}' \
@@ -106,7 +108,7 @@ jobs:
           const envs = JSON.parse(fs.readFileSync('/tmp/ux-envs.json','utf8')).envs ?? [];
           const values = [...new Set(
             envs
-              .filter((entry) => entry.key === 'EAW_SUPABASE_URL' && Array.isArray(entry.target) && entry.target.includes('preview') && !entry.gitBranch)
+              .filter((entry) => entry.key === 'EAW_SUPABASE_URL' && Array.isArray(entry.target) && entry.target.includes('preview') && entry.gitBranch === process.env.PR_HEAD_REF)
               .map((entry) => typeof entry.value === 'string' ? entry.value.replace(/\/+$/, '') : '')
               .filter(Boolean),
           )];

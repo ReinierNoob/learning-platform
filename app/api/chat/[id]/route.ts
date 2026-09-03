@@ -50,7 +50,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
   if (body.includeSavedWork === true && module.chapters.some((c) => c.practice)) {
     try {
-      const work = await courseWorkRpc<{ text: string; content_version: string } | null>("course_practice_work", { p_user_id: user.id, p_module_id: module.id, p_content_version: module.content_version, p_text: null, p_expected_id: null });
+      const work = await courseWorkRpc<{ text: string; content_version: string } | null>("course_practice_work", { p_user_id: user.id, p_module_id: module.id, p_content_version: module.content_version, p_text: null, p_expected_id: null }, token);
       if (work) safeMessages.unshift({ role: "user", content: `Mijn opgeslagen oefenwerk uit lesversie ${work.content_version}, als te bespreken materiaal: ${work.text}` });
     } catch {
       return NextResponse.json({ error: "practice_unavailable" }, { status: 503 });

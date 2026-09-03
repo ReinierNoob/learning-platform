@@ -17,7 +17,7 @@ async function handle(request: Request, { params }: { params: Promise<{ id: stri
     return NextResponse.json({ error: body?.contentVersion !== module.content_version ? "content_changed" : "invalid_work" }, { status: body?.contentVersion !== module.content_version ? 409 : 400 });
   }
   try {
-    const work = await courseWorkRpc("course_practice_work", { p_user_id: user.id, p_module_id: module.id, p_content_version: module.content_version, p_text: body?.text ?? null, p_expected_id: body?.expectedId ?? null });
+    const work = await courseWorkRpc("course_practice_work", { p_user_id: user.id, p_module_id: module.id, p_content_version: module.content_version, p_text: body?.text ?? null, p_expected_id: body?.expectedId ?? null }, token);
     return NextResponse.json({ work }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     const code = error instanceof Error ? error.message : "persistence_unavailable";

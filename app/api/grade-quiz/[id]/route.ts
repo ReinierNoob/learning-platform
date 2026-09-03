@@ -32,7 +32,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (module.content_version.startsWith("refactor-")) {
     if (body.contentVersion !== module.content_version) return NextResponse.json({ error: "content_changed" }, { status: 409 });
     try {
-      const result = await courseWorkRpc("grade_course_module", { p_user_id: user.id, p_module_id: module.id, p_content_version: body.contentVersion, p_answers: antwoorden, p_started_at: typeof body.startedAt === "string" && Number.isFinite(Date.parse(body.startedAt)) && Date.parse(body.startedAt) <= Date.now() ? body.startedAt : null });
+      const result = await courseWorkRpc("grade_course_module", { p_user_id: user.id, p_module_id: module.id, p_content_version: body.contentVersion, p_answers: antwoorden, p_started_at: typeof body.startedAt === "string" && Number.isFinite(Date.parse(body.startedAt)) && Date.parse(body.startedAt) <= Date.now() ? body.startedAt : null }, token);
       return NextResponse.json(result);
     } catch (error) {
       const code = error instanceof Error ? error.message : "persistence_unavailable";

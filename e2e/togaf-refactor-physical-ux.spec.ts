@@ -71,6 +71,15 @@ test('TOGAF RC1 authenticated lessons, practice, retries and mobile', async ({ b
     await page.evaluate(url => { window.location.href = url; }, `${baseURL}/auth/handoff?token_hash=${encodeURIComponent(tokenHash)}&type=magiclink&training_id=${trainingId}&next=${encodeURIComponent(`/leren/${slug}/module/1`)}`);
     await expect(page).toHaveURL(`${baseURL}/leren/${slug}/module/1`, { timeout: 25000 });
     checks.push('real Supabase magic-link handoff and entitlement');
+    const sessionToken = (await context.cookies()).find(c => c.name === 'eaw_learning_access_token')?.value;
+    expect(Boolean(sessionToken)).toBe(true);
+    const edgeUrl = 'https://mhjykzrljvtxauaatlom.supabase.co/functions/v1/course-work';
+    const edgePayload = { action: 'course_practice_work', p_user_id: process.env.EAW_UX_USER_ID, p_module_id: 'd9eb8f92-6109-4408-a923-f87d328bf007', p_content_version: version, p_text: null, p_expected_id: null };
+    expect((await page.request.post(edgeUrl, { data: edgePayload })).status()).toBe(401);
+    const edgeHeaders = { apikey: 'sb_publishable_qa9v9qDYMzr3Fr3h0N29gg_1Ip6gfb5', Authorization: `Bearer ${sessionToken}` };
+    expect((await page.request.post(edgeUrl, { headers: edgeHeaders, data: { ...edgePayload, p_user_id: '00000000-0000-0000-0000-000000000000' } })).status()).toBe(403);
+    expect((await page.request.post(edgeUrl, { headers: edgeHeaders, data: edgePayload })).status()).toBe(403);
+    checks.push('edge rejects missing session, forged identity and another course without entitlement');
     let totalChapters = 0, totalQuestions = 0;
     let module5PracticePath = '';
     for (let module = 1; module <= 8; module++) {
