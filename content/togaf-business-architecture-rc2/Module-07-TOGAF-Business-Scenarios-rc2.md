@@ -188,28 +188,28 @@ De positieve uitkomst is bruikbare deelname, niet alleen fysieke uitgifte. Midde
 
 Wat ontbreekt in het scenario `we bouwen een portaal met drie schermen`?
 
-- A. Alleen het lettertype.
-- B. Een onderbouwd probleem, omgeving, actoren en gewenste uitkomsten.
-- C. Een vast aantal architecten.
-- D. Een verbod op uitzonderingen.
+- A. Een verbod op uitzonderingen.
+- B. Alleen het lettertype.
+- C. Een onderbouwd probleem, omgeving, actoren en gewenste uitkomsten.
+- D. Een vast aantal architecten.
 
 ### Vraag 2
 
 Waar worden Business Scenarios volgens de Series Guide prominent ingezet?
 
-- A. Phase A — Architecture Vision.
-- B. Alleen Phase D.
-- C. Alleen na implementatie.
-- D. Uitsluitend buiten de ADM.
+- A. Uitsluitend buiten de ADM.
+- B. Phase A — Architecture Vision.
+- C. Alleen Phase D.
+- D. Alleen na implementatie.
 
 ### Vraag 3
 
 Waarom is een afleverstatus onvoldoende als bewijs dat R-04 is gerealiseerd?
 
-- A. Omdat technische aflevering niet automatisch begrip door de verzekerde bewijst.
-- B. Omdat systemen nooit informatie mogen afleveren.
-- C. Omdat alleen handmatige communicatie geldig is.
-- D. Omdat Business Scenarios geen requirements mogen bevatten.
+- A. Omdat alleen handmatige communicatie geldig is.
+- B. Omdat Business Scenarios geen requirements mogen bevatten.
+- C. Omdat technische aflevering niet automatisch begrip door de verzekerde bewijst.
+- D. Omdat systemen nooit informatie mogen afleveren.
 
 ## Naar module 8
 
