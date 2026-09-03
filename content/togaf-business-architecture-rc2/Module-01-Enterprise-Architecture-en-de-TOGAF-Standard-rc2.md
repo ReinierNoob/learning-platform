@@ -144,28 +144,28 @@ Deze vragen zijn formatief. Antwoordsleutels en beoordelingslogica horen in de a
 
 Aurora kiest meteen een nieuw portaal om onduidelijke claimafhandeling op te lossen. Welke eerste architectuurvraag helpt het meest?
 
-- A. Welke kleur krijgt het portaal?
-- B. Welke stakeholderuitkomst ontbreekt en welke samenhang kan dat verklaren?
-- C. Welke database heeft de hoogste capaciteit?
-- D. Hoe vervangen we alle bestaande modellen?
+- A. Hoe vervangen we alle bestaande modellen?
+- B. Welke kleur krijgt het portaal?
+- C. Welke stakeholderuitkomst ontbreekt en welke samenhang kan dat verklaren?
+- D. Welke database heeft de hoogste capaciteit?
 
 ### Vraag 2
 
 Wanneer is een enterprisegrens bruikbaar?
 
-- A. Als zij altijd samenvalt met één afdeling.
-- B. Als zij uitsluitend juridische eigendom volgt.
-- C. Als leveranciers altijd buiten beeld blijven.
-- D. Als zij de samenhang omvat die nodig is om de onderzochte vraag te beantwoorden.
+- A. Als zij uitsluitend juridische eigendom volgt.
+- B. Als leveranciers altijd buiten beeld blijven.
+- C. Als zij de samenhang omvat die nodig is om de onderzochte vraag te beantwoorden.
+- D. Als zij altijd samenvalt met één afdeling.
 
 ### Vraag 3
 
 Wat is een view?
 
-- A. De concrete ingevulde weergave voor een onderzochte situatie.
-- B. De algemene afspraak hoe een type weergave wordt opgebouwd.
-- C. Iedere mening van een stakeholder.
-- D. De verzameling toegangsrechten op architectuurmodellen.
+- A. Iedere mening van een stakeholder.
+- B. De verzameling toegangsrechten op architectuurmodellen.
+- C. De concrete ingevulde weergave voor een onderzochte situatie.
+- D. De algemene afspraak hoe een type weergave wordt opgebouwd.
 
 ### Vraag 4
 
@@ -180,19 +180,19 @@ Welke uitspraak onderscheidt Enterprise Continuum en Architecture Repository het
 
 Wat beschrijft een Enterprise Metamodel?
 
-- A. Alleen de huidige organisatiestructuur.
-- B. De soorten architectuurelementen en relaties die de architectuurpraktijk hanteert.
-- C. Eén concrete targetarchitectuur.
-- D. Alleen de database-opslag van architectuurdocumenten.
+- A. Alleen de database-opslag van architectuurdocumenten.
+- B. Alleen de huidige organisatiestructuur.
+- C. De soorten architectuurelementen en relaties die de architectuurpraktijk hanteert.
+- D. Eén concrete targetarchitectuur.
 
 ### Vraag 6
 
 Wat is het beste onderscheid tussen gap en risico?
 
-- A. Een gap is een verschil tussen baseline en target; een risico is onzekerheid of bedreiging die doelrealisatie kan beïnvloeden.
-- B. Een gap is altijd technisch; een risico altijd financieel.
-- C. Beide betekenen per definitie hetzelfde.
-- D. Een risico wordt pas relevant na implementatie.
+- A. Een gap is altijd technisch; een risico altijd financieel.
+- B. Beide betekenen per definitie hetzelfde.
+- C. Een risico wordt pas relevant na implementatie.
+- D. Een gap is een verschil tussen baseline en target; een risico is onzekerheid of bedreiging die doelrealisatie kan beïnvloeden.
 
 ## Naar module 2
 
