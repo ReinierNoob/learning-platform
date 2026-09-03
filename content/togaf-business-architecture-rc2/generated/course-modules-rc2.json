@@ -1,3 +1,6 @@
+Warning: truncated output (original token count: 32637)
+Total output lines: 988
+
 [
   {
     "source_module_id": 1,
@@ -63,30 +66,30 @@
         "nr": 1,
         "vraag": "Aurora kiest meteen een nieuw portaal om onduidelijke claimafhandeling op te lossen. Welke eerste architectuurvraag helpt het meest?",
         "opties": {
-          "A": "Welke kleur krijgt het portaal?",
-          "B": "Welke stakeholderuitkomst ontbreekt en welke samenhang kan dat verklaren?",
-          "C": "Welke database heeft de hoogste capaciteit?",
-          "D": "Hoe vervangen we alle bestaande modellen?"
+          "A": "Hoe vervangen we alle bestaande modellen?",
+          "B": "Welke kleur krijgt het portaal?",
+          "C": "Welke stakeholderuitkomst ontbreekt en welke samenhang kan dat verklaren?",
+          "D": "Welke database heeft de hoogste capaciteit?"
         }
       },
       {
         "nr": 2,
         "vraag": "Wanneer is een enterprisegrens bruikbaar?",
         "opties": {
-          "A": "Als zij altijd samenvalt met één afdeling.",
-          "B": "Als zij uitsluitend juridische eigendom volgt.",
-          "C": "Als leveranciers altijd buiten beeld blijven.",
-          "D": "Als zij de samenhang omvat die nodig is om de onderzochte vraag te beantwoorden."
+          "A": "Als zij uitsluitend juridische eigendom volgt.",
+          "B": "Als leveranciers altijd buiten beeld blijven.",
+          "C": "Als zij de samenhang omvat die nodig is om de onderzochte vraag te beantwoorden.",
+          "D": "Als zij altijd samenvalt met één afdeling."
         }
       },
       {
         "nr": 3,
         "vraag": "Wat is een view?",
         "opties": {
-          "A": "De concrete ingevulde weergave voor een onderzochte situatie.",
-          "B": "De algemene afspraak hoe een type weergave wordt opgebouwd.",
-          "C": "Iedere mening van een stakeholder.",
-          "D": "De verzameling toegangsrechten op architectuurmodellen."
+          "A": "Iedere mening van een stakeholder.",
+          "B": "De verzameling toegangsrechten op architectuurmodellen.",
+          "C": "De concrete ingevulde weergave voor een onderzochte situatie.",
+          "D": "De algemene afspraak hoe een type weergave wordt opgebouwd."
         }
       },
       {
@@ -103,20 +106,20 @@
         "nr": 5,
         "vraag": "Wat beschrijft een Enterprise Metamodel?",
         "opties": {
-          "A": "Alleen de huidige organisatiestructuur.",
-          "B": "De soorten architectuurelementen en relaties die de architectuurpraktijk hanteert.",
-          "C": "Eén concrete targetarchitectuur.",
-          "D": "Alleen de database-opslag van architectuurdocumenten."
+          "A": "Alleen de database-opslag van architectuurdocumenten.",
+          "B": "Alleen de huidige organisatiestructuur.",
+          "C": "De soorten architectuurelementen en relaties die de architectuurpraktijk hanteert.",
+          "D": "Eén concrete targetarchitectuur."
         }
       },
       {
         "nr": 6,
         "vraag": "Wat is het beste onderscheid tussen gap en risico?",
         "opties": {
-          "A": "Een gap is een verschil tussen baseline en target; een risico is onzekerheid of bedreiging die doelrealisatie kan beïnvloeden.",
-          "B": "Een gap is altijd technisch; een risico altijd financieel.",
-          "C": "Beide betekenen per definitie hetzelfde.",
-          "D": "Een risico wordt pas relevant na implementatie."
+          "A": "Een gap is altijd technisch; een risico altijd financieel.",
+          "B": "Beide betekenen per definitie hetzelfde.",
+          "C": "Een risico wordt pas relevant na implementatie.",
+          "D": "Een gap is een verschil tussen baseline en target; een risico is onzekerheid of bedreiging die doelrealisatie kan beïnvloeden."
         }
       }
     ]
@@ -200,40 +203,40 @@
         "nr": 2,
         "vraag": "Waar draait Requirements Management om?",
         "opties": {
-          "A": "Alleen de opdracht van Phase A opslaan.",
-          "B": "Technische eisen na Phase D permanent bevriezen.",
-          "C": "Requirements, wijzigingen en gevolgen door de architectuurontwikkeling heen beheren.",
-          "D": "De planning uit Phase F vervangen."
+          "A": "De planning uit Phase F vervangen.",
+          "B": "Alleen de opdracht van Phase A opslaan.",
+          "C": "Technische eisen na Phase D permanent bevriezen.",
+          "D": "Requirements, wijzigingen en gevolgen door de architectuurontwikkeling heen beheren."
         }
       },
       {
         "nr": 3,
         "vraag": "Wat onderscheidt Phase E en Phase F het beste?",
         "opties": {
-          "A": "E onderzoekt oplossings- en transitiemogelijkheden; F werkt migratieprioriteit en planning verder uit.",
-          "B": "E is uitsluitend programmeren; F uitsluitend testen.",
-          "C": "E maakt de Business Architecture; F de Data Architecture.",
-          "D": "F vervangt zonder onderbouwing alle besluiten uit E."
+          "A": "E maakt de Business Architecture; F de Data Architecture.",
+          "B": "F vervangt zonder onderbouwing alle besluiten uit E.",
+          "C": "E onderzoekt oplossings- en transitiemogelijkheden; F werkt migratieprioriteit en planning verder uit.",
+          "D": "E is uitsluitend programmeren; F uitsluitend testen."
         }
       },
       {
         "nr": 4,
         "vraag": "Een implementatie wijkt af van afgesproken herleidbaarheid. Welke fase heeft hier een directe governancefunctie?",
         "opties": {
-          "A": "Preliminary.",
-          "B": "Phase G — Implementation Governance.",
-          "C": "Alleen Phase H, want afwijkingen worden pas na livegang bekeken.",
-          "D": "Geen enkele fase."
+          "A": "Alleen Phase H, want afwijkingen worden pas na livegang bekeken.",
+          "B": "Geen enkele fase.",
+          "C": "Preliminary.",
+          "D": "Phase G — Implementation Governance."
         }
       },
       {
         "nr": 5,
         "vraag": "Waarom is `we slaan Phase D over, want bestaande infrastructuur is goed` onvoldoende tailoring?",
         "opties": {
-          "A": "Omdat een fase nooit lichter mag worden uitgevoerd.",
-          "B": "Omdat `goed` zonder relevant bewijs en verschilonderzoek geen onderbouwing is.",
-          "C": "Omdat Technology Architecture altijd de belangrijkste fase is.",
-          "D": "Omdat alleen leveranciers tailoring mogen beslissen."
+          "A": "Omdat `goed` zonder relevant bewijs en verschilonderzoek geen onderbouwing is.",
+          "B": "Omdat Technology Architecture altijd de belangrijkste fase is.",
+          "C": "Omdat alleen leveranciers tailoring mogen beslissen.",
+          "D": "Omdat een fase nooit lichter mag worden uitgevoerd."
         }
       }
     ]
@@ -312,30 +315,30 @@
         "nr": 1,
         "vraag": "Nova heeft deelnemers als gebruikers en een fonds als betaler. Wat moet het businessmodel zichtbaar maken?",
         "opties": {
-          "A": "Gebruiker en betaler zijn altijd hetzelfde segment.",
-          "B": "Alleen de laptopmerken.",
-          "C": "De verschillende waarde-, relatie- en financieringsrollen.",
-          "D": "Alleen de interne afdelingen."
+          "A": "Alleen de laptopmerken.",
+          "B": "De verschillende waarde-, relatie- en financieringsrollen.",
+          "C": "Alleen de interne afdelingen.",
+          "D": "Gebruiker en betaler zijn altijd hetzelfde segment."
         }
       },
       {
         "nr": 2,
         "vraag": "Welke combinatie bevat uitsluitend BMC-bouwblokken?",
         "opties": {
-          "A": "Value streams, exitcriteria, capabilities.",
-          "B": "Customer Segments, Value Propositions, Revenue Streams.",
-          "C": "Servers, tabellen, API-methoden.",
-          "D": "Architecture Vision, Implementation Governance, Change Management."
+          "A": "Customer Segments, Value Propositions, Revenue Streams.",
+          "B": "Servers, tabellen, API-methoden.",
+          "C": "Architecture Vision, Implementation Governance, Change Management.",
+          "D": "Value streams, exitcriteria, capabilities."
         }
       },
       {
         "nr": 3,
         "vraag": "Aurora belooft persoonlijke uitleg maar sluit expliciet alle menselijke ondersteuning uit. Wat kun je verantwoord concluderen?",
         "opties": {
-          "A": "De propositie is zeker winstgevend.",
-          "B": "Menselijke ondersteuning is altijd verplicht.",
-          "C": "Er is een interne spanning tussen belofte en gekozen inrichting.",
-          "D": "Alle digitale uitleg is onbruikbaar."
+          "A": "Alle digitale uitleg is onbruikbaar.",
+          "B": "De propositie is zeker winstgevend.",
+          "C": "Menselijke ondersteuning is altijd verplicht.",
+          "D": "Er is een interne spanning tussen belofte en gekozen inrichting."
         }
       },
       {
@@ -427,108 +430,7 @@
     "quiz": [
       {
         "nr": 1,
-        "vraag": "Welke formulering benoemt het duidelijkst een business capability?",
-        "opties": {
-          "A": "Een behandelaar klikt op akkoord.",
-          "B": "Het Schadeportaal.",
-          "C": "Schade beoordelen.",
-          "D": "Team Klantondersteuning."
-        }
-      },
-      {
-        "nr": 2,
-        "vraag": "Waarom is een capability niet automatisch gelijk aan één proces?",
-        "opties": {
-          "A": "Capabilities mogen geen processen ondersteunen.",
-          "B": "Een vermogen kan via verschillende uitvoeringsroutes worden gerealiseerd.",
-          "C": "Processen zijn altijd kleine taken.",
-          "D": "Iedere afdeling heeft precies één capability."
-        }
-      },
-      {
-        "nr": 3,
-        "vraag": "Welke decompositie past het beste onder `Schade beoordelen`?",
-        "opties": {
-          "A": "Schadeportaal, Polisdatabase, E-mailserver.",
-          "B": "Team Noord, Team Zuid, Team Oost.",
-          "C": "Schadefeiten vaststellen, aanspraak bepalen, besluit onderbouwen.",
-          "D": "Ontvangen, beoordelen, betalen als verplichte procesvolgorde."
-        }
-      },
-      {
-        "nr": 4,
-        "vraag": "Er zijn geen gegevens over de huidige performance van een capability. Welke aanduiding past het beste?",
-        "opties": {
-          "A": "Onbekend, met een gerichte informatievraag.",
-          "B": "Automatisch de laagste score.",
-          "C": "Automatisch gemiddeld.",
-          "D": "De kleur van de naastgelegen capability."
-        }
-      },
-      {
-        "nr": 5,
-        "vraag": "Wat beschrijven people, processes, information en resources in relatie tot een capability?",
-        "opties": {
-          "A": "Mogelijke componenten waarmee het vermogen wordt gerealiseerd.",
-          "B": "Vier verplichte hiërarchische capabilitylevels.",
-          "C": "Vier ADM-fasen.",
-          "D": "Vier soorten value stages."
-        }
-      },
-      {
-        "nr": 6,
-        "vraag": "Waarom krijgt een heat map een expliciet criterium en legenda?",
-        "opties": {
-          "A": "Omdat kleur anders zonder betekenis en bewijscontext wordt geïnterpreteerd.",
-          "B": "Omdat TOGAF precies één universele kleurcodering voorschrijft.",
-          "C": "Om discussie onmogelijk te maken.",
-          "D": "Om onbekende data automatisch te berekenen."
-        }
-      }
-    ]
-  },
-  {
-    "source_module_id": 5,
-    "slug": "module-5-value-streams",
-    "title": "Value Streams",
-    "position": 5,
-    "is_required": true,
-    "is_published": false,
-    "content_version": "togaf-ba-rc2-consolidated-2026-09-03",
-    "level": "TOGAF Business Architecture examination readiness",
-    "study_load": null,
-    "case_study": "Aurora (uitgewerkt) en Nova (zelfstandig)",
-    "disclaimer": "Onafhankelijke EAW-zelfstudie; niet geaccrediteerd door The Open Group. TOGAF® is een geregistreerd handelsmerk van The Open Group.",
-    "chapters": [
-      {
-        "id": "m5-h1",
-        "titel": "Leerprestatie",
-        "tekst": "Na deze module kun je een value stream afbakenen vanuit stakeholderwaarde, value stages ontwerpen met expliciete entry- en exitcriteria, value items benoemen, afwijkende routes behandelen en capabilities aan stages koppelen. Je kunt value stream, process, customer journey, value chain, value network en lean value stream onderscheiden en een stage-capability heat map interpreteren zonder de kleur als bewijs te behandelen.\n\nDe professionele opdracht gaat verder dan Foundation-herkenning: je moet de modelkeuzes onderbouwen, fouten herkennen en een transfercasus zelfstandig modelleren."
-      },
-      {
-        "id": "m5-h2",
-        "titel": "1. Van capability naar aantoonbare stakeholderwaarde",
-        "tekst": "Je kunt weten dat Aurora schade kan beoordelen en uitkeren terwijl een verzekerde nog steeds niet weet waar hij aan toe is. Een capabilitycatalogus verklaart niet vanzelf hoe een stakeholder door de dienstverlening heen waarde ontvangt. Daarvoor gebruiken we een value stream.\n\nEen value stream kijkt end-to-end naar het ontstaan van waarde voor een stakeholder. Zij helpt voorkomen dat intern gereed werk automatisch als gerealiseerde waarde wordt beschouwd.\n\n**Instapdiagnose.** Beantwoord zonder terug te kijken:\n\n1. Wat is het verschil tussen het vermogen `Schade beoordelen` en de manier waarop een medewerker dat vandaag uitvoert?\n2. Is een betaalopdracht versturen hetzelfde als een vergoeding ontvangen?\n3. Welke informatie ontbreekt wanneer iemand alleen zegt: `de beoordeling is afgerond`?\n\nWanneer je de eerste twee verschillen goed kunt uitleggen, kun je direct naar het Aurora-model. Bij twijfel lees eerst de begrippen in hoofdstuk 2."
-      },
-      {
-        "id": "m5-h3",
-        "titel": "2. Exam core — begrippen en modelgrenzen",
-        "tekst": "### Value, value stream, stage en value item\n\n**Value** gaat over de waarde die voor een stakeholder ontstaat. **Value stream** beschrijft hoe die waarde end-to-end wordt gerealiseerd. Een **value stage** is een betekenisvolle fase in die waarderealisatie. Een **value item** benoemt de specifieke waarde die in of door een stage wordt toegevoegd of zichtbaar wordt.\n\nDe stagegrens moet dus niet primair volgen uit het organogram of een technische status. Vraag: **wat is voor de stakeholder aantoonbaar veranderd?**\n\n### Value stream versus process\n\nEen process beschrijft hoe werk wordt uitgevoerd: activiteiten, volgorde, beslissingen, overdrachten en uitzonderingen. Een value stream beschrijft niet dezelfde werkelijkheid op een grover procesniveau; zij beantwoordt een andere vraag: hoe ontstaat stakeholderwaarde?\n\nEen process kan meerdere value stages ondersteunen en één stage kan door meerdere processen worden gerealiseerd. Eén-op-één is geen standaardregel.\n\n### Value stream versus customer journey\n\nEen customer journey beschrijft de ervaring en interacties van een klant door een dienstverlening heen. Een value stream focust op de waarderealisatie. De modellen kunnen elkaar aanvullen. Een journey kan onzekerheid, emoties en contactmomenten zichtbaar maken; de value stream vraagt welke waarde op een stage daadwerkelijk moet ontstaan.\n\n### Activiteit, resultaat en waarde\n\n`Een e-mail versturen` is een activiteit. `Een besluitbericht is afgeleverd` is een resultaat. `De verzekerde kan begrijpen wat is besloten en welke vervolgstap mogelijk is` beschrijft de beoogde waarde.\n\nEen technisch verzendbewijs bewijst dus niet automatisch begrijpelijkheid. Houd activiteit, interne output, extern resultaat en stakeholderwaarde uit elkaar."
-      },
-      {
-        "id": "m5-h4",
-        "titel": "3. Exam core — vier lenzen op value analysis",
-        "tekst": "De TOGAF Series Guide Value Streams behandelt verschillende benaderingen met een ander zwaartepunt.\n\n| Benadering | Primair perspectief | Kernvraag |\n|---|---|---|\n| **Business Architecture value stream** | End-to-end stakeholderwaarde | Welke value stages creëren uiteindelijk waarde voor de stakeholder? |\n| **Value chain** | Economische waarde | Hoe dragen activiteiten bij aan kosten, marge en differentiatie? |\n| **Value network** | Deelnemers en relaties | Welke partijen creëren en leveren samen waarde? |\n| **Lean value stream** | Procesoptimalisatie | Hoe stroomt werk en waar zitten verspilling, wachttijd of andere verbeterkansen? |\n\nDe fout is niet dat één lens verkeerd is; de fout ontstaat wanneer je conclusies van de ene lens presenteert alsof je een andere analyse hebt uitgevoerd.\n\nVoor Aurora:\n\n- interne behandelkosten en economische bijdrage kunnen een value-chainlens vragen;\n- relaties tussen verzekerde, expertisebureau en betalingsdienstverlener kunnen met een value-networklens worden onderzocht;\n- wachttijden en verspilling kunnen een lean value-streamanalyse vragen;\n- de vraag wanneer de verzekerde zekerheid, duidelijkheid en uiteindelijk een ontvangen vergoeding krijgt, past bij de Business Architecture value stream."
-      },
-      {
-        "id": "m5-h5",
-        "titel": "4. Casus en scope",
-        "tekst": "Aurora Verzekeringen N.V. is fictief. We beperken ons tot eenvoudige geldelijke schadeclaims waarvoor Aurora een gemotiveerd dekkingsbesluit geeft en bij dekking een bedrag betaalt.\n\nBuiten scope van dit eerste model:\n\n- reparatie in natura;\n- bezwaar;\n- terugvordering.\n\nWanneer zo'n route nodig is, registreert het model een vervolg of beëindiging zonder te doen alsof de oorspronkelijke value stream volledig is gerealiseerd.\n\nWe gebruiken de capabilities uit module 4:\n\n- C1 Schade beoordelen;\n- C2 Schade uitkeren;\n- C3 Fraude detecteren;\n- C4 Schadeverzoeken innemen;\n- C5 Klantcommunicatie verzorgen."
-      },
-      {
-        "id": "m5-h6",
-        "titel": "5. Aurora — de volledige value stream",
-        "tekst": "### Overzicht\n\n| Onderdeel | Oefenkeuze |\n|---|---|\n| Naam | Schadeclaim afhandelen |\n| Primaire stakeholder | De verzekerde die de claim indient |\n| Trigger | Aurora ontvangt een herkenbaar verzoek om een schadeclaim te behandelen |\n| Beoogde waarde | Duidelijkheid over aanspraak en vervolgstap; bij dekking een correct gerealiseerde vergoeding |\n| Scope | Eenvoudige geldelijke claimafhandeling |\n| Belangrijk principe | Intern gereed is niet automatisch stakeholderwaarde |\n\n### S1 — Verzoek in behandeling genomen\n\n**Beschrijving.** Aurora maakt duidelijk welk verzoek is ontvangen, dat het wordt behandeld en wat nodig is voor de volgende stap.\n\n**Entry.** Een herkenbaar claimverzoek is ontvangen. Het dossier hoeft nog niet volledig inhoudelijk beoordeelbaar te zijn.\n\n**Exit.** Het verzoek is herleidbaar vastgelegd, een behandelverantwoordelijkheid is herkenbaar en de verzekerde heeft ontvangstbevestiging plus concrete vervolgstap ontvangen. Ontbrekende informatie is benoemd.\n\n**Value item.** Zekerheid dat het verzoek wordt opgepakt en handelingsperspectief voor het vervolg.\n\n**Waarom deze grens?** Wanneer S1 pas eindigt bij een volledig beoordeelbaar dossier verberg je het eerdere moment waarop Aurora al onzekerheid kan wegnemen. S2 mag nog wachten op gegevens; S1 kan toch al waarde leveren.\n\n### S2 — Aanspraak verduidelijkt\n\n**Beschrijving.** Aurora beoordeelt de claim, maakt relevante afwegingen en legt dekking, bedrag of afwijzing met reden en vervolgstap uit.\n\n**Entry.** S1 is afgerond en er is voldoende betrouwbare informatie voor een verantwoord besluit. Zolang informatie ontbreekt, blijft zichtbaar wat nodig is en wie daarover communiceert.\n\n**Exit.** Een gemotiveerd besluit is vastgelegd en aan de verzekerde afgeleverd, inclusief relevante vervolgstap. Bij dekking zijn bedrag en betalingsafspraken bepaald.\n\n**Value item.** Bruikbare duidelijkheid over de uitkomst en de reden, zodat de verzekerde weet wat hij kan verwachten of doen.\n\n**Waarom deze grens?** Een intern besluitvinkje is onvoldoende. `Besluit gereed` en `stakeholder begrijpt wat is besloten` zijn verschillende toestanden. Aflevering is bovendien nog niet hetzelfde als aantoonbaar begrip; dat effect kan apart worden onderzocht.\n\n### S3 — Vergoeding gerealiseerd\n\n**Beschrijving.** Aurora voert de toegezegde geldelijke afhandeling uit en controleert of de vergoeding werkelijk is gerealiseerd.\n\n**Entry.** Er is een besluit tot vergoeding, de betalingsafspraak is duidelijk en gecontroleerde betaalgegevens zijn beschikbaar.\n\n**Exit.** Het correcte bedrag is volgens de gekozen bevestigingswijze bij de bedoelde ontvanger aangekomen; een mislukte betaling is opgelost. De verzekerde ontvangt afsluitinformatie. In een echte implementatie moeten financiële experts bepalen welk bewijs voldoende is voor ontvangst.\n\n**Value item.** De toegezegde financiële tegemoetkoming is beschikbaar, met duidelijkheid over afronding.\n\n**Waarom deze grens?** `Betaalbestand aangemaakt` meet intern werk. Het bewijst niet dat de stakeholder geld heeft ontvangen."
+        "vraag": "Welke formulering benoemt het du…2637 tokens truncated…astgelegd en aan de verzekerde afgeleverd, inclusief relevante vervolgstap. Bij dekking zijn bedrag en betalingsafspraken bepaald.\n\n**Value item.** Bruikbare duidelijkheid over de uitkomst en de reden, zodat de verzekerde weet wat hij kan verwachten of doen.\n\n**Waarom deze grens?** Een intern besluitvinkje is onvoldoende. `Besluit gereed` en `stakeholder begrijpt wat is besloten` zijn verschillende toestanden. Aflevering is bovendien nog niet hetzelfde als aantoonbaar begrip; dat effect kan apart worden onderzocht.\n\n### S3 — Vergoeding gerealiseerd\n\n**Beschrijving.** Aurora voert de toegezegde geldelijke afhandeling uit en controleert of de vergoeding werkelijk is gerealiseerd.\n\n**Entry.** Er is een besluit tot vergoeding, de betalingsafspraak is duidelijk en gecontroleerde betaalgegevens zijn beschikbaar.\n\n**Exit.** Het correcte bedrag is volgens de gekozen bevestigingswijze bij de bedoelde ontvanger aangekomen; een mislukte betaling is opgelost. De verzekerde ontvangt afsluitinformatie. In een echte implementatie moeten financiële experts bepalen welk bewijs voldoende is voor ontvangst.\n\n**Value item.** De toegezegde financiële tegemoetkoming is beschikbaar, met duidelijkheid over afronding.\n\n**Waarom deze grens?** `Betaalbestand aangemaakt` meet intern werk. Het bewijst niet dat de stakeholder geld heeft ontvangen."
       },
       {
         "id": "m5-h7",
@@ -576,70 +478,70 @@
         "nr": 1,
         "vraag": "Wat is het primaire perspectief van een Business Architecture value stream?",
         "opties": {
-          "A": "Interne afdelingsvolgorde.",
-          "B": "End-to-end waarderealisatie voor een stakeholder.",
-          "C": "Alleen technische datastromen.",
-          "D": "Alleen kosten per activiteit."
+          "A": "Alleen technische datastromen.",
+          "B": "Alleen kosten per activiteit.",
+          "C": "Interne afdelingsvolgorde.",
+          "D": "End-to-end waarderealisatie voor een stakeholder."
         }
       },
       {
         "nr": 2,
         "vraag": "Welke uitspraak onderscheidt process en value stream het beste?",
         "opties": {
-          "A": "Een process beschrijft uitvoering; een value stream beschrijft waarderealisatie vanuit stakeholderperspectief.",
-          "B": "Een value stream is altijd hetzelfde proces met minder stappen.",
-          "C": "Processen mogen geen waarde ondersteunen.",
-          "D": "Iedere value stage is verplicht één procesactiviteit."
+          "A": "Iedere value stage is verplicht één procesactiviteit.",
+          "B": "Een process beschrijft uitvoering; een value stream beschrijft waarderealisatie vanuit stakeholderperspectief.",
+          "C": "Een value stream is altijd hetzelfde proces met minder stappen.",
+          "D": "Processen mogen geen waarde ondersteunen."
         }
       },
       {
         "nr": 3,
         "vraag": "Welke lens richt zich primair op partijen en relaties die samen waarde creëren en leveren?",
         "opties": {
-          "A": "Value network.",
-          "B": "Lean value stream.",
-          "C": "Technology Architecture.",
-          "D": "Gap analysis."
+          "A": "Lean value stream.",
+          "B": "Technology Architecture.",
+          "C": "Gap analysis.",
+          "D": "Value network."
         }
       },
       {
         "nr": 4,
         "vraag": "Aurora heeft een betaalbestand aangemaakt maar de betaling is mislukt. Wat betekent dit voor S3?",
         "opties": {
-          "A": "S3 is afgerond omdat intern werk gereed is.",
-          "B": "S3 blijft open omdat de beoogde vergoeding nog niet is gerealiseerd.",
-          "C": "De hele value stream moet opnieuw bij S1 beginnen.",
-          "D": "S3 is niet van toepassing bij een besluit tot vergoeding."
+          "A": "De hele value stream moet opnieuw bij S1 beginnen.",
+          "B": "S3 is niet van toepassing bij een besluit tot vergoeding.",
+          "C": "S3 is afgerond omdat intern werk gereed is.",
+          "D": "S3 blijft open omdat de beoogde vergoeding nog niet is gerealiseerd."
         }
       },
       {
         "nr": 5,
         "vraag": "Een collega stelt `Backoffice` voor als value stage. Welke eerste vraag helpt het meest?",
         "opties": {
-          "A": "Welke zelfstandige stakeholderwaarde ontstaat bij het bereiken van die stagegrens?",
-          "B": "Hoeveel medewerkers heeft Backoffice?",
-          "C": "Welke kleur krijgt de stage?",
-          "D": "Welke server gebruikt de afdeling?"
+          "A": "Welke server gebruikt de afdeling?",
+          "B": "Welke zelfstandige stakeholderwaarde ontstaat bij het bereiken van die stagegrens?",
+          "C": "Hoeveel medewerkers heeft Backoffice?",
+          "D": "Welke kleur krijgt de stage?"
         }
       },
       {
         "nr": 6,
         "vraag": "Wat voegt een stage-capability heat map toe aan een gewone capabilitymapping?",
         "opties": {
-          "A": "Een gekozen beoordelingslens op de relevante capability-stage relaties.",
-          "B": "Een verplichte nieuwe capability per stage.",
-          "C": "Een automatisch procesmodel.",
-          "D": "Een bewijs dat alle rode relaties dezelfde oorzaak hebben."
+          "A": "Een automatisch procesmodel.",
+          "B": "Een bewijs dat alle rode relaties dezelfde oorzaak hebben.",
+          "C": "Een gekozen beoordelingslens op de relevante capability-stage relaties.",
+          "D": "Een verplichte nieuwe capability per stage."
         }
       },
       {
         "nr": 7,
         "vraag": "Een claim wordt gemotiveerd afgewezen en de vervolgstap is duidelijk uitgelegd. Hoe rapporteer je dit in het oefenmodel?",
         "opties": {
-          "A": "S1 en S2 kunnen afgerond zijn; S3 is niet van toepassing voor deze route.",
-          "B": "S3 moet als mislukt worden gemarkeerd.",
-          "C": "De value stream heeft geen waarde geleverd omdat geen geld is betaald.",
-          "D": "De afwijzing moet uit het model worden verwijderd."
+          "A": "S3 moet als mislukt worden gemarkeerd.",
+          "B": "De value stream heeft geen waarde geleverd omdat geen geld is betaald.",
+          "C": "De afwijzing moet uit het model worden verwijderd.",
+          "D": "S1 en S2 kunnen afgerond zijn; S3 is niet van toepassing voor deze route."
         }
       }
     ]
@@ -728,10 +630,10 @@
         "nr": 2,
         "vraag": "Waarom legt Aurora de gebruikte polisversie bij een besluit vast?",
         "opties": {
-          "A": "Om de grondslag van dat besluit later te kunnen herleiden.",
-          "B": "Om iedere toekomstige poliswijziging te verbieden.",
-          "C": "Omdat een pdf altijd de enige betrouwbare bron is.",
-          "D": "Om geen besluitreden meer te hoeven vastleggen."
+          "A": "Om geen besluitreden meer te hoeven vastleggen.",
+          "B": "Om de grondslag van dat besluit later te kunnen herleiden.",
+          "C": "Om iedere toekomstige poliswijziging te verbieden.",
+          "D": "Omdat een pdf altijd de enige betrouwbare bron is."
         }
       },
       {
@@ -758,20 +660,20 @@
         "nr": 5,
         "vraag": "Schade beslist; Klantondersteuning verzorgt uitleg. Wat moet expliciet worden gemaakt?",
         "opties": {
-          "A": "Dat maar één team mag bestaan.",
-          "B": "Welke informatie wordt overgedragen en wie inhoud, aflevering en vervolgvragen borgt.",
-          "C": "Dat de applicatie automatisch alle verantwoordelijkheid overneemt.",
-          "D": "Alleen wie hiërarchisch hoger staat."
+          "A": "Welke informatie wordt overgedragen en wie inhoud, aflevering en vervolgvragen borgt.",
+          "B": "Dat de applicatie automatisch alle verantwoordelijkheid overneemt.",
+          "C": "Alleen wie hiërarchisch hoger staat.",
+          "D": "Dat maar één team mag bestaan."
         }
       },
       {
         "nr": 6,
         "vraag": "Waarom kan een organization map in Phase A anders worden gebruikt dan in Phase B?",
         "opties": {
-          "A": "Phase A gebruikt haar vooral voor high-level scope/stakeholders/context; Phase B kan verantwoordelijkheden en baseline/targetrelaties verder verdiepen.",
-          "B": "Organization Mapping mag alleen in Phase A worden gebruikt.",
-          "C": "Phase B gebruikt geen businessorganisaties.",
-          "D": "De ADM verbiedt hergebruik van modellen tussen fasen."
+          "A": "Organization Mapping mag alleen in Phase A worden gebruikt.",
+          "B": "Phase B gebruikt geen businessorganisaties.",
+          "C": "De ADM verbiedt hergebruik van modellen tussen fasen.",
+          "D": "Phase A gebruikt haar vooral voor high-level scope/stakeholders/context; Phase B kan verantwoordelijkheden en baseline/targetrelaties verder verdiepen."
         }
       }
     ]
@@ -850,30 +752,30 @@
         "nr": 1,
         "vraag": "Wat ontbreekt in het scenario `we bouwen een portaal met drie schermen`?",
         "opties": {
-          "A": "Alleen het lettertype.",
-          "B": "Een onderbouwd probleem, omgeving, actoren en gewenste uitkomsten.",
-          "C": "Een vast aantal architecten.",
-          "D": "Een verbod op uitzonderingen."
+          "A": "Een verbod op uitzonderingen.",
+          "B": "Alleen het lettertype.",
+          "C": "Een onderbouwd probleem, omgeving, actoren en gewenste uitkomsten.",
+          "D": "Een vast aantal architecten."
         }
       },
       {
         "nr": 2,
         "vraag": "Waar worden Business Scenarios volgens de Series Guide prominent ingezet?",
         "opties": {
-          "A": "Phase A — Architecture Vision.",
-          "B": "Alleen Phase D.",
-          "C": "Alleen na implementatie.",
-          "D": "Uitsluitend buiten de ADM."
+          "A": "Uitsluitend buiten de ADM.",
+          "B": "Phase A — Architecture Vision.",
+          "C": "Alleen Phase D.",
+          "D": "Alleen na implementatie."
         }
       },
       {
         "nr": 3,
         "vraag": "Waarom is een afleverstatus onvoldoende als bewijs dat R-04 is gerealiseerd?",
         "opties": {
-          "A": "Omdat technische aflevering niet automatisch begrip door de verzekerde bewijst.",
-          "B": "Omdat systemen nooit informatie mogen afleveren.",
-          "C": "Omdat alleen handmatige communicatie geldig is.",
-          "D": "Omdat Business Scenarios geen requirements mogen bevatten."
+          "A": "Omdat alleen handmatige communicatie geldig is.",
+          "B": "Omdat Business Scenarios geen requirements mogen bevatten.",
+          "C": "Omdat technische aflevering niet automatisch begrip door de verzekerde bewijst.",
+          "D": "Omdat systemen nooit informatie mogen afleveren."
         }
       }
     ]
@@ -957,10 +859,10 @@
         "nr": 1,
         "vraag": "Wat maakt een gap analysis inhoudelijk bruikbaar?",
         "opties": {
-          "A": "Vergelijkbare baseline- en targetkenmerken met expliciete verschillen en bewijs.",
-          "B": "Alleen twee diagrammen met verschillende kleuren.",
-          "C": "Iedere targetcapability als volledig nieuw bestempelen.",
-          "D": "De baseline overslaan om sneller te plannen."
+          "A": "De baseline overslaan om sneller te plannen.",
+          "B": "Vergelijkbare baseline- en targetkenmerken met expliciete verschillen en bewijs.",
+          "C": "Alleen twee diagrammen met verschillende kleuren.",
+          "D": "Iedere targetcapability als volledig nieuw bestempelen."
         }
       },
       {
@@ -977,10 +879,10 @@
         "nr": 3,
         "vraag": "Wat is een kernverschil tussen Phase A en Phase B voor Business Architecture?",
         "opties": {
-          "A": "Phase A kadert visie, scope en high-level architectuur; Phase B ontwikkelt de Business Architecture verder en analyseert baseline, target en gaps.",
-          "B": "Phase A is alleen technologie en Phase B alleen finance.",
-          "C": "Phase B mag geen capabilities of value streams gebruiken.",
-          "D": "Er is geen betekenisvol verschil."
+          "A": "Er is geen betekenisvol verschil.",
+          "B": "Phase A kadert visie, scope en high-level architectuur; Phase B ontwikkelt de Business Architecture verder en analyseert baseline, target en gaps.",
+          "C": "Phase A is alleen technologie en Phase B alleen finance.",
+          "D": "Phase B mag geen capabilities of value streams gebruiken."
         }
       }
     ]
