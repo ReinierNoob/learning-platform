@@ -33,6 +33,8 @@ jobs:
       VERCEL_GITHUB_REPO_ID: '1335281630'
       PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
       PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+      EAW_TEST_SUPABASE_URL: https://mhjykzrljvtxauaatlom.supabase.co
+      EAW_TEST_SUPABASE_PUBLISHABLE_KEY: sb_publishable_qa9v9qDYMzr3Fr3h0N29gg_1Ip6gfb5
     steps:
       - uses: actions/checkout@v4
         with:
@@ -45,7 +47,33 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
-      - name: Resolve current EAW UX bootstrap target from Vercel SoT
+      - name: Bind this preview branch to the isolated EAW test project
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "::add-mask::$EAW_TEST_SUPABASE_PUBLISHABLE_KEY"
+          node <<'NODE'
+          const fs = require('fs');
+          const common = {
+            target: ['preview'],
+            gitBranch: process.env.PR_HEAD_REF,
+            comment: 'TOGAF rc2 isolated physical UX test binding',
+          };
+          fs.writeFileSync('/tmp/togaf-branch-env.json', JSON.stringify([
+            { ...common, key: 'EAW_SUPABASE_URL', value: process.env.EAW_TEST_SUPABASE_URL, type: 'plain' },
+            { ...common, key: 'EAW_SUPABASE_PUBLISHABLE_KEY', value: process.env.EAW_TEST_SUPABASE_PUBLISHABLE_KEY, type: 'sensitive' },
+          ]));
+          NODE
+          STATUS="$(curl --silent --show-error --output /tmp/togaf-branch-env-response.json --write-out '%{http_code}' \
+            --request POST \
+            --url "https://api.vercel.com/v10/projects/$VERCEL_PROJECT_ID/env?upsert=true&teamId=$VERCEL_TEAM_ID" \
+            --header "Authorization: Bearer $VERCEL_TOKEN" \
+            --header 'Content-Type: application/json' \
+            --data-binary @/tmp/togaf-branch-env.json)"
+          case "$STATUS" in 200|201) ;; *) echo "::error::Cannot bind isolated test project to preview branch (HTTP $STATUS)"; exit 1 ;; esac
+          rm -f /tmp/togaf-branch-env.json /tmp/togaf-branch-env-response.json
+
+      - name: Resolve branch-specific EAW UX bootstrap target from Vercel SoT
         shell: bash
         run: |
           set -euo pipefail
@@ -58,16 +86,20 @@ jobs:
           const envs = JSON.parse(fs.readFileSync('/tmp/ux-envs.json','utf8')).envs ?? [];
           const values = [...new Set(
             envs
-              .filter((entry) => entry.key === 'EAW_SUPABASE_URL' && Array.isArray(entry.target) && entry.target.includes('preview') && !entry.gitBranch)
+              .filter((entry) => entry.key === 'EAW_SUPABASE_URL' && Array.isArray(entry.target) && entry.target.includes('preview') && entry.gitBranch === process.env.PR_HEAD_REF)
               .map((entry) => typeof entry.value === 'string' ? entry.value.replace(/\/+$/, '') : '')
               .filter(Boolean),
           )];
           if (values.length !== 1) {
-            console.error(`::error::Preview EAW_SUPABASE_URL must resolve to exactly one Vercel target value; found ${values.length}`);
+            console.error(`::error::Branch Preview EAW_SUPABASE_URL must resolve to exactly one Vercel target value; found ${values.length}`);
+            process.exit(1);
+          }
+          if (values[0] !== process.env.EAW_TEST_SUPABASE_URL) {
+            console.error('::error::Branch preview is not bound to the approved isolated EAW test project');
             process.exit(1);
           }
           fs.appendFileSync(process.env.GITHUB_ENV, `UX_BOOTSTRAP_URL=${values[0]}/functions/v1/github-togaf-ux-e2e-bootstrap\n`);
-          console.log('Physical UX bootstrap target resolved from Vercel EAW runtime SoT.');
+          console.log('Physical UX bootstrap target resolved from branch-specific Vercel EAW runtime SoT.');
           NODE
           rm -f /tmp/ux-envs.json
 
