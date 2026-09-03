@@ -8,6 +8,7 @@ on:
       - '.github/workflows/vercel-preview.yml'
       - 'package.json'
       - 'e2e/togaf-business-architecture-rc2.spec.ts'
+      - 'app/globals.css'
       - 'app/leren/**'
       - 'app/api/grade-quiz/**'
       - 'content/togaf-business-architecture-rc2/**'
