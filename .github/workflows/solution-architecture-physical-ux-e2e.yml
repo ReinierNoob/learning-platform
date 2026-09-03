@@ -88,7 +88,7 @@ jobs:
           case "$STATUS" in 200|201) ;; *) cat /tmp/adaptive-env-response.json; echo "::error::Adaptive branch env update failed (HTTP $STATUS)"; exit 1 ;; esac
           echo "Adaptive preview flags bound to branch: $PR_HEAD_REF"
 
-      - name: Resolve branch-specific EAW UX bootstrap target from Vercel SoT
+      - name: Resolve current EAW UX bootstrap target from Vercel SoT (branch-specific)
         shell: bash
         run: |
           set -euo pipefail
