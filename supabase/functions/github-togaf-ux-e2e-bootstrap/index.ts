@@ -89,7 +89,7 @@ Deno.serve(async (req: Request) => {
     }
   }
 
-  if (action === "cleanup") {
+  if (action === "cleanup" || action === "expire") {
     const userId = String(body.user_id ?? "");
     const orderId = String(body.order_id ?? "");
     const orderItemId = String(body.order_item_id ?? "");
@@ -101,6 +101,11 @@ Deno.serve(async (req: Request) => {
     const itemScope = await admin.from("order_items").select("id").eq("id",orderItemId).eq("order_id",orderId).eq("course_id",COURSE_ID).single();
     const entitlementScope = await admin.from("entitlements").select("id").eq("id",entitlementId).eq("user_id",userId).eq("course_id",COURSE_ID).eq("source_order_item_id",orderItemId).single();
     if (orderScope.error || itemScope.error || entitlementScope.error) return json({error:"cleanup_scope_denied"},403);
+    if (action === "expire") {
+      const expired = await admin.from("entitlements").update({ends_at:new Date(Date.now()-1000).toISOString()}).eq("id",entitlementId).eq("user_id",userId).eq("course_id",COURSE_ID);
+      if (expired.error) return json({error:"expire_failed"},500);
+      return json({ok:true,run_id:claims.runId});
+    }
     for (const [table,column,value] of [["course_completions","user_id",userId],["enrollments","user_id",userId],["entitlements","id",entitlementId],["order_items","id",orderItemId],["orders","id",orderId],["profiles","user_id",userId]]) {
       let operation = admin.from(table).delete().eq(column,value);
       if (["course_completions","enrollments"].includes(table)) operation = operation.eq("course_id",COURSE_ID);
