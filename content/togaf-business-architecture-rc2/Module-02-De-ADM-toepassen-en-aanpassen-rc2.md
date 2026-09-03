@@ -167,37 +167,37 @@ Welke toepassing van de ADM past het beste bij een gerichte wijziging?
 
 Waar draait Requirements Management om?
 
-- A. Alleen de opdracht van Phase A opslaan.
-- B. Technische eisen na Phase D permanent bevriezen.
-- C. Requirements, wijzigingen en gevolgen door de architectuurontwikkeling heen beheren.
-- D. De planning uit Phase F vervangen.
+- A. De planning uit Phase F vervangen.
+- B. Alleen de opdracht van Phase A opslaan.
+- C. Technische eisen na Phase D permanent bevriezen.
+- D. Requirements, wijzigingen en gevolgen door de architectuurontwikkeling heen beheren.
 
 ### Vraag 3
 
 Wat onderscheidt Phase E en Phase F het beste?
 
-- A. E onderzoekt oplossings- en transitiemogelijkheden; F werkt migratieprioriteit en planning verder uit.
-- B. E is uitsluitend programmeren; F uitsluitend testen.
-- C. E maakt de Business Architecture; F de Data Architecture.
-- D. F vervangt zonder onderbouwing alle besluiten uit E.
+- A. E maakt de Business Architecture; F de Data Architecture.
+- B. F vervangt zonder onderbouwing alle besluiten uit E.
+- C. E onderzoekt oplossings- en transitiemogelijkheden; F werkt migratieprioriteit en planning verder uit.
+- D. E is uitsluitend programmeren; F uitsluitend testen.
 
 ### Vraag 4
 
 Een implementatie wijkt af van afgesproken herleidbaarheid. Welke fase heeft hier een directe governancefunctie?
 
-- A. Preliminary.
-- B. Phase G — Implementation Governance.
-- C. Alleen Phase H, want afwijkingen worden pas na livegang bekeken.
-- D. Geen enkele fase.
+- A. Alleen Phase H, want afwijkingen worden pas na livegang bekeken.
+- B. Geen enkele fase.
+- C. Preliminary.
+- D. Phase G — Implementation Governance.
 
 ### Vraag 5
 
 Waarom is `we slaan Phase D over, want bestaande infrastructuur is goed` onvoldoende tailoring?
 
-- A. Omdat een fase nooit lichter mag worden uitgevoerd.
-- B. Omdat `goed` zonder relevant bewijs en verschilonderzoek geen onderbouwing is.
-- C. Omdat Technology Architecture altijd de belangrijkste fase is.
-- D. Omdat alleen leveranciers tailoring mogen beslissen.
+- A. Omdat `goed` zonder relevant bewijs en verschilonderzoek geen onderbouwing is.
+- B. Omdat Technology Architecture altijd de belangrijkste fase is.
+- C. Omdat alleen leveranciers tailoring mogen beslissen.
+- D. Omdat een fase nooit lichter mag worden uitgevoerd.
 
 ## Naar module 3
 
