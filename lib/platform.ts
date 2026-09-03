@@ -80,7 +80,7 @@ export type CourseModule = {
   study_load: string | null;
   case_study: string | null;
   disclaimer: string | null;
-  chapters: Array<{ id: string; titel: string; tekst: string; video_url?: string | null }>;
+  chapters: Array<{ id: string; titel: string; tekst: string; video_url?: string | null; practice?: { assignment: string; criteria: string[]; worked_example: string }; demonstration?: { title: string; steps: Array<{ label: string; text: string }> } }>;
   quiz: Array<{ nr: number; vraag: string; opties: Record<string, string> }>;
   tutor_instruction: string | null;
 };

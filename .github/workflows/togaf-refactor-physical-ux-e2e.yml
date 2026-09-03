@@ -1,17 +1,22 @@
-name: Solution Architecture physical UX E2E
+name: TOGAF refactor physical UX E2E
 
 on:
   pull_request:
     branches: [main]
     paths:
-      - '.github/workflows/solution-architecture-physical-ux-e2e.yml'
+      - '.github/workflows/togaf-refactor-physical-ux-e2e.yml'
       - '.github/workflows/vercel-preview.yml'
       - 'scripts/verify-environment-contract.mjs'
       - 'package.json'
-      - 'e2e/solution-architecture-physical-ux.spec.ts'
+      - 'e2e/togaf-refactor-physical-ux.spec.ts'
       - 'app/leren/**'
       - 'app/api/presenter-media/**'
-      - 'components/adaptive/**'
+      - 'components/lesson-markdown.tsx'
+      - 'lib/course-work.ts'
+      - 'app/api/practice/**'
+      - 'app/api/chat/**'
+      - 'app/api/grade-quiz/**'
+      - 'supabase/functions/github-togaf-ux-e2e-bootstrap/**'
       - 'content/solution-architecture-presenter-**'
       - 'lib/solution-architecture-presenter-**'
       - 'lib/solution-architecture-module-**'
@@ -21,7 +26,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: solution-architecture-physical-ux-${{ github.event.pull_request.number }}
+  group: togaf-refactor-physical-ux-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 jobs:
@@ -69,14 +74,16 @@ jobs:
             'EAW_ADAPTIVE_MODULE10_IN_LEARNING',
           ];
           fs.writeFileSync('/tmp/adaptive-env.json', JSON.stringify(
-            adaptiveKeys.map((key) => ({
+            [{ key: 'EAW_SUPABASE_URL', value: 'https://mhjykzrljvtxauaatlom.supabase.co', type: 'plain', target: ['preview'], gitBranch: branch },
+             { key: 'EAW_SUPABASE_PUBLISHABLE_KEY', value: 'sb_publishable_qa9v9qDYMzr3Fr3h0N29gg_1Ip6gfb5', type: 'plain', target: ['preview'], gitBranch: branch },
+             ...adaptiveKeys.map((key) => ({
               key,
               value: 'true',
               type: 'plain',
               target: ['preview'],
               gitBranch: branch,
-              comment: 'Solution Architecture physical UX/release preview contract',
-            })),
+              comment: 'TOGAF refactor physical UX/release preview contract',
+            }))],
           ));
           NODE
           STATUS="$(curl --silent --show-error --output /tmp/adaptive-env-response.json --write-out '%{http_code}' \
@@ -99,12 +106,9 @@ jobs:
           node <<'NODE'
           const fs = require('fs');
           const envs = JSON.parse(fs.readFileSync('/tmp/ux-envs.json','utf8')).envs ?? [];
-          // SA regression keeps its existing auth/media binding in this deployment only.
-          // TOGAF may intentionally bind the same source branch to an isolated test database.
-          const candidates = envs.filter(entry => !entry.gitBranch);
           const values = [...new Set(
-            candidates
-              .filter((entry) => entry.key === 'EAW_SUPABASE_URL' && Array.isArray(entry.target) && entry.target.includes('preview'))
+            envs
+              .filter((entry) => entry.key === 'EAW_SUPABASE_URL' && Array.isArray(entry.target) && entry.target.includes('preview') && entry.gitBranch === process.env.PR_HEAD_REF)
               .map((entry) => typeof entry.value === 'string' ? entry.value.replace(/\/+$/, '') : '')
               .filter(Boolean),
           )];
@@ -112,10 +116,8 @@ jobs:
             console.error(`::error::Preview EAW_SUPABASE_URL must resolve to exactly one Vercel target value; found ${values.length}`);
             process.exit(1);
           }
-          const publishable = [...new Set(candidates.filter(entry => entry.key === 'EAW_SUPABASE_PUBLISHABLE_KEY' && entry.target?.includes('preview')).map(entry => entry.value).filter(value => typeof value === 'string' && value))];
-          if (publishable.length !== 1) throw new Error('SA preview publishable binding must be unique');
-          fs.writeFileSync('/tmp/sa-runtime-binding.json', JSON.stringify({ EAW_SUPABASE_URL: values[0], EAW_SUPABASE_PUBLISHABLE_KEY: publishable[0] }));
-          fs.appendFileSync(process.env.GITHUB_ENV, `UX_BOOTSTRAP_URL=${values[0]}/functions/v1/github-ux-e2e-bootstrap\n`);
+          if (values[0] !== 'https://mhjykzrljvtxauaatlom.supabase.co') throw new Error('TOGAF test must use the isolated test project');
+          fs.appendFileSync(process.env.GITHUB_ENV, `UX_BOOTSTRAP_URL=${values[0]}/functions/v1/github-togaf-ux-e2e-bootstrap\n`);
           console.log('Physical UX bootstrap target resolved from Vercel EAW runtime SoT.');
           NODE
           rm -f /tmp/ux-envs.json
@@ -129,8 +131,6 @@ jobs:
           const payload = {
             name: process.env.VERCEL_PROJECT_NAME,
             project: process.env.VERCEL_PROJECT_ID,
-            env: JSON.parse(fs.readFileSync('/tmp/sa-runtime-binding.json', 'utf8')),
-            build: { env: JSON.parse(fs.readFileSync('/tmp/sa-runtime-binding.json', 'utf8')) },
             gitSource: {
               type: 'github',
               repoId: Number(process.env.VERCEL_GITHUB_REPO_ID),
@@ -141,7 +141,7 @@ jobs:
               remoteUrl: 'https://github.com/ReinierNoob/learning-platform',
               commitRef: process.env.PR_HEAD_REF,
               commitSha: process.env.PR_HEAD_SHA,
-              commitMessage: 'Solution Architecture physical UX exact-head preview',
+              commitMessage: 'TOGAF refactor physical UX exact-head preview',
               ci: true,
               ciType: 'github-actions',
               ciGitRepoVisibility: 'public',
@@ -269,17 +269,15 @@ jobs:
           NODE
 
       - name: Run physical browser gate on exact Vercel preview
-        run: npx playwright test e2e/solution-architecture-physical-ux.spec.ts --workers=1 --reporter=line
+        run: npx playwright test e2e/togaf-refactor-physical-ux.spec.ts --workers=1 --reporter=line
 
       - name: Upload physical UX evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: solution-architecture-physical-ux-evidence
+          name: togaf-refactor-physical-ux-evidence
           path: |
-            artifacts/solution-architecture-ux/**
-            playwright-report/**
-            test-results/**
+            artifacts/togaf-refactor-ux/**
           if-no-files-found: warn
           retention-days: 7
 

@@ -15,7 +15,7 @@ function anthropicApiKey() {
   return process.env.ANTHROPIC_API_KEY?.trim() || process.env.anthropic_API_KEY?.trim() || "";
 }
 
-async function callAnthropic(instructions: string, messages: TutorMessage[]): Promise<AiReply | null> {
+async function callAnthropic(instructions: string, messages: TutorMessage[], maxTokens = 700): Promise<AiReply | null> {
   const apiKey = anthropicApiKey();
   if (!apiKey) return null;
 
@@ -31,7 +31,7 @@ async function callAnthropic(instructions: string, messages: TutorMessage[]): Pr
       model,
       system: instructions,
       messages,
-      max_tokens: 700,
+      max_tokens: maxTokens,
     }),
     cache: "no-store",
   });
@@ -50,7 +50,7 @@ async function callAnthropic(instructions: string, messages: TutorMessage[]): Pr
   return { provider: "anthropic", model, reply };
 }
 
-async function callOpenAi(instructions: string, messages: TutorMessage[]): Promise<AiReply | null> {
+async function callOpenAi(instructions: string, messages: TutorMessage[], maxTokens = 700): Promise<AiReply | null> {
   const apiKey = process.env.OPENAI_API_KEY?.trim();
   if (!apiKey) return null;
 
@@ -65,7 +65,7 @@ async function callOpenAi(instructions: string, messages: TutorMessage[]): Promi
       model,
       instructions,
       input: messages.map((message) => ({ role: message.role, content: message.content })),
-      max_output_tokens: 700,
+      max_output_tokens: maxTokens,
     }),
     cache: "no-store",
   });
@@ -90,9 +90,9 @@ export function hasConfiguredAiProvider() {
   return Boolean(anthropicApiKey() || process.env.OPENAI_API_KEY?.trim());
 }
 
-export async function generateTutorReply(instructions: string, messages: TutorMessage[]): Promise<AiReply | null> {
-  const anthropic = await callAnthropic(instructions, messages);
+export async function generateTutorReply(instructions: string, messages: TutorMessage[], maxTokens = 700): Promise<AiReply | null> {
+  const anthropic = await callAnthropic(instructions, messages, maxTokens).catch(() => null);
   if (anthropic) return anthropic;
 
-  return callOpenAi(instructions, messages);
+  return callOpenAi(instructions, messages, maxTokens).catch(() => null);
 }

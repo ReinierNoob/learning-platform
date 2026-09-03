@@ -64,6 +64,7 @@ jobs:
             sleep 1
           done
           if [ "$READY" -ne 1 ]; then cat /tmp/eaw-preview.log; exit 1; fi
+          EAW_ADAPTIVE_BASE_URL=http://127.0.0.1:3100 node scripts/verify-togaf-http.mjs
           EAW_ADAPTIVE_BASE_URL=http://127.0.0.1:3100 node scripts/verify-adaptive-http-contracts.mjs || { cat /tmp/eaw-preview.log; exit 1; }
           EAW_ADAPTIVE_BASE_URL=http://127.0.0.1:3100 node scripts/verify-adaptive-lab-http.mjs || { cat /tmp/eaw-preview.log; exit 1; }
           EAW_ADAPTIVE_BASE_URL=http://127.0.0.1:3100 node scripts/verify-solution-architecture-presenter-http.mjs || { cat /tmp/eaw-preview.log; exit 1; }

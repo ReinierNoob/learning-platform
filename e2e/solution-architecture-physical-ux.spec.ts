@@ -113,7 +113,9 @@ async function verifyPresenter(page: Page, moduleId: number, name: 'Eva' | 'Alex
       }
     };
     node.muted = true;
-    try { await node.play(); } catch {}
+    // play() can remain pending indefinitely when upstream media fails.
+    // The bounded readiness checks below must own the test timeout.
+    void node.play().catch(() => {});
     await waitUntil(() => node.readyState >= 2 && Number.isFinite(node.duration) && node.duration > 0);
     await waitUntil(() => node.currentTime > 0.05);
     const track = node.textTracks?.[0];

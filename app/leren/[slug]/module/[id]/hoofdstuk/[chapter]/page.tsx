@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
-import ReactMarkdown from "react-markdown";
+import { LessonMarkdown } from "../../../../../../../components/lesson-markdown";
+import { ModelDemonstration, PracticeClient } from "../../refactor-client";
 import { getAccessToken, getCourseBySlug, getEawLoginUrl, getLearningAccess, getPublishedModule, getSessionUser, startCourse } from "../../../../../../../lib/platform";
 import { ChatClient } from "../../learning-client";
 import { VideoPlayer } from "./video-player";
@@ -57,13 +58,15 @@ export default async function ChapterPage({ params }: { params: Promise<{ slug: 
 
         <article className="lessonContent">
           <div className="lessonIntro"><span className="badge">Hoofdstuk {chapterIndex + 1}</span><h2>{chapter.titel}</h2></div>
-          <VideoPlayer trainingId={course.id} moduleId={module.source_module_id} chapterId={String(chapter.id)} />
-          <div className="markdownBody"><ReactMarkdown>{chapter.tekst}</ReactMarkdown></div>
+          {chapter.video_url ? <VideoPlayer trainingId={course.id} moduleId={module.source_module_id} chapterId={String(chapter.id)} /> : null}
+          <LessonMarkdown text={chapter.tekst} />
+          {chapter.demonstration ? <ModelDemonstration model={chapter.demonstration} /> : null}
+          {chapter.practice ? <PracticeClient key={`${module.id}:${module.content_version}`} trainingId={course.id} moduleId={module.source_module_id} contentVersion={module.content_version} practice={chapter.practice} /> : null}
         </article>
       </div>
 
       <aside className="chatColumn">
-        <ChatClient trainingId={course.id} moduleId={module.source_module_id} />
+        <ChatClient key={`${module.id}:${chapter.id}:${module.content_version}`} trainingId={course.id} moduleId={module.source_module_id} chapterId={chapter.id} contentVersion={module.content_version} />
       </aside>
     </div>
 
