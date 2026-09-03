@@ -1,0 +1,269 @@
+name: TOGAF Business Architecture rc2 physical UX E2E
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/togaf-refactor-physical-ux-e2e.yml'
+      - '.github/workflows/vercel-preview.yml'
+      - 'package.json'
+      - 'e2e/togaf-business-architecture-rc2.spec.ts'
+      - 'app/leren/**'
+      - 'app/api/grade-quiz/**'
+      - 'content/togaf-business-architecture-rc2/**'
+      - 'lib/platform.ts'
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: togaf-ba-rc2-physical-ux-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  physical-ux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_TEAM_ID: team_ZY5Sxra8t5DhA4S9zRTLmRnq
+      VERCEL_PROJECT_ID: prj_ULEAHWZ1J4r1GDmzxDU1sGJ3uXaA
+      VERCEL_PROJECT_NAME: learning-platform
+      VERCEL_GITHUB_REPO_ID: '1335281630'
+      PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Resolve current EAW UX bootstrap target from Vercel SoT
+        shell: bash
+        run: |
+          set -euo pipefail
+          STATUS="$(curl --silent --show-error --output /tmp/ux-envs.json --write-out '%{http_code}' \
+            --header "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v10/projects/$VERCEL_PROJECT_ID/env?decrypt=true&teamId=$VERCEL_TEAM_ID")"
+          test "$STATUS" = '200' || { echo "::error::Cannot inspect Preview EAW runtime binding (HTTP $STATUS)"; exit 1; }
+          node <<'NODE'
+          const fs = require('fs');
+          const envs = JSON.parse(fs.readFileSync('/tmp/ux-envs.json','utf8')).envs ?? [];
+          const values = [...new Set(
+            envs
+              .filter((entry) => entry.key === 'EAW_SUPABASE_URL' && Array.isArray(entry.target) && entry.target.includes('preview') && !entry.gitBranch)
+              .map((entry) => typeof entry.value === 'string' ? entry.value.replace(/\/+$/, '') : '')
+              .filter(Boolean),
+          )];
+          if (values.length !== 1) {
+            console.error(`::error::Preview EAW_SUPABASE_URL must resolve to exactly one Vercel target value; found ${values.length}`);
+            process.exit(1);
+          }
+          fs.appendFileSync(process.env.GITHUB_ENV, `UX_BOOTSTRAP_URL=${values[0]}/functions/v1/github-togaf-ux-e2e-bootstrap\n`);
+          console.log('Physical UX bootstrap target resolved from Vercel EAW runtime SoT.');
+          NODE
+          rm -f /tmp/ux-envs.json
+
+      - name: Create exact PR-head Git-source physical UX preview
+        shell: bash
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs = require('fs');
+          const payload = {
+            name: process.env.VERCEL_PROJECT_NAME,
+            project: process.env.VERCEL_PROJECT_ID,
+            gitSource: {
+              type: 'github',
+              repoId: Number(process.env.VERCEL_GITHUB_REPO_ID),
+              ref: process.env.PR_HEAD_REF,
+              sha: process.env.PR_HEAD_SHA,
+            },
+            gitMetadata: {
+              remoteUrl: 'https://github.com/ReinierNoob/learning-platform',
+              commitRef: process.env.PR_HEAD_REF,
+              commitSha: process.env.PR_HEAD_SHA,
+              commitMessage: 'TOGAF Business Architecture rc2 physical UX exact-head preview',
+              ci: true,
+              ciType: 'github-actions',
+              ciGitRepoVisibility: 'public',
+            },
+            projectSettings: { framework: 'nextjs', nodeVersion: '24.x' },
+          };
+          fs.writeFileSync('/tmp/physical-deployment.json', JSON.stringify(payload));
+          NODE
+          STATUS="$(curl --silent --show-error --output /tmp/deploy.json --write-out '%{http_code}' \
+            --request POST \
+            --url "https://api.vercel.com/v13/deployments?teamId=$VERCEL_TEAM_ID" \
+            --header "Authorization: Bearer $VERCEL_TOKEN" \
+            --header 'Content-Type: application/json' \
+            --data-binary @/tmp/physical-deployment.json)"
+          case "$STATUS" in 200|201) ;; *) cat /tmp/deploy.json; echo "::error::Physical UX Git-source deployment failed (HTTP $STATUS)"; exit 1 ;; esac
+          DEPLOYMENT_URL="$(node -e "const d=require('/tmp/deploy.json');process.stdout.write(d.url||'')")"
+          DEPLOYMENT_ID="$(node -e "const d=require('/tmp/deploy.json');process.stdout.write(d.id||d.uid||'')")"
+          test -n "$DEPLOYMENT_URL" -a -n "$DEPLOYMENT_ID" || { echo '::error::Physical UX deployment URL/ID missing'; exit 1; }
+          {
+            echo "EAW_UX_BASE_URL=https://$DEPLOYMENT_URL"
+            echo "EAW_UX_DEPLOYMENT_ID=$DEPLOYMENT_ID"
+          } >> "$GITHUB_ENV"
+          echo "Physical UX Git-source deployment created: $DEPLOYMENT_ID / $DEPLOYMENT_URL / $PR_HEAD_REF / $PR_HEAD_SHA" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Install pinned Chromium runtime
+        run: npx playwright install --with-deps chromium
+
+      - name: Confirm exact preview READY and create short-lived share access
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${EAW_UX_DEPLOYMENT_ID:-}" -a -n "${EAW_UX_BASE_URL:-}" || { echo '::error::Physical UX deployment binding missing'; exit 1; }
+          for attempt in $(seq 1 30); do
+            STATUS="$(curl --silent --show-error --output /tmp/status.json --write-out '%{http_code}' \
+              --header "Authorization: Bearer $VERCEL_TOKEN" \
+              "https://api.vercel.com/v13/deployments/$EAW_UX_DEPLOYMENT_ID?teamId=$VERCEL_TEAM_ID")"
+            test "$STATUS" = '200' || { echo "::error::Cannot inspect physical UX deployment (HTTP $STATUS)"; exit 1; }
+            STATE="$(node -e "const d=require('/tmp/status.json');process.stdout.write(d.readyState||d.state||'')")"
+            if [ "$STATE" = 'READY' ]; then break; fi
+            if [ "$STATE" = 'ERROR' ] || [ "$STATE" = 'CANCELED' ] || [ "$STATE" = 'BLOCKED' ]; then cat /tmp/status.json; echo "::error::Physical UX preview is $STATE"; exit 1; fi
+            sleep 5
+          done
+          STATE="$(node -e "const d=require('/tmp/status.json');process.stdout.write(d.readyState||d.state||'')")"
+          test "$STATE" = 'READY' || { echo '::error::Physical UX preview did not become READY'; exit 1; }
+          DEPLOYED_SHA="$(node -e "const d=require('/tmp/status.json');process.stdout.write(d.meta?.githubCommitSha||'')")"
+          DEPLOYED_REF="$(node -e "const d=require('/tmp/status.json');process.stdout.write(d.meta?.githubCommitRef||'')")"
+          test "$DEPLOYED_SHA" = "$PR_HEAD_SHA" -a "$DEPLOYED_REF" = "$PR_HEAD_REF" || { echo "::error::Physical UX preview source mismatch: $DEPLOYED_REF / $DEPLOYED_SHA"; exit 1; }
+
+          STATUS="$(curl --silent --show-error --output /tmp/share.json --write-out '%{http_code}' \
+            --request PATCH \
+            --header "Authorization: Bearer $VERCEL_TOKEN" \
+            --header 'Content-Type: application/json' \
+            --data '{"ttl":1200}' \
+            "https://api.vercel.com/aliases/$EAW_UX_DEPLOYMENT_ID/protection-bypass?teamId=$VERCEL_TEAM_ID")"
+          test "$STATUS" = '200' || { cat /tmp/share.json; echo "::error::Cannot create deployment-scoped Vercel share access (HTTP $STATUS)"; exit 1; }
+          SHARE="$(node <<'NODE'
+          const fs = require('fs');
+          const d = JSON.parse(fs.readFileSync('/tmp/share.json','utf8'));
+          let value = typeof d === 'string'
+            ? d
+            : (typeof d?.value === 'string' ? d.value
+              : typeof d?.protectionBypass === 'string' ? d.protectionBypass
+              : typeof d?.protectionBypass?.value === 'string' ? d.protectionBypass.value
+              : typeof d?.secret === 'string' ? d.secret
+              : '');
+          if (!value && typeof d?.protectionBypassUrl === 'string') {
+            try {
+              const parsed = new URL(d.protectionBypassUrl);
+              value = parsed.searchParams.get('_vercel_share')
+                ?? parsed.pathname.split('/').filter(Boolean).at(-1)
+                ?? '';
+            } catch {}
+          }
+          if (!value && d?.protectionBypass && typeof d.protectionBypass === 'object' && !Array.isArray(d.protectionBypass)) {
+            const entries = Object.entries(d.protectionBypass);
+            const scoped = entries.find(([, meta]) => meta && typeof meta === 'object' && ['shareable-link','shareable_link','share'].includes(String(meta.scope ?? '')));
+            const candidate = scoped ?? (entries.length === 1 ? entries[0] : null);
+            if (candidate && /^[A-Za-z0-9_-]{20,128}$/.test(candidate[0])) value = candidate[0];
+          }
+          process.stdout.write(value);
+          NODE
+          )"
+          test -n "$SHARE" || { echo '::error::Vercel share secret missing'; exit 1; }
+          echo "::add-mask::$SHARE"
+          {
+            echo "EAW_UX_VERCEL_SHARE=$SHARE"
+            echo "EAW_UX_VERCEL_PROTECTION_ID=$EAW_UX_DEPLOYMENT_ID"
+          } >> "$GITHUB_ENV"
+          echo "Exact physical UX preview READY: $EAW_UX_DEPLOYMENT_ID / $EAW_UX_BASE_URL / $PR_HEAD_REF / $PR_HEAD_SHA"
+
+      - name: Bootstrap temporary EAW learner through GitHub OIDC
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${UX_BOOTSTRAP_URL:-}" || { echo '::error::UX bootstrap target missing'; exit 1; }
+          OIDC_JSON="$(curl --fail --silent --show-error \
+            --header "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=eaw-learning-platform-ux-e2e")"
+          OIDC_TOKEN="$(printf '%s' "$OIDC_JSON" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>process.stdout.write(JSON.parse(s).value||''))")"
+          test -n "$OIDC_TOKEN" || { echo '::error::GitHub OIDC token missing'; exit 1; }
+          echo "::add-mask::$OIDC_TOKEN"
+          BOOTSTRAP="$(curl --fail --silent --show-error \
+            --request POST \
+            --header "Authorization: Bearer $OIDC_TOKEN" \
+            --header 'Content-Type: application/json' \
+            --data '{"action":"create"}' \
+            "$UX_BOOTSTRAP_URL")"
+          printf '%s' "$BOOTSTRAP" > /tmp/ux-bootstrap.json
+          node <<'NODE'
+          const fs = require('fs');
+          const data = JSON.parse(fs.readFileSync('/tmp/ux-bootstrap.json','utf8'));
+          if (!data.ok || !data.token_hash || !data.user_id || !data.order_id || !data.order_item_id || !data.entitlement_id) {
+            console.error('::error::Incomplete UX bootstrap response');
+            process.exit(1);
+          }
+          for (const [key,value] of Object.entries({
+            EAW_UX_TOKEN_HASH: data.token_hash,
+            EAW_UX_TRAINING_ID: data.training_id,
+            EAW_UX_USER_ID: data.user_id,
+            EAW_UX_ORDER_ID: data.order_id,
+            EAW_UX_ORDER_ITEM_ID: data.order_item_id,
+            EAW_UX_ENTITLEMENT_ID: data.entitlement_id,
+          })) fs.appendFileSync(process.env.GITHUB_ENV, `${key}=${value}\n`);
+          console.log(`::add-mask::${data.token_hash}`);
+          NODE
+
+      - name: Run physical browser gate on exact Vercel preview
+        run: npx playwright test e2e/togaf-business-architecture-rc2.spec.ts --workers=1 --reporter=line
+
+      - name: Upload physical UX evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: togaf-business-architecture-rc2-physical-ux-evidence
+          path: |
+            artifacts/togaf-business-architecture-rc2/**
+            playwright-report/**
+            test-results/**
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Cleanup temporary EAW learner through GitHub OIDC
+        if: always() && env.EAW_UX_USER_ID != ''
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${UX_BOOTSTRAP_URL:-}" || { echo '::error::UX bootstrap target missing during cleanup'; exit 1; }
+          OIDC_JSON="$(curl --fail --silent --show-error \
+            --header "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=eaw-learning-platform-ux-e2e")"
+          OIDC_TOKEN="$(printf '%s' "$OIDC_JSON" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>process.stdout.write(JSON.parse(s).value||''))")"
+          test -n "$OIDC_TOKEN"
+          echo "::add-mask::$OIDC_TOKEN"
+          CLEANUP="$(node -e "process.stdout.write(JSON.stringify({action:'cleanup',user_id:process.env.EAW_UX_USER_ID,order_id:process.env.EAW_UX_ORDER_ID,order_item_id:process.env.EAW_UX_ORDER_ITEM_ID,entitlement_id:process.env.EAW_UX_ENTITLEMENT_ID}))")"
+          RESPONSE="$(curl --fail --silent --show-error \
+            --request POST \
+            --header "Authorization: Bearer $OIDC_TOKEN" \
+            --header 'Content-Type: application/json' \
+            --data "$CLEANUP" \
+            "$UX_BOOTSTRAP_URL")"
+          printf '%s' "$RESPONSE" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const v=JSON.parse(s);if(!v.ok)process.exit(1);console.log('OIDC UX cleanup: PASS')})"
+
+      - name: Revoke temporary Vercel share access
+        if: always() && env.EAW_UX_VERCEL_SHARE != '' && env.EAW_UX_VERCEL_PROTECTION_ID != ''
+        shell: bash
+        run: |
+          set -euo pipefail
+          BODY="$(node -e "process.stdout.write(JSON.stringify({revoke:{secret:process.env.EAW_UX_VERCEL_SHARE,regenerate:false}}))")"
+          STATUS="$(curl --silent --show-error --output /tmp/share-revoke.json --write-out '%{http_code}' \
+            --request PATCH \
+            --header "Authorization: Bearer $VERCEL_TOKEN" \
+            --header 'Content-Type: application/json' \
+            --data "$BODY" \
+            "https://api.vercel.com/aliases/$EAW_UX_VERCEL_PROTECTION_ID/protection-bypass?teamId=$VERCEL_TEAM_ID")"
+          test "$STATUS" = '200' || { cat /tmp/share-revoke.json; echo "::error::Vercel share revoke failed (HTTP $STATUS)"; exit 1; }
+          echo 'Vercel deployment share cleanup: PASS'
