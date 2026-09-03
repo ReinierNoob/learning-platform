@@ -180,10 +180,10 @@ Fictief gegeven: bij drie onderzochte starts was een laptop aanwezig maar vereis
 
 Welke formulering benoemt het duidelijkst een business capability?
 
-- A. Een behandelaar klikt op akkoord.
-- B. Het Schadeportaal.
-- C. Schade beoordelen.
-- D. Team Klantondersteuning.
+- A. Schade beoordelen.
+- B. Team Klantondersteuning.
+- C. Een behandelaar klikt op akkoord.
+- D. Het Schadeportaal.
 
 ### Vraag 2
 
@@ -198,10 +198,10 @@ Waarom is een capability niet automatisch gelijk aan één proces?
 
 Welke decompositie past het beste onder `Schade beoordelen`?
 
-- A. Schadeportaal, Polisdatabase, E-mailserver.
-- B. Team Noord, Team Zuid, Team Oost.
-- C. Schadefeiten vaststellen, aanspraak bepalen, besluit onderbouwen.
-- D. Ontvangen, beoordelen, betalen als verplichte procesvolgorde.
+- A. Ontvangen, beoordelen, betalen als verplichte procesvolgorde.
+- B. Schadeportaal, Polisdatabase, E-mailserver.
+- C. Team Noord, Team Zuid, Team Oost.
+- D. Schadefeiten vaststellen, aanspraak bepalen, besluit onderbouwen.
 
 ### Vraag 4
 
@@ -216,10 +216,10 @@ Er zijn geen gegevens over de huidige performance van een capability. Welke aand
 
 Wat beschrijven people, processes, information en resources in relatie tot een capability?
 
-- A. Mogelijke componenten waarmee het vermogen wordt gerealiseerd.
-- B. Vier verplichte hiërarchische capabilitylevels.
-- C. Vier ADM-fasen.
-- D. Vier soorten value stages.
+- A. Vier ADM-fasen.
+- B. Vier soorten value stages.
+- C. Mogelijke componenten waarmee het vermogen wordt gerealiseerd.
+- D. Vier verplichte hiërarchische capabilitylevels.
 
 ### Vraag 6
 
