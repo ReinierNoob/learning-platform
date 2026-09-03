@@ -220,10 +220,10 @@ Welke beschrijving past het beste bij een businessinformation concept?
 
 Waarom legt Aurora de gebruikte polisversie bij een besluit vast?
 
-- A. Om de grondslag van dat besluit later te kunnen herleiden.
-- B. Om iedere toekomstige poliswijziging te verbieden.
-- C. Omdat een pdf altijd de enige betrouwbare bron is.
-- D. Om geen besluitreden meer te hoeven vastleggen.
+- A. Om geen besluitreden meer te hoeven vastleggen.
+- B. Om de grondslag van dat besluit later te kunnen herleiden.
+- C. Om iedere toekomstige poliswijziging te verbieden.
+- D. Omdat een pdf altijd de enige betrouwbare bron is.
 
 ### Vraag 3 — Information Mapping
 
@@ -247,19 +247,19 @@ Wat voegt Organization Mapping toe aan een traditioneel organogram?
 
 Schade beslist; Klantondersteuning verzorgt uitleg. Wat moet expliciet worden gemaakt?
 
-- A. Dat maar één team mag bestaan.
-- B. Welke informatie wordt overgedragen en wie inhoud, aflevering en vervolgvragen borgt.
-- C. Dat de applicatie automatisch alle verantwoordelijkheid overneemt.
-- D. Alleen wie hiërarchisch hoger staat.
+- A. Welke informatie wordt overgedragen en wie inhoud, aflevering en vervolgvragen borgt.
+- B. Dat de applicatie automatisch alle verantwoordelijkheid overneemt.
+- C. Alleen wie hiërarchisch hoger staat.
+- D. Dat maar één team mag bestaan.
 
 ### Vraag 6 — Organization Mapping
 
 Waarom kan een organization map in Phase A anders worden gebruikt dan in Phase B?
 
-- A. Phase A gebruikt haar vooral voor high-level scope/stakeholders/context; Phase B kan verantwoordelijkheden en baseline/targetrelaties verder verdiepen.
-- B. Organization Mapping mag alleen in Phase A worden gebruikt.
-- C. Phase B gebruikt geen businessorganisaties.
-- D. De ADM verbiedt hergebruik van modellen tussen fasen.
+- A. Organization Mapping mag alleen in Phase A worden gebruikt.
+- B. Phase B gebruikt geen businessorganisaties.
+- C. De ADM verbiedt hergebruik van modellen tussen fasen.
+- D. Phase A gebruikt haar vooral voor high-level scope/stakeholders/context; Phase B kan verantwoordelijkheden en baseline/targetrelaties verder verdiepen.
 
 ## Naar module 7
 
