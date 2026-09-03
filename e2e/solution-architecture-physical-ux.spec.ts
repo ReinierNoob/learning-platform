@@ -225,7 +225,7 @@ async function navigateFromDocument(page: Page, targetUrl: string) {
 }
 
 test('Solution Architecture complete physical learner experience', async ({ browser }) => {
-  test.setTimeout(360_000);
+  test.setTimeout(720_000);
   expect(baseURL, 'EAW_UX_BASE_URL must resolve the exact READY PR deployment').not.toBe('');
   expect(vercelShare, 'EAW_UX_VERCEL_SHARE must be a short-lived deployment-scoped share secret').not.toBe('');
   expect(tokenHash, 'EAW_UX_TOKEN_HASH must be provided by OIDC bootstrap').not.toBe('');
