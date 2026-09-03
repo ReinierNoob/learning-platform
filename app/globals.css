@@ -47,7 +47,7 @@ a { color: inherit; }
   box-shadow: 0 16px 34px rgba(16,35,59,.10);
 }
 .tileTop { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.tileNumber { font-size: 2.4rem; line-height: 1; font-weight: 800; color: #d9e2e3; letter-spacing: -.05em; }
+.tileNumber { font-size: 2.4rem; line-height: 1; font-weight: 800; color: #708689; letter-spacing: -.05em; }
 .tileBody { margin: 34px 0 26px; }
 .tileBody h3 { font-size: 1.35rem; line-height: 1.2; margin: 8px 0 12px; }
 .tileLabel { margin: 0; color: #34757b; font-weight: 800; font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; }
@@ -106,7 +106,7 @@ a { color: inherit; }
 .success { color: #23723c; }
 .error { color: #9b3535; }
 .notice { padding: 16px; border-radius: 12px; background: #fff5ce; border: 1px solid #eadc9a; margin: 16px 0; }
-.footer { margin-top: 42px; color: #6a747d; font-size: .9rem; }
+.footer { margin-top: 42px; color: #5f6972; font-size: .9rem; }
 
 @media (max-width: 900px) {
   .chapterLearningLayout { grid-template-columns: 1fr; }
