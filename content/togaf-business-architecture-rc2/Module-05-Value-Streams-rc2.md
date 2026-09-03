@@ -280,64 +280,64 @@ Een mogelijke route is `Aanvraag herkenbaar → Geschikt apparaat en toegang voo
 
 Wat is het primaire perspectief van een Business Architecture value stream?
 
-- A. Interne afdelingsvolgorde.
-- B. End-to-end waarderealisatie voor een stakeholder.
-- C. Alleen technische datastromen.
-- D. Alleen kosten per activiteit.
+- A. Alleen technische datastromen.
+- B. Alleen kosten per activiteit.
+- C. Interne afdelingsvolgorde.
+- D. End-to-end waarderealisatie voor een stakeholder.
 
 ### Vraag 2
 
 Welke uitspraak onderscheidt process en value stream het beste?
 
-- A. Een process beschrijft uitvoering; een value stream beschrijft waarderealisatie vanuit stakeholderperspectief.
-- B. Een value stream is altijd hetzelfde proces met minder stappen.
-- C. Processen mogen geen waarde ondersteunen.
-- D. Iedere value stage is verplicht één procesactiviteit.
+- A. Iedere value stage is verplicht één procesactiviteit.
+- B. Een process beschrijft uitvoering; een value stream beschrijft waarderealisatie vanuit stakeholderperspectief.
+- C. Een value stream is altijd hetzelfde proces met minder stappen.
+- D. Processen mogen geen waarde ondersteunen.
 
 ### Vraag 3
 
 Welke lens richt zich primair op partijen en relaties die samen waarde creëren en leveren?
 
-- A. Value network.
-- B. Lean value stream.
-- C. Technology Architecture.
-- D. Gap analysis.
+- A. Lean value stream.
+- B. Technology Architecture.
+- C. Gap analysis.
+- D. Value network.
 
 ### Vraag 4
 
 Aurora heeft een betaalbestand aangemaakt maar de betaling is mislukt. Wat betekent dit voor S3?
 
-- A. S3 is afgerond omdat intern werk gereed is.
-- B. S3 blijft open omdat de beoogde vergoeding nog niet is gerealiseerd.
-- C. De hele value stream moet opnieuw bij S1 beginnen.
-- D. S3 is niet van toepassing bij een besluit tot vergoeding.
+- A. De hele value stream moet opnieuw bij S1 beginnen.
+- B. S3 is niet van toepassing bij een besluit tot vergoeding.
+- C. S3 is afgerond omdat intern werk gereed is.
+- D. S3 blijft open omdat de beoogde vergoeding nog niet is gerealiseerd.
 
 ### Vraag 5
 
 Een collega stelt `Backoffice` voor als value stage. Welke eerste vraag helpt het meest?
 
-- A. Welke zelfstandige stakeholderwaarde ontstaat bij het bereiken van die stagegrens?
-- B. Hoeveel medewerkers heeft Backoffice?
-- C. Welke kleur krijgt de stage?
-- D. Welke server gebruikt de afdeling?
+- A. Welke server gebruikt de afdeling?
+- B. Welke zelfstandige stakeholderwaarde ontstaat bij het bereiken van die stagegrens?
+- C. Hoeveel medewerkers heeft Backoffice?
+- D. Welke kleur krijgt de stage?
 
 ### Vraag 6
 
 Wat voegt een stage-capability heat map toe aan een gewone capabilitymapping?
 
-- A. Een gekozen beoordelingslens op de relevante capability-stage relaties.
-- B. Een verplichte nieuwe capability per stage.
-- C. Een automatisch procesmodel.
-- D. Een bewijs dat alle rode relaties dezelfde oorzaak hebben.
+- A. Een automatisch procesmodel.
+- B. Een bewijs dat alle rode relaties dezelfde oorzaak hebben.
+- C. Een gekozen beoordelingslens op de relevante capability-stage relaties.
+- D. Een verplichte nieuwe capability per stage.
 
 ### Vraag 7
 
 Een claim wordt gemotiveerd afgewezen en de vervolgstap is duidelijk uitgelegd. Hoe rapporteer je dit in het oefenmodel?
 
-- A. S1 en S2 kunnen afgerond zijn; S3 is niet van toepassing voor deze route.
-- B. S3 moet als mislukt worden gemarkeerd.
-- C. De value stream heeft geen waarde geleverd omdat geen geld is betaald.
-- D. De afwijzing moet uit het model worden verwijderd.
+- A. S3 moet als mislukt worden gemarkeerd.
+- B. De value stream heeft geen waarde geleverd omdat geen geld is betaald.
+- C. De afwijzing moet uit het model worden verwijderd.
+- D. S1 en S2 kunnen afgerond zijn; S3 is niet van toepassing voor deze route.
 
 ## Naar module 6
 
