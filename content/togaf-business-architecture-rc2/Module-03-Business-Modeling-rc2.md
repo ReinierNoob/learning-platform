@@ -162,28 +162,28 @@ De deelnemer ontvangt de bruikbaarheid, terwijl het opleidingsbudget financiert.
 
 Nova heeft deelnemers als gebruikers en een fonds als betaler. Wat moet het businessmodel zichtbaar maken?
 
-- A. Gebruiker en betaler zijn altijd hetzelfde segment.
-- B. Alleen de laptopmerken.
-- C. De verschillende waarde-, relatie- en financieringsrollen.
-- D. Alleen de interne afdelingen.
+- A. Alleen de laptopmerken.
+- B. De verschillende waarde-, relatie- en financieringsrollen.
+- C. Alleen de interne afdelingen.
+- D. Gebruiker en betaler zijn altijd hetzelfde segment.
 
 ### Vraag 2
 
 Welke combinatie bevat uitsluitend BMC-bouwblokken?
 
-- A. Value streams, exitcriteria, capabilities.
-- B. Customer Segments, Value Propositions, Revenue Streams.
-- C. Servers, tabellen, API-methoden.
-- D. Architecture Vision, Implementation Governance, Change Management.
+- A. Customer Segments, Value Propositions, Revenue Streams.
+- B. Servers, tabellen, API-methoden.
+- C. Architecture Vision, Implementation Governance, Change Management.
+- D. Value streams, exitcriteria, capabilities.
 
 ### Vraag 3
 
 Aurora belooft persoonlijke uitleg maar sluit expliciet alle menselijke ondersteuning uit. Wat kun je verantwoord concluderen?
 
-- A. De propositie is zeker winstgevend.
-- B. Menselijke ondersteuning is altijd verplicht.
-- C. Er is een interne spanning tussen belofte en gekozen inrichting.
-- D. Alle digitale uitleg is onbruikbaar.
+- A. Alle digitale uitleg is onbruikbaar.
+- B. De propositie is zeker winstgevend.
+- C. Menselijke ondersteuning is altijd verplicht.
+- D. Er is een interne spanning tussen belofte en gekozen inrichting.
 
 ### Vraag 4
 
