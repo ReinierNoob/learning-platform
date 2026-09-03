@@ -11,12 +11,12 @@ a { color: inherit; }
 .shell { max-width: 1180px; margin: 0 auto; padding: 28px 24px 72px; }
 .topbar { display: flex; justify-content: space-between; align-items: center; gap: 20px; margin-bottom: 42px; }
 .brand { display: inline-flex; align-items: center; min-height: 44px; font-weight: 800; letter-spacing: .02em; text-decoration: none; }
-.meta { color: #647080; }
+.meta { color: #596574; }
 
 .hero { background: #0e2138; color: white; padding: 42px; border-radius: 22px; margin-bottom: 28px; }
 .hero h1 { font-size: clamp(2rem, 5vw, 4rem); line-height: 1; margin: 8px 0 18px; }
 .eyebrow { text-transform: uppercase; letter-spacing: .14em; font-size: .75rem; font-weight: 800; color: #79bec4; margin: 0 0 8px; }
-.eyebrow.dark { color: #34757b; }
+.eyebrow.dark { color: #2e686d; }
 
 .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
 .card { background: white; border: 1px solid rgba(16,35,59,.1); border-radius: 18px; padding: 22px; }
