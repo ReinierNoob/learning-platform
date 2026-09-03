@@ -213,10 +213,10 @@ Bij Nova blijft `bruikbaar kunnen deelnemen` het positieve eindresultaat. Een re
 
 Wat maakt een gap analysis inhoudelijk bruikbaar?
 
-- A. Vergelijkbare baseline- en targetkenmerken met expliciete verschillen en bewijs.
-- B. Alleen twee diagrammen met verschillende kleuren.
-- C. Iedere targetcapability als volledig nieuw bestempelen.
-- D. De baseline overslaan om sneller te plannen.
+- A. De baseline overslaan om sneller te plannen.
+- B. Vergelijkbare baseline- en targetkenmerken met expliciete verschillen en bewijs.
+- C. Alleen twee diagrammen met verschillende kleuren.
+- D. Iedere targetcapability als volledig nieuw bestempelen.
 
 ### Vraag 2
 
@@ -231,10 +231,10 @@ Welke vraag toetst of een transitiearchitectuur werkbaar is?
 
 Wat is een kernverschil tussen Phase A en Phase B voor Business Architecture?
 
-- A. Phase A kadert visie, scope en high-level architectuur; Phase B ontwikkelt de Business Architecture verder en analyseert baseline, target en gaps.
-- B. Phase A is alleen technologie en Phase B alleen finance.
-- C. Phase B mag geen capabilities of value streams gebruiken.
-- D. Er is geen betekenisvol verschil.
+- A. Er is geen betekenisvol verschil.
+- B. Phase A kadert visie, scope en high-level architectuur; Phase B ontwikkelt de Business Architecture verder en analyseert baseline, target en gaps.
+- C. Phase A is alleen technologie en Phase B alleen finance.
+- D. Phase B mag geen capabilities of value streams gebruiken.
 
 ## Afronding van de leerlijn
 
