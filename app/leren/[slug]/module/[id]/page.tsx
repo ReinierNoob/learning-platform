@@ -76,7 +76,7 @@ export default async function ModulePage({ params }: { params: Promise<{ slug: s
 
     <section className="assessmentBlock">
       <div className="sectionHeading"><div><p className="eyebrow dark">Na de hoofdstukken</p><h2>Zelftoets</h2></div><p className="meta">Controleer je begrip en registreer je voortgang.</p></div>
-      <QuizClient trainingId={course.id} moduleId={module.source_module_id} questions={module.quiz ?? []} />
+      <QuizClient trainingId={course.id} moduleId={module.source_module_id} contentVersion={module.content_version} questions={module.quiz ?? []} />
     </section>
 
     {module.disclaimer ? <p className="footer">{module.disclaimer}</p> : null}

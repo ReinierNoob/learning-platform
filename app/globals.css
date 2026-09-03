@@ -127,3 +127,20 @@ a { color: inherit; }
   .instructorCard { grid-template-columns: 1fr; }
   .instructorAvatar { width: 64px; height: 64px; }
 }
+
+/* Readable lesson tables, model steps and exercises. */
+.lessonTable { overflow-x:auto; max-width:100%; margin:1.25rem 0; }
+.lessonTable table { width:100%; border-collapse:collapse; font-size:1rem; }
+.lessonTable th,.lessonTable td { border:1px solid #bcc8d1; padding:.8rem; vertical-align:top; text-align:left; min-width:10rem; }
+.lessonTable th { background:#eaf0f4; color:#172d3d; }
+.lessonTable:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible { outline:3px solid #2365a2; outline-offset:3px; }
+.question { border:0; border-top:1px solid #bcc8d1; min-width:0; margin:1.5rem 0; padding:1rem 0; }
+.question legend { font-weight:700; }
+.messages .markdownBody { font-size:inherit; line-height:1.6; }
+.modelDemo,.practiceWork { border:1px solid #bcc8d1; border-radius:16px; padding:1.25rem; margin:2rem 0; }
+.modelSteps { display:grid; gap:.75rem; padding-left:1.5rem; }
+.modelSteps li { padding:.8rem; background:#edf3f7; border-radius:8px; }
+.practiceWork textarea { width:100%; min-height:18rem; padding:1rem; font:inherit; line-height:1.6; }
+.practiceWork details { margin:1rem 0; }
+.practiceActions { display:flex; flex-wrap:wrap; gap:.75rem; margin:1rem 0; }
+@media (max-width:600px) { .inputRow { flex-wrap:wrap; } .inputRow input { min-width:0; width:100%; } .modelDemo,.practiceWork { padding:1rem; } }
