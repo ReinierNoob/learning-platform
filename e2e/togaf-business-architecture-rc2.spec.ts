@@ -90,6 +90,7 @@ test("TOGAF Business Architecture rc2 complete learner route", async ({ browser 
     await page.getByRole("button", { name: "Controleer antwoorden en registreer voortgang" }).click();
     await expect(page.getByText("Je antwoorden zijn verwerkt in je voortgang.")).toBeVisible({ timeout: 20_000 });
     await expect(page.locator(".quiz .question .success, .quiz .question .error")).toHaveCount(questionCount);
+    await expect(page.locator(".quiz .question .success, .quiz .question .error").filter({ hasText: /^(Juist|Niet juist)\./ })).toHaveCount(questionCount);
     moduleEvidence.push({ module, chapters: chapterCount, questions: questionCount });
   }
 

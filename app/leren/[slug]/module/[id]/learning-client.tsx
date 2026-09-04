@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 
 type Question = { nr: number; vraag: string; opties: Record<string, string> };
 type Message = { role: "user" | "assistant"; content: string };
-type Result = { nr: number; correct: boolean; juisteAntwoord: string; uitleg: string };
+type Result = { nr: number; correct: boolean; juisteAntwoord: string; uitleg: string; keuzeUitleg?: string };
 
 export function ChatClient({ trainingId, moduleId }: { trainingId: string; moduleId: number }) {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -70,7 +70,7 @@ export function QuizClient({ trainingId, moduleId, questions }: { trainingId: st
     <h2>Zelftoets</h2>
     {questions.map((question) => {
       const result = results?.find((item) => item.nr === question.nr);
-      return <div className="question" key={question.nr}><p><strong>{question.nr}. {question.vraag}</strong></p>{Object.entries(question.opties).map(([key, label]) => <label key={key}><input type="radio" name={`q-${question.nr}`} value={key} checked={answers[question.nr] === key} disabled={Boolean(results)} onChange={() => setAnswers((current) => ({ ...current, [question.nr]: key }))} /> {key}. {label}</label>)}{result ? <p className={result.correct ? "success" : "error"}>{result.correct ? "Goed. " : `Niet helemaal — het juiste antwoord is ${result.juisteAntwoord}. `}{result.uitleg}</p> : null}</div>;
+      return <div className="question" key={question.nr}><p><strong>{question.nr}. {question.vraag}</strong></p>{Object.entries(question.opties).map(([key, label]) => <label key={key}><input type="radio" name={`q-${question.nr}`} value={key} checked={answers[question.nr] === key} disabled={Boolean(results)} onChange={() => setAnswers((current) => ({ ...current, [question.nr]: key }))} /> {key}. {label}</label>)}{result ? <p className={result.correct ? "success" : "error"}>{result.keuzeUitleg ?? `${result.correct ? "Goed. " : `Niet helemaal — het juiste antwoord is ${result.juisteAntwoord}. `}${result.uitleg}`}</p> : null}</div>;
     })}
     {error ? <p className="error" role="alert">{error}</p> : null}
     {!results ? <button className="button" disabled={!complete || busy} onClick={() => void gradeQuiz()}>{busy ? "Bezig…" : "Controleer antwoorden en registreer voortgang"}</button> : <p className="success"><strong>Je antwoorden zijn verwerkt in je voortgang.</strong></p>}

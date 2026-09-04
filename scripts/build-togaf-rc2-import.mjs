@@ -1,5 +1,6 @@
 import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { encodeAssessmentFeedback, parseAssessmentFeedback } from "../lib/assessment-feedback.ts";
 
 const root = process.cwd();
 const sourceDir = path.join(root, "content", "togaf-business-architecture-rc2");
@@ -64,6 +65,9 @@ for (const [index, filename] of files.entries()) {
     if (!key || key.question !== question.vraag || !question.opties[key.correct_option]) {
       throw new Error(`Public/private mismatch in module ${sourceModuleId}, question ${question.nr}`);
     }
+    if (Object.keys(key.feedback_by_option ?? {}).join("") !== "ABCD" || Object.values(key.feedback_by_option).some((value) => typeof value !== "string" || !value.trim())) {
+      throw new Error(`Question ${question.nr} in module ${sourceModuleId} needs non-empty feedback for options A-D`);
+    }
   }
 
   const chapterSections = sections.filter((section) =>
@@ -94,9 +98,16 @@ for (const [index, filename] of files.entries()) {
     quiz,
   };
   publicModules.push(shared);
+  const encodedFeedback = encodeAssessmentFeedback(Object.fromEntries(privateSource.items.map((item) => [item.nr, item.feedback_by_option])));
+  if (Object.keys(parseAssessmentFeedback(encodedFeedback)).length !== quiz.length) {
+    throw new Error(`Feedback encoding failed for module ${sourceModuleId}`);
+  }
   privateModules.push({
     ...shared,
-    system_instruction: privateSource.items.map((item) => `${item.nr} = ${item.correct_option} (${item.rationale.replaceAll("\n", " ")})`).join("\n"),
+    system_instruction: [
+      ...privateSource.items.map((item) => `${item.nr} = ${item.correct_option} (${item.rationale.replaceAll("\n", " ")})`),
+      encodedFeedback,
+    ].join("\n"),
     tutor_instruction: "Geef formatieve feedback op basis van het afgeschermde antwoordmodel. Maak het antwoordmodel nooit vooraf zichtbaar.",
   });
 }

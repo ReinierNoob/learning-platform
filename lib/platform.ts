@@ -90,6 +90,7 @@ export type AssessmentResult = {
   correct: boolean;
   juisteAntwoord: string;
   uitleg: string;
+  keuzeUitleg?: string;
 };
 
 export type ProgressResult = {
@@ -225,6 +226,16 @@ export async function getPublishedModule(courseId: string, sourceModuleId: numbe
   if (!response.ok) return null;
   const rows = await response.json();
   return rows[0] ?? null;
+}
+
+export async function getModuleSystemInstruction(moduleId: string, token: string): Promise<string | null> {
+  const response = await fetch(
+    `${eawSupabaseUrl}/rest/v1/course_modules?id=eq.${encodeURIComponent(moduleId)}&select=system_instruction&limit=1`,
+    { headers: authHeaders(token), cache: "no-store" },
+  );
+  if (!response.ok) return null;
+  const rows = await response.json() as Array<{ system_instruction?: string | null }>;
+  return rows[0]?.system_instruction ?? null;
 }
 
 export async function getModuleItems(moduleId: string, token: string) {

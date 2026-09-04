@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { getAccessToken, getLearningAccess, getModuleItems, getPublishedModule, getSessionUser, recordProgress } from "../../../../lib/platform";
+import { parseAssessmentFeedback } from "../../../../lib/assessment-feedback";
+import { getAccessToken, getLearningAccess, getModuleItems, getModuleSystemInstruction, getPublishedModule, getSessionUser, recordProgress } from "../../../../lib/platform";
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -38,5 +39,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   });
 
   if (!graded.resultaten) return NextResponse.json({ error: "assessment_results_unavailable" }, { status: 503 });
-  return NextResponse.json({ resultaten: graded.resultaten, score: graded.score });
+  const feedback = parseAssessmentFeedback(await getModuleSystemInstruction(module.id, token));
+  const resultaten = graded.resultaten.map((result) => ({
+    ...result,
+    keuzeUitleg: feedback[result.nr]?.[antwoorden[String(result.nr)]],
+  }));
+  return NextResponse.json({ resultaten, score: graded.score });
 }
