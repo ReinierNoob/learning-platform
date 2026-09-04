@@ -5,3 +5,7 @@ node_modules/
 .vercel/
 *.log
 .DS_Store
+
+# Private TOGAF assessment keys are local import inputs and must never be committed.
+content/togaf-business-architecture-rc2/*-private-*.json
+content/togaf-business-architecture-rc2/generated-private/

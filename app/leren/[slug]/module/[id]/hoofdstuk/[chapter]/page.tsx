@@ -57,7 +57,7 @@ export default async function ChapterPage({ params }: { params: Promise<{ slug: 
 
         <article className="lessonContent">
           <div className="lessonIntro"><span className="badge">Hoofdstuk {chapterIndex + 1}</span><h2>{chapter.titel}</h2></div>
-          <VideoPlayer trainingId={course.id} moduleId={module.source_module_id} chapterId={String(chapter.id)} />
+          {chapter.video_url ? <VideoPlayer trainingId={course.id} moduleId={module.source_module_id} chapterId={String(chapter.id)} /> : null}
           <div className="markdownBody"><ReactMarkdown>{chapter.tekst}</ReactMarkdown></div>
         </article>
       </div>

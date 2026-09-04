@@ -1,0 +1,890 @@
+Warning: truncated output (original token count: 32637)
+Total output lines: 988
+
+[
+  {
+    "source_module_id": 1,
+    "slug": "module-1-enterprise-architecture-en-de-togaf-standard",
+    "title": "Enterprise Architecture en de TOGAF Standard",
+    "position": 1,
+    "is_required": true,
+    "is_published": false,
+    "content_version": "togaf-ba-rc2-consolidated-2026-09-03",
+    "level": "TOGAF Business Architecture examination readiness",
+    "study_load": null,
+    "case_study": "Aurora (uitgewerkt) en Nova (zelfstandig)",
+    "disclaimer": "Onafhankelijke EAW-zelfstudie; niet geaccrediteerd door The Open Group. TOGAF® is een geregistreerd handelsmerk van The Open Group.",
+    "chapters": [
+      {
+        "id": "m1-h1",
+        "titel": "Leerprestatie",
+        "tekst": "Na deze module kun je een organisatievraag vertalen naar samenhangende architectuurvragen, relevante stakeholders en bruikbare weergaven. Je kunt de belangrijkste TOGAF-basisconcepten uitleggen en van elkaar onderscheiden. De examenkern ondersteunt Foundation-kennis; de Aurora- en Nova-opdrachten vragen aanvullend professionele toepassing."
+      },
+      {
+        "id": "m1-h2",
+        "titel": "1. Waarom architectuur bij een businessvraag begint",
+        "tekst": "Aurora wil schadeclaims sneller afhandelen. Een mogelijke reactie is een nieuw portaal. Maar een digitaal formulier helpt weinig als een besluit intern blijft wachten, informatie niet herleidbaar is of de betaling mislukt. De architectuurvraag is daarom breder: welke samenhang tussen organisatie, informatie en techniek is nodig om de afgesproken dienstverlening betrouwbaar te realiseren?\n\nEnterprise Architecture helpt zulke samenhang expliciet maken, alternatieven beoordelen en besluiten onderbouwen. TOGAF biedt daarvoor begrippen, de Architecture Development Method (ADM) en ondersteunende richtlijnen. Het framework neemt de inhoudelijke keuze niet over. De architect moet nog steeds bepalen welke scope, stakeholders, modellen, evidence en beslissingen voor de concrete vraag relevant zijn.\n\nEen enterprise is de organisatorische scope waarvoor doelen en samenhang worden beschouwd. Dat kan de hele onderneming zijn, maar ook een relevante combinatie van onderdelen en partners. De gekozen grens moet passen bij de vraag: voor een beperkte overdrachtsfout is een compleet model van alle bedrijfsactiviteiten niet automatisch nodig; bij dienstverlening over meerdere partners heen kan één afdeling juist te smal zijn.\n\n**Instapdiagnose.** Stel dat een klantportaal traag voelt. Is daarmee bewezen dat de infrastructuur onvoldoende is? Nee. Een wachtrij in besluitvorming, een foutieve koppeling of onduidelijke statusinformatie kan hetzelfde zichtbare symptoom geven. De zichtbare ervaring bepaalt dus niet automatisch het architectuurdomein van de oorzaak."
+      },
+      {
+        "id": "m1-h3",
+        "titel": "2. Exam core — TOGAF-basisbegrippen",
+        "tekst": "### Doel en waarde van Enterprise Architecture\n\nEnterprise Architecture ondersteunt besluitvorming over verandering door doelen, concerns, huidige inrichting, gewenste inrichting en belangrijke afhankelijkheden samenhangend te maken. De waarde zit niet in zoveel mogelijk modellen produceren, maar in betere keuzes, expliciete impact en bestuurbare verandering.\n\n### Abstractie\n\nArchitectuur gebruikt abstractie: je laat alleen die kenmerken zien die voor een gekozen vraag relevant zijn. Een capabilitymap abstraheert anders dan een procesmodel. Meer detail is daarom niet automatisch beter. Detail is nuttig wanneer het onzekerheid voor een besluit vermindert.\n\n### Architecture Principles\n\nEen architecture principle is een richtinggevend uitgangspunt voor besluitvorming, met een reden en consequenties. In de Aurora-casus gebruiken we bijvoorbeeld: besluiten blijven herleidbaar tot de gebruikte grondslag. Dat betekent onder meer dat een latere wijziging de oorspronkelijke beslisbasis niet stilzwijgend mag overschrijven. Dit is een fictief casusprincipe, geen letterlijk TOGAF-voorschrift.\n\n### Enterprise Continuum en Architecture Repository\n\nDe **Enterprise Continuum** helpt architectuurassets te classificeren en in context te plaatsen, van generieker naar specifieker bruikbaar materiaal. De **Architecture Repository** is de logische omgeving waarin architectuurcontent en gerelateerde assets worden beheerd en teruggevonden. Ze ondersteunen elkaar, maar zijn niet hetzelfde: het ene helpt ordenen en contextualiseren, het andere beheren en beschikbaar stellen.\n\n### Content Framework en Enterprise Metamodel\n\nHet **TOGAF Content Framework** biedt structuur voor architectuurcontent zoals deliverables, artifacts en building blocks. Het **Enterprise Metamodel** beschrijft welke soorten architectuurcontent en relaties een organisatie in haar eigen architectuurpraktijk hanteert. Een metamodel beschrijft dus de soorten elementen en relaties; een concreet architectuurmodel gebruikt die elementen voor een specifieke situatie.\n\n### Architecture Capability\n\nDe **Architecture Capability** is het vermogen van de organisatie om architectuurwerk effectief uit te voeren en te besturen. Dat omvat niet alleen architecten, maar ook governance, rollen, vaardigheden, methoden en ondersteunende voorzieningen. Het is daarom iets anders dan één architectuurdocument of één projectteam.\n\n### TOGAF naast andere frameworks\n\nTOGAF hoeft andere methoden niet te vervangen. Een organisatie kan TOGAF combineren met andere frameworks en deliverywerkwijzen, zolang helder is welk probleem elk onderdeel helpt oplossen, hoe begrippen aansluiten en waar governance of verantwoordelijkheden elkaar raken.\n\n### Risk management en gap analysis\n\n**Risk management** maakt onzekerheden en bedreigingen voor architectuurdoelen expliciet, zodat ze kunnen worden beoordeeld en behandeld. **Gap analysis** vergelijkt relevante kenmerken van baseline en target om vast te stellen wat ontbreekt, verandert of moet verdwijnen. Een risico is dus niet hetzelfde als een gap."
+      },
+      {
+        "id": "m1-h4",
+        "titel": "3. Vier architectuurdomeinen als samenhangende perspectieven",
+        "tekst": "Business Architecture beschrijft onder meer strategie, organisatie en de inrichting van de bedrijfsvoering. Data Architecture richt zich op betekenis, structuur en beheer van gegevens. Application Architecture beschrijft applicaties, verantwoordelijkheden en samenhang. Technology Architecture richt zich op de technische voorzieningen waarop dit draait. Deze afbakening is een didactische parafrase; de domeinen zijn perspectieven, geen verplichte organisatiesilo's.\n\n| Perspectief | Vraag bij Aurora | Mogelijk resultaat |\n|---|---|---|\n| Business | Welke waarde en dienstverlening moet de verzekerde ontvangen en wie is waarvoor verantwoordelijk? | Waardefasen, capabilities en verantwoordelijkheden. |\n| Data | Welke betekenis hebben polis, claim, besluit en betaling en welke kwaliteit is nodig? | Begrippen en kwaliteitsafspraken. |\n| Applicatie | Welke systemen ondersteunen besluitvorming en communicatie en wie is waarvoor verantwoordelijk? | Applicatieverantwoordelijkheden en uitwisselingen. |\n| Technologie | Welke beschikbaarheid, beveiliging en capaciteit zijn nodig? | Technische eisen en voorzieningen. |\n\nEen businesskeuze kan gevolgen hebben in alle vier de domeinen. De vuistregel ‘business is wat en waarom, technologie is hoe’ is te grof: Business Architecture bevat ook keuzes over organisatie en bedrijfsvoering.\n\n**Oefen.** Een klant ziet een verkeerd bedrag. Formuleer twee mogelijke verklaringen vanuit verschillende perspectieven. Bijvoorbeeld: een businessregel is verkeerd toegepast, of het juiste besluit is verkeerd naar het portaal overgenomen. Beide hypotheses vragen ander bewijs."
+      },
+      {
+        "id": "m1-h5",
+        "titel": "4. Stakeholders, concerns, viewpoints en views",
+        "tekst": "Niet iedereen heeft hetzelfde model nodig. Een directielid wil weten welke verandering bijdraagt aan dienstverlening; een behandelaar wil weten wanneer een dossier verder kan; een informatie-eigenaar wil weten welk begrip leidend is.\n\nEen stakeholder heeft concerns. Een viewpoint beschrijft hoe je een bepaald soort concern in beeld brengt; een view is een concrete weergave voor de onderzochte situatie. Een afgesproken manier om waardefasen en capabilities samen te tonen is een viewpoint; de ingevulde Aurora-matrix is een view.\n\n| Stakeholder | Concern | Bruikbare view | Wat die view niet bewijst |\n|---|---|---|---|\n| Verzekerde | Weet ik wat besloten is en wat volgt? | Waardemomenten met uitlegcriteria. | Werkelijk begrip of tevredenheid. |\n| Manager Schade | Waar stokt de dienstverlening? | Fasen met prestatiebewijs en capabilitybijdragen. | De technische oorzaak van elke vertraging. |\n| Informatie-eigenaar | Is besluit en grondslag herleidbaar? | Begrippenrelaties en vastleggingsafspraken. | Dat ieder huidig dossier al voldoet. |\n\nVraag bij iedere weergave: welk besluit moet ermee worden ondersteund, welke informatie is opgenomen en wat is bewust weggelaten?"
+      },
+      {
+        "id": "m1-h6",
+        "titel": "5. De modellen van de leerlijn verbinden",
+        "tekst": "De training bouwt geen verzameling losse plaatjes. De modellen beantwoorden samen één veranderingsvraag.\n\nHet businessmodel maakt zichtbaar aan wie Aurora iets belooft en hoe de organisatie dat economisch mogelijk maakt. Capabilities benoemen benodigde vermogens. Value streams tonen waardemomenten voor stakeholders. Information Mapping maakt businessbegrippen en relaties expliciet. Organization Mapping laat zien welke organisatieonderdelen bijdragen en waar verantwoordelijkheid moet worden afgesproken. Business Scenarios verbinden een concreet probleem met omgeving, actoren, gewenste uitkomsten en requirements. De ADM ordent het architectuurwerk en de overgang naar verandering.\n\n**Uitgewerkt verband.** Aurora wil begrijpelijke duidelijkheid over claims bieden. Die belofte komt terug in de value stream als het moment waarop de aanspraak is verduidelijkt. Daarvoor zijn onder meer beoordelen en klantcommunicatie nodig. Die capabilities gebruiken claim, polisversie, besluit en toelichting. De organisatie moet inhoud en aflevering beleggen. Een business scenario onderzoekt vervolgens waarom klanten ondanks een intern gereed besluit nog geen bruikbare uitleg ontvangen.\n\nEen modelrelatie is een bewering die je moet kunnen onderbouwen. Een gelijk klinkend label is onvoldoende bewijs. `Besluitbeheer` als capability en `besluit uitgelegd` als stakeholderresultaat zijn bijvoorbeeld niet hetzelfde."
+      },
+      {
+        "id": "m1-h7",
+        "titel": "6. Van probleem naar eerste architectuurnotitie",
+        "tekst": "Maak voor Aurora een korte notitie met probleem, scope, stakeholders, twee samenhangende perspectieven en eerste onderzoeksvragen. Gebruik alleen de fictieve casusfeiten; verzin geen doorlooptijden of oorzaken.\n\nEen zwakke notitie bevat alleen ‘we hebben betere IT nodig’. Dat kiest een oplossing voordat probleem en oorzaak zijn onderzocht. Een andere zwakke notitie wil alle enterprise-modellen volledig uitwerken voordat één gerichte vraag mag worden onderzocht. Beide missen proportionaliteit.\n\n**Feedbackregel.** Staat een storing of meting niet in de casus, presenteer haar dan als hypothese of open onderzoeksvraag. Schrijf bijvoorbeeld `te onderzoeken: wachttijd tussen besluit en uitleg`, niet `de backoffice veroorzaakt de vertraging`."
+      },
+      {
+        "id": "m1-h8",
+        "titel": "Retrieval checkpoint",
+        "tekst": "Beantwoord zonder terug te kijken:\n\n1. Waarom is de Enterprise Continuum niet hetzelfde als de Architecture Repository?\n2. Wat is het verschil tussen een Enterprise Metamodel en een concrete architecture view?\n3. Waarom kan meer detail een architectuurbesluit juist slechter ondersteunen?\n4. Wat maakt Architecture Capability iets anders dan één architectuurdocument?\n5. Wat is het verschil tussen een gap en een risico?\n6. Wat is het verschil tussen viewpoint en view?\n\nAls je vooral labels kunt reproduceren, ga terug naar de functie van het concept: welke architectuurvraag helpt het beantwoorden?"
+      },
+      {
+        "id": "m1-h9",
+        "titel": "Zelfstandige opdracht — Nova",
+        "tekst": "Nova meldt dat deelnemers soms niet met hun leenlaptop kunnen starten. Maak een architectuurnotitie:\n\n- baken het probleem af;\n- benoem twee stakeholders met verschillende concerns;\n- formuleer vragen vanuit alle vier architectuurdomeinen;\n- kies twee eerste views en leg uit welk besluit ze ondersteunen;\n- benoem ontbrekend bewijs voordat Nova een nieuwe reserveringswebsite kiest;\n- noem één relevant risico en één mogelijke gap zonder die als bewezen feit te presenteren.\n\n### Beoordelingscriteria\n\n- Probleem en voorgestelde oplossing zijn onderscheiden.\n- Stakeholders en concerns zijn concreet.\n- Domeinvragen sluiten aan op hetzelfde probleem.\n- Gekozen views helpen een benoemd besluit.\n- Aannames en ontbrekend bewijs zijn zichtbaar.\n- Risico en gap worden niet door elkaar gehaald.\n\n### Vrijgegeven voorbeeldredenering\n\nEen bruikbare notitie onderscheidt reservering, apparaatwerking en toegang. Voor de deelnemer gaat het om kunnen starten; voor middelenbeheer om betrouwbare beschikbaarheid. Een waardeperspectief kan tonen wanneer bruikbaarheid bereikt moet zijn; een informatie-/applicatieview kan helpen verklaren of een correcte reservering verkeerd wordt uitgevoerd. Eerst voorbeelden van mislukte starts onderzoeken; een nieuwe website is nog geen bewezen oplossing."
+      }
+    ],
+    "quiz": [
+      {
+        "nr": 1,
+        "vraag": "Aurora kiest meteen een nieuw portaal om onduidelijke claimafhandeling op te lossen. Welke eerste architectuurvraag helpt het meest?",
+        "opties": {
+          "A": "Hoe vervangen we alle bestaande modellen?",
+          "B": "Welke kleur krijgt het portaal?",
+          "C": "Welke stakeholderuitkomst ontbreekt en welke samenhang kan dat verklaren?",
+          "D": "Welke database heeft de hoogste capaciteit?"
+        }
+      },
+      {
+        "nr": 2,
+        "vraag": "Wanneer is een enterprisegrens bruikbaar?",
+        "opties": {
+          "A": "Als zij uitsluitend juridische eigendom volgt.",
+          "B": "Als leveranciers altijd buiten beeld blijven.",
+          "C": "Als zij de samenhang omvat die nodig is om de onderzochte vraag te beantwoorden.",
+          "D": "Als zij altijd samenvalt met één afdeling."
+        }
+      },
+      {
+        "nr": 3,
+        "vraag": "Wat is een view?",
+        "opties": {
+          "A": "Iedere mening van een stakeholder.",
+          "B": "De verzameling toegangsrechten op architectuurmodellen.",
+          "C": "De concrete ingevulde weergave voor een onderzochte situatie.",
+          "D": "De algemene afspraak hoe een type weergave wordt opgebouwd."
+        }
+      },
+      {
+        "nr": 4,
+        "vraag": "Welke uitspraak onderscheidt Enterprise Continuum en Architecture Repository het beste?",
+        "opties": {
+          "A": "Het Continuum helpt assets ordenen/contextualiseren; de Repository helpt content beheren en beschikbaar stellen.",
+          "B": "Het zijn twee namen voor exact hetzelfde concept.",
+          "C": "De Repository bevat uitsluitend technische code; het Continuum uitsluitend processen.",
+          "D": "Het Continuum vervangt governance; de Repository vervangt de ADM."
+        }
+      },
+      {
+        "nr": 5,
+        "vraag": "Wat beschrijft een Enterprise Metamodel?",
+        "opties": {
+          "A": "Alleen de database-opslag van architectuurdocumenten.",
+          "B": "Alleen de huidige organisatiestructuur.",
+          "C": "De soorten architectuurelementen en relaties die de architectuurpraktijk hanteert.",
+          "D": "Eén concrete targetarchitectuur."
+        }
+      },
+      {
+        "nr": 6,
+        "vraag": "Wat is het beste onderscheid tussen gap en risico?",
+        "opties": {
+          "A": "Een gap is altijd technisch; een risico altijd financieel.",
+          "B": "Beide betekenen per definitie hetzelfde.",
+          "C": "Een risico wordt pas relevant na implementatie.",
+          "D": "Een gap is een verschil tussen baseline en target; een risico is onzekerheid of bedreiging die doelrealisatie kan beïnvloeden."
+        }
+      }
+    ]
+  },
+  {
+    "source_module_id": 2,
+    "slug": "module-2-de-adm-toepassen-en-aanpassen",
+    "title": "De ADM toepassen en aanpassen",
+    "position": 2,
+    "is_required": true,
+    "is_published": false,
+    "content_version": "togaf-ba-rc2-consolidated-2026-09-03",
+    "level": "TOGAF Business Architecture examination readiness",
+    "study_load": null,
+    "case_study": "Aurora (uitgewerkt) en Nova (zelfstandig)",
+    "disclaimer": "Onafhankelijke EAW-zelfstudie; niet geaccrediteerd door The Open Group. TOGAF® is een geregistreerd handelsmerk van The Open Group.",
+    "chapters": [
+      {
+        "id": "m2-h1",
+        "titel": "Leerprestatie",
+        "tekst": "Na deze module kun je de ADM-fasen herkennen aan hun doel, requirements door het traject volgen, iteratie en tailoring onderbouwen en uitleggen hoe governance, scope en alternatieven de toepassing beïnvloeden. Je gebruikt de Aurora-casus om van visie naar verandering te redeneren en past dezelfde logica zelfstandig toe op Nova."
+      },
+      {
+        "id": "m2-h2",
+        "titel": "1. De ADM gebruiken voor een veranderingsvraag",
+        "tekst": "De Architecture Development Method helpt architectuur doelgericht te ontwikkelen en te onderhouden. De fasen ondersteunen samenhang tussen aanleiding, gewenste architectuur, veranderopties, implementatie en beheer. Het bekende ronde model is geen verplicht eenmalig watervalproject. Scope, diepgang, iteratie en hergebruik worden afgestemd op de vraag en op bruikbaar bestaand materiaal.\n\nVoor Aurora blijft de aanleiding: betere duidelijkheid over schadeclaims. We kennen nog geen bewezen technische oorzaak. De ADM helpt het onderzoek en de besluiten ordenen. Zij schrijft niet voor dat eerst een nieuw portaal moet worden gekozen of dat elk model vanaf nul moet worden gemaakt.\n\n**Instapvraag.** De directie vraagt onmiddellijk een leverancier te kiezen. Welk architectuurbesluit ontbreekt mogelijk nog? Bijvoorbeeld: welk klantresultaat moet verbeteren, welke requirements gelden, wat is de scope en welke oorzaken zijn wel of niet bewezen."
+      },
+      {
+        "id": "m2-h3",
+        "titel": "2. Exam core — governance, scope en status van architectuurwerk",
+        "tekst": "### Draft en approved deliverables\n\nEen **draft deliverable** is nog onderwerp van review en besluitvorming. Een **approved deliverable** heeft de afgesproken governance- en goedkeuringsstappen doorlopen. Het verschil gaat niet alleen over documentversie of opmaak. Een document kan er technisch voltooid uitzien en toch nog draft zijn.\n\n### Governance\n\nEnterprise Architecture moet niet alleen ontwikkeld maar ook bestuurd en onderhouden worden. Governance maakt duidelijk wie beslissingen neemt, welke controles gelden, hoe afwijkingen worden behandeld en hoe architectuur actueel blijft. Zonder governance kunnen dezelfde afspraken later verschillend worden geïnterpreteerd of stilzwijgend worden verlaten.\n\n### Scope\n\nScoping bepaalt welk deel van de enterprise, welke architectuurdomeinen, welk detailniveau en welke tijdshorizon relevant zijn. Een smalle scope kan verantwoord zijn wanneer zij de beslisvraag afdekt; een te smalle scope kan cruciale afhankelijkheden verbergen. ‘Alles modelleren’ is daarom geen betere standaardkeuze.\n\n### Alternatieven, concerns en trade-offs\n\nArchitectuurwerk hoort relevante alternatieven tegen stakeholderconcerns, requirements, risico’s en andere criteria te vergelijken. Een trade-off betekent dat verbetering op één aspect een beperking op een ander aspect kan geven. De architect maakt dat zichtbaar; een voorkeursoptie wordt niet gepresenteerd alsof alternatieven nooit bestonden."
+      },
+      {
+        "id": "m2-h4",
+        "titel": "3. Compacte fasekaart — herken de bedoeling",
+        "tekst": "| Onderdeel | Centrale vraag |\n|---|---|\n| Preliminary | Hoe richten we de architectuurcapability, principes en randvoorwaarden voor architectuurwerk in? |\n| Phase A — Architecture Vision | Waarom is de verandering nodig, wat is de scope, wie zijn de stakeholders en welke high-level richting wordt nagestreefd? |\n| Phase B — Business Architecture | Welke businessinrichting is relevant in baseline en target en welke gaps volgen daaruit? |\n| Phase C — Information Systems Architectures | Welke Data- en Application Architecture zijn nodig? |\n| Phase D — Technology Architecture | Welke technische voorzieningen ondersteunen de beoogde informatievoorziening? |\n| Phase E — Opportunities & Solutions | Welke oplossingsrichtingen, work packages en transities kunnen de architectuur realiseren? |\n| Phase F — Migration Planning | Hoe prioriteren en plannen we de overgang? |\n| Phase G — Implementation Governance | Hoe borgen we realisatie conform afspraken en behandelen we afwijkingen? |\n| Phase H — Architecture Change Management | Hoe bewaken we veranderingen en bepalen we wanneer architectuur moet worden aangepast? |\n| Requirements Management | Hoe worden requirements door de ADM heen geïdentificeerd, beheerd en afgestemd? |\n\nDeze tabel is een beknopte didactische parafrase. Gebruik haar om de bedoeling van een fase te herkennen, niet als vervanging van de officiële standaard.\n\nE en F raken beide planning, maar het accent verschilt. In E worden samenhangende oplossings- en transitiemogelijkheden onderzocht; in F wordt de migratie verder geprioriteerd en gepland. G is geen eenmalige eindtest. H betekent niet dat ieder klein wijzigingssignaal automatisch een volledig nieuw traject vanaf Preliminary vereist."
+      },
+      {
+        "id": "m2-h5",
+        "titel": "4. Aurora van visie naar architectuur",
+        "tekst": "### Phase A — de opdracht scherp maken\n\nDe opdrachtgever wil dat de verzekerde weet of een claim is opgepakt, wat het besluit inhoudt en wanneer een eventuele vergoeding werkelijk is gerealiseerd. De eerste scope beperkt zich tot eenvoudige geldelijke afhandeling. Reparatie en bezwaar worden als vervolggrenzen benoemd. Daarmee voorkomt Aurora dat een eerste model stilzwijgend de hele verzekeringsorganisatie pretendeert te dekken.\n\nPhase A gaat hier om richting, scope, stakeholders, concerns en mandaat. De volledige Business Architecture wordt nog niet uitgewerkt; die verdieping hoort bij Phase B.\n\n### Phase B — gewenste bedrijfswerking\n\nAurora werkt value stages, capabilities, rollen, businessinformatie en relevante baseline/targetverschillen uit. Als het probleem vooral een onduidelijke verantwoordelijkheid of onvolledig gereedcriterium is, kan dat al een wezenlijke architectuurbevinding zijn zonder nieuwe technologie.\n\n### Phase C — informatie- en applicatiegevolgen\n\nEen besluit moet herleidbaar zijn naar de gebruikte polisgrondslag. Aurora bepaalt welke businessbegrippen en versies nodig zijn en welke applicaties verantwoordelijk zijn voor vastlegging en presentatie. Het businessbegrip `Polis` is niet automatisch hetzelfde als één databasebestand.\n\n### Phase D — technische randvoorwaarden\n\nBetrouwbare toegang en beschikbaarheid vragen passende technische ondersteuning. Bestaande infrastructuur wordt hergebruikt wanneer relevant bewijs laat zien dat zij de targetrequirements ondersteunt. Een fase ‘leeg afvinken’ is geen tailoring; aantonen dat geen relevante wijziging nodig is, kan dat wel zijn.\n\nNieuwe inzichten kunnen eerdere keuzes raken. Als bijvoorbeeld de gebruikte polisversie niet beschikbaar blijkt, moet Aurora mogelijk een businesswerkwijze, informatie-eis of scope herzien. Iteratie is gericht leren, niet alle eerdere besluiten vergeten."
+      },
+      {
+        "id": "m2-h6",
+        "titel": "5. Requirements volgen door de ADM",
+        "tekst": "Een requirement is bruikbaar wanneer duidelijk is welke behoefte zij dient, wat zij verlangt en hoe naleving kan worden onderzocht.\n\nVoor de oefening gebruiken we **R-01**: bij een uitgelegd claimbesluit kan de behandelaar terugvinden welke polisgrondslag is gebruikt. Dit is een casusrequirement, geen letterlijk TOGAF-voorschrift.\n\n| Moment | Verduidelijking | Bewijs of besluit |\n|---|---|---|\n| A | Herleidbaarheid blijkt een stakeholderconcern. | Herkomst en beoogd gebruik vastleggen. |\n| B | Bepalen welke rol grondslag vastlegt en gebruikt. | Verantwoordelijkheid en werkafspraak. |\n| C | Relatie tussen besluit en gebruikte polisversie uitwerken. | Informatiemodel en applicatieverantwoordelijkheid. |\n| D | Betrouwbare opslag en toegang uitwerken. | Technische randvoorwaarden binnen scope. |\n| G | Implementatie toont alleen de actuele polis. | Afwijking vaststellen; impact beoordelen; herstel of expliciete wijziging beslissen. |\n\nEen team mag R-01 niet stilzwijgend reduceren tot `er staat ergens een polisnummer`. Daarmee kan de betekenis verloren gaan. Requirements mogen wel veranderen wanneer stakeholderbehoeften of evidence wijzigen, maar dan worden reden, impact en besluit expliciet vastgelegd.\n\n**Aanvultaak.** De conceptrequirement `de klant moet sneller geholpen worden` is onvoldoende. Verbeter haar zonder een fictieve norm als feit te presenteren. Benoem welk waardemoment moet verbeteren, hoe begin en einde gemeten worden en welke norm nog als besluit openstaat."
+      },
+      {
+        "id": "m2-h7",
+        "titel": "6. Van architectuur naar verandering",
+        "tekst": "Stel dat Aurora twee opties ziet.\n\n**Optie A:** eerst werkwijze, verantwoordelijkheden en herleidbare vastlegging verbeteren met bestaande middelen.\n\n**Optie B:** tegelijk een applicatie vervangen.\n\nIn Phase E onderzoek je welke work packages en overgangstoestanden nodig zijn en of tussenstappen samenhangend kunnen functioneren. In Phase F worden afhankelijkheden, prioriteiten, risico’s en planning verder uitgewerkt. Geen van beide opties is automatisch de winnaar.\n\nTijdens Phase G beoordeel je of het afgesproken gedrag werkelijk wordt gerealiseerd. Een technisch werkende demo is onvoldoende wanneer behandelaars de grondslag nog steeds niet kunnen terugvinden. Omgekeerd hoeft niet elk implementatiedetail een nieuw architectuurbesluit te zijn: materialiteit en impact worden beoordeeld.\n\nIn Phase H worden nieuwe signalen beoordeeld op architectuurimpact. Een nieuwe productvorm kan veel impact hebben; een tekstcorrectie mogelijk weinig. Preliminary wordt heropend wanneer de architectuurcapability of haar fundamentele uitgangspunten moeten worden aangepast, niet automatisch bij elk wijzigingsverzoek."
+      },
+      {
+        "id": "m2-h8",
+        "titel": "7. Tailoring en hergebruik met bewijs",
+        "tekst": "Tailoring betekent niet: moeilijke fasen overslaan. Leg vast wat je hergebruikt, welke vragen al afdoende zijn beantwoord, welke onzekerheden openstaan en welke besluitvorming nog nodig is.\n\n**Voorbeeld.** Aurora heeft een recent beoordeeld technologieplatform dat de gevraagde opslag en toegang aantoonbaar ondersteunt. Phase D kan dan lichter worden uitgewerkt door gericht de verschillen te onderzoeken. Vraagt een nieuwe requirement internationale beschikbaarheid, dan kan de eerdere onderbouwing onvoldoende worden.\n\n**Foutvoorbeeld.** `We doen alleen Phase C, want het probleem zit in software.` Zolang die oorzaak niet is aangetoond en het businessresultaat niet scherp is, is dit een onbewezen scopekeuze.\n\nEen goede tailoringzin bevat daarom minimaal: welk bestaand bewijs wordt hergebruikt, welke vraag daarmee al voldoende is beantwoord, welke afwijkingen nog moeten worden onderzocht en wie het besluit over voldoende dekking neemt."
+      },
+      {
+        "id": "m2-h9",
+        "titel": "Retrieval checkpoint",
+        "tekst": "Beantwoord zonder terug te kijken:\n\n1. Waarom kan een volledig geschreven document nog draft zijn?\n2. Welke soorten scopebeslissingen moet je minimaal kunnen onderscheiden?\n3. Waarom hoort een trade-off expliciet te worden gemaakt?\n4. Welke fase ontwikkelt de Business Architecture verder?\n5. Waarom staat Requirements Management niet simpelweg als één lineaire stap tussen twee fasen?"
+      },
+      {
+        "id": "m2-h10",
+        "titel": "Zelfstandige opdracht — Nova",
+        "tekst": "Nova wil een externe partner laptops laten uitgeven. De bestaande inschrijvingsregistratie blijft. Werk uit:\n\n- welke vragen je in Phase A stelt;\n- welke Business Architecture-vragen in Phase B relevant zijn;\n- welke informatie- en applicatievragen in Phase C ontstaan;\n- welke migratievragen in E/F relevant zijn;\n- hoe je de requirement volgt dat alleen de bedoelde deelnemer een bruikbaar apparaat met werkende toegang ontvangt;\n- welke architectuur je onderbouwd kunt hergebruiken;\n- hoe je een afwijking tijdens realisatie behandelt.\n\n### Beoordelingscriteria\n\n- Fasekeuzes zijn gemotiveerd door vragen en resultaten.\n- Business-, informatie- en uitvoeringsgevolgen zijn verbonden.\n- Een requirement heeft herkomst, betekenis, impact en verificatie.\n- Tailoring berust op expliciet bewijs.\n- Afwijkingen worden beoordeeld in plaats van stilzwijgend geaccepteerd.\n- Alternatieven en trade-offs zijn zichtbaar wanneer ze beslisrelevant zijn.\n\n### Vrijgegeven voorbeeldredenering\n\nPhase A begrenst de partnerdienst, stakeholders, concerns en mandaat. Phase B bepaalt welke bijdrage en verantwoordelijkheid bij uitgifte nodig is. Phase C onderzoekt reservering, identiteit en toegangsgegevens. De bestaande inschrijvingsregistratie kan worden hergebruikt als betekenis en kwaliteit passen. De migratie moet ook overdracht en storingsafhandeling regelen. Een partnerdemo die een apparaat afgeeft zonder toegang te verifiëren bewijst de requirement nog niet."
+      }
+    ],
+    "quiz": [
+      {
+        "nr": 1,
+        "vraag": "Welke toepassing van de ADM past het beste bij een gerichte wijziging?",
+        "opties": {
+          "A": "Scope en iteraties afstemmen op de vraag, met expliciete besluiten en requirements.",
+          "B": "Altijd alle fasen exact eenmaal en even diep uitvoeren.",
+          "C": "Architectuur overslaan zodra een team agile werkt.",
+          "D": "Requirements pas na implementatie vastleggen."
+        }
+      },
+      {
+        "nr": 2,
+        "vraag": "Waar draait Requirements Management om?",
+        "opties": {
+          "A": "De planning uit Phase F vervangen.",
+          "B": "Alleen de opdracht van Phase A opslaan.",
+          "C": "Technische eisen na Phase D permanent bevriezen.",
+          "D": "Requirements, wijzigingen en gevolgen door de architectuurontwikkeling heen beheren."
+        }
+      },
+      {
+        "nr": 3,
+        "vraag": "Wat onderscheidt Phase E en Phase F het beste?",
+        "opties": {
+          "A": "E maakt de Business Architecture; F de Data Architecture.",
+          "B": "F vervangt zonder onderbouwing alle besluiten uit E.",
+          "C": "E onderzoekt oplossings- en transitiemogelijkheden; F werkt migratieprioriteit en planning verder uit.",
+          "D": "E is uitsluitend programmeren; F uitsluitend testen."
+        }
+      },
+      {
+        "nr": 4,
+        "vraag": "Een implementatie wijkt af van afgesproken herleidbaarheid. Welke fase heeft hier een directe governancefunctie?",
+        "opties": {
+          "A": "Alleen Phase H, want afwijkingen worden pas na livegang bekeken.",
+          "B": "Geen enkele fase.",
+          "C": "Preliminary.",
+          "D": "Phase G — Implementation Governance."
+        }
+      },
+      {
+        "nr": 5,
+        "vraag": "Waarom is `we slaan Phase D over, want bestaande infrastructuur is goed` onvoldoende tailoring?",
+        "opties": {
+          "A": "Omdat `goed` zonder relevant bewijs en verschilonderzoek geen onderbouwing is.",
+          "B": "Omdat Technology Architecture altijd de belangrijkste fase is.",
+          "C": "Omdat alleen leveranciers tailoring mogen beslissen.",
+          "D": "Omdat een fase nooit lichter mag worden uitgevoerd."
+        }
+      }
+    ]
+  },
+  {
+    "source_module_id": 3,
+    "slug": "module-3-business-modeling",
+    "title": "Business Modeling",
+    "position": 3,
+    "is_required": true,
+    "is_published": false,
+    "content_version": "togaf-ba-rc2-consolidated-2026-09-03",
+    "level": "TOGAF Business Architecture examination readiness",
+    "study_load": null,
+    "case_study": "Aurora (uitgewerkt) en Nova (zelfstandig)",
+    "disclaimer": "Onafhankelijke EAW-zelfstudie; niet geaccrediteerd door The Open Group. TOGAF® is een geregistreerd handelsmerk van The Open Group.",
+    "chapters": [
+      {
+        "id": "m3-h1",
+        "titel": "Leerprestatie",
+        "tekst": "Na deze module kun je een businessmodel in samenhang analyseren, de negen Business Model Canvas-bouwblokken gebruiken zonder ze als losse vakken te behandelen, aannames van bewijs onderscheiden en uitleggen hoe businessmodelkeuzes architectuurvragen oproepen. Je kunt een mogelijke inconsistentie onderbouwen zonder schijnzekerheid en een model gebruiken als input voor Business Architecture."
+      },
+      {
+        "id": "m3-h2",
+        "titel": "1. Een businessmodel verklaart samenhang",
+        "tekst": "Een businessmodel beschrijft hoe een organisatie waarde creëert, levert en economisch mogelijk maakt. Het gaat niet alleen om inkomsten. Doelgroepen, propositie, relaties, kanalen, activiteiten, resources, partners, kosten en opbrengsten moeten samen een geloofwaardige logica vormen.\n\nBij publieke of collectief gefinancierde dienstverlening kunnen betaler en ontvanger verschillende partijen zijn. Zet daarom niet automatisch degene die waarde ontvangt gelijk aan degene die betaalt.\n\nEen businessmodel helpt strategische aannames en onderlinge afhankelijkheden zichtbaar maken. Daarmee kan de architect gerichter onderzoeken welke capabilities, informatie, organisatiekeuzes en veranderingen nodig zijn. Het model bewijst echter niet dat de markt, doelgroep of operationele inrichting de aannames werkelijk bevestigt.\n\n**Instapvraag.** Aurora belooft snellere afhandeling en wil geen extra applicatie kopen. Is dat automatisch inconsistent? Nee. Een betere werkwijze met bestaande middelen kan dezelfde propositie misschien ondersteunen. Of dat haalbaar is, vraagt bewijs."
+      },
+      {
+        "id": "m3-h3",
+        "titel": "2. Exam core — representatie en rol in architectuur",
+        "tekst": "Een businessmodel kan in verschillende representatievormen worden vastgelegd: narratief, tabulair, visueel of via een canvas. De vorm is niet het doel. Het model moet de relevante samenhang zichtbaar maken.\n\nIn deze training gebruiken we het Business Model Canvas (BMC) als concrete werkvorm. Een BMC is dus een manier om een businessmodel te representeren, niet het businessmodelbegrip zelf.\n\nBusiness Modeling en Business Architecture beantwoorden verschillende vragen. Het businessmodel maakt onder meer propositie, doelgroepen en economische logica expliciet. Business Architecture werkt vervolgens uit welke capabilities, value streams, informatie- en organisatierelaties nodig zijn om die logica te ondersteunen. Er bestaat geen automatische één-op-éénvertaling van elk BMC-vak naar één architectuurelement."
+      },
+      {
+        "id": "m3-h4",
+        "titel": "3. De negen BMC-bouwblokken",
+        "tekst": "| Bouwblok | Centrale vraag | Veelvoorkomende verwarring |\n|---|---|---|\n| Customer Segments | Voor welke groepen maken we het aanbod? | Een kanaal als doelgroep opschrijven. |\n| Value Propositions | Welke relevante behoefte bedienen we met welke waarde? | Alleen een productnaam noemen. |\n| Channels | Hoe bereiken we de doelgroep en leveren we het aanbod? | Het kanaal als complete dienstverlening behandelen. |\n| Customer Relationships | Welke relatie en begeleiding organiseren we? | Alleen contactmiddelen opsommen. |\n| Revenue Streams | Waar komt vergoeding of opbrengst vandaan? | Betaler en eindgebruiker automatisch gelijkstellen. |\n| Key Resources | Welke resources zijn wezenlijk nodig? | Alles opsommen zonder relevantie. |\n| Key Activities | Welk werk is wezenlijk voor het aanbod? | Activiteiten zonder analyse als capabilities hernoemen. |\n| Key Partnerships | Welke partners leveren relevante bijdragen? | Iedere leverancier als strategische partner benoemen. |\n| Cost Structure | Welke kostenstructuur maakt uitvoering mogelijk? | Alleen applicatiekosten meenemen. |\n\nEen vak is pas bruikbaar als de inhoud concreet genoeg is om relaties te onderzoeken. `Klanten` als segment en `kwaliteit` als value proposition bieden te weinig houvast."
+      },
+      {
+        "id": "m3-h5",
+        "titel": "4. Aurora als uitgewerkt fictief businessmodel",
+        "tekst": "De volgende invulling is een ontwerpvariant voor Aurora Schade. Zij is geen marktvalidatie en bevat geen voorspelling over premie, winst of prestaties.\n\n| Bouwblok | Oefeninvulling |\n|---|---|\n| Customer Segments | Particuliere huishoudens met behoefte aan begrijpelijke schadeverzekering en ondersteuning bij eenvoudige claims. |\n| Value Propositions | Begrijpelijke dekking en voorspelbare behandeling; een gemotiveerd besluit en bij dekking een correct gerealiseerde vergoeding. |\n| Channels | Digitale omgeving en telefonisch contact voor uitleg en ondersteuning. |\n| Customer Relationships | Zelfservice waar passend, met bereikbare ondersteuning bij onduidelijkheid of uitzonderingen. |\n| Revenue Streams | Premie-inkomsten uit verzekeringen; geen bedragen of rendement in deze oefening. |\n| Key Resources | Deskundige medewerkers, polis- en claiminformatie, financiële middelen en ondersteunende voorzieningen. |\n| Key Activities | Aanbod beheren, claims innemen, beoordelen, uitkeren en klanten informeren. |\n| Key Partnerships | Expertisebureaus en betalingsdienstverleners voor afgebakende bijdragen. |\n| Cost Structure | Onder meer schadevergoedingen, behandeling, ondersteuning, expertise en informatievoorziening. |\n\nDe propositie noemt begrijpelijkheid en voorspelbaarheid. Daarom moet ondersteuning in de rest van het model terugkomen. Claims beoordelen vraagt betrouwbare informatie en deskundigheid. Een geldelijke vergoeding vraagt uitvoerbare financiële afhandeling. De bouwblokken ondersteunen dus dezelfde logica.\n\nPremie-inkomsten en schade-uitgaven vormen nog geen getoetst economisch model. Om levensvatbaarheid te beoordelen zijn aanvullende gegevens nodig over omvang, risico, kosten en opbrengsten. Deze module leert vooral ontbrekende informatie en relaties herkennen; zij rekent geen verzekeringsproduct door."
+      },
+      {
+        "id": "m3-h6",
+        "titel": "5. Consistentie beoordelen zonder schijnzekerheid",
+        "tekst": "Gebruik drie verschillende oordelen:\n\n- **tegenstrijdig** — twee expliciete aannames of afspraken kunnen niet samen gelden;\n- **informatie ontbreekt** — er is nog onvoldoende bewijs voor een oordeel;\n- **aannemelijk maar te toetsen** — de redenering kan kloppen maar is nog niet bevestigd.\n\n### Geval A — echte interne spanning\n\nAurora stelt dat iedere claim vóór afronding persoonlijk telefonisch wordt toegelicht. Tegelijk bepaalt dezelfde oefenvariant dat er geen menselijke ondersteuning beschikbaar is en ieder contact uitsluitend automatisch verloopt. Dit is een concrete spanning tussen belofte en inrichting.\n\n### Geval B — onvolledig, niet tegenstrijdig\n\nAurora biedt zelfservice met ondersteuning indien nodig. Er staat nog niets over benodigde personeelscapaciteit. Dat is onvolledig; het ontbreken van een berekening bewijst niet dat ondersteuning onmogelijk is.\n\n### Geval C — aannemelijk maar nog te toetsen\n\nAurora wil snellere afhandeling zonder nieuwe applicatie. Er zijn aanwijzingen dat dossiers tussen teams wachten, maar de oorzaak is nog niet onderzocht. Een proces- of verantwoordelijkheidsverbetering kan helpen, maar dat moet worden getest.\n\nEen goede review volgt relaties tussen bouwblokken. Vraag bijvoorbeeld of het gekozen channel de doelgroep bereikt, of de relationship-vorm door resources en kosten wordt gedragen en of partners werkelijk de benodigde bijdrage kunnen leveren."
+      },
+      {
+        "id": "m3-h7",
+        "titel": "6. Gestructureerde businessmodelinnovatie",
+        "tekst": "De TOGAF Series Guide Business Models beschrijft businessmodelinnovatie als een gestructureerde ontwerp- en leeractiviteit. Voor deze training gebruiken we de volgende didactische parafrase:\n\n1. observeer omgeving en huidige businessmodellogica;\n2. formuleer expliciete hypotheses over een toekomstige businessmodellogica;\n3. werk alternatieven of prototypes uit;\n4. test de belangrijkste aannames waar mogelijk;\n5. bevestig of verwerp hypotheses en pas het model aan;\n6. concretiseer de gekozen richting voldoende voor architectuur, planning en implementatie.\n\nDe structuur voorkomt dat een aantrekkelijk idee direct als bewezen targetmodel wordt behandeld. Innovatie mag iteratief zijn; een hypothese die niet standhoudt is leerinformatie, geen reden om bewijs te negeren."
+      },
+      {
+        "id": "m3-h8",
+        "titel": "7. Van businessmodel naar Business Architecture",
+        "tekst": "Een businessarchitect vertaalt het model niet mechanisch naar een ander diagram. Hij gebruikt uitspraken als bron voor gerichte architectuurvragen.\n\n| Uitspraak in businessmodel | Architectuurvraag | Volgende uitwerking |\n|---|---|---|\n| Begrijpelijke claimuitleg | Wat moet de verzekerde op welk moment ontvangen of begrijpen? | Value stream. |\n| Deskundige beoordeling | Welk vermogen moet beschikbaar zijn? | Business capability. |\n| Herleidbare informatie | Welke businessbegrippen en relaties zijn nodig? | Information Mapping. |\n| Teams en partners ondersteunen | Wie draagt bij en wie is verantwoordelijk? | Organization Mapping. |\n| Sneller zonder kwaliteitsverlies | Welk concreet probleem en welke requirements onderzoeken we? | Business Scenario. |\n\n`Claims beoordelen` kan als activity in het BMC staan. Om er een capability van te maken, moet je het vermogen afbakenen: wat moet Aurora kunnen, waarvoor en wat valt erbuiten? Alleen het label grammaticaal aanpassen is geen architectuurmodel.\n\nLet op de scope. De claimvalue stream uit module 5 maakt niet het hele businessmodel zichtbaar. Het afsluiten van een verzekering is bijvoorbeeld een andere waardestroom."
+      },
+      {
+        "id": "m3-h9",
+        "titel": "8. Oefenen, feedback en herziening",
+        "tekst": "**Aanvultaak.** Een model bevat alleen `particulieren`, `verzekering` en `portaal`. Formuleer welke informatie ontbreekt voordat je samenhang kunt beoordelen. Vraag naar de value proposition, relatievorm, economische logica, benodigde resources en uitvoering. Zeg niet dat dit fragment bewijst dat de rest van het businessmodel niet bestaat.\n\n**Zelfcontrole.** Kies één belofte uit het Aurora-model. Wijs de benodigde activity, resource, relationship-vorm en kostenpost aan. Staat één relatie alleen op basis van een aanname? Markeer die aanname en beschrijf hoe je haar zou toetsen."
+      },
+      {
+        "id": "m3-h10",
+        "titel": "Retrieval checkpoint",
+        "tekst": "Beantwoord zonder terug te kijken:\n\n1. Waarom is een Business Model Canvas niet hetzelfde als het begrip businessmodel?\n2. Welke toegevoegde waarde heeft een businessmodel voor Business Architecture?\n3. Waarom bewijst een intern consistent businessmodel nog niet dat klanten de propositie waarderen?\n4. Wat is het verschil tussen een hypothese over een toekomstig businessmodel en een gevalideerd targetbesluit?"
+      },
+      {
+        "id": "m3-h11",
+        "titel": "Zelfstandige opdracht — Nova",
+        "tekst": "Ontwerp een businessmodel voor Nova's leenlaptopdienst.\n\nCasusafspraken:\n\n- het leercentrum betaalt uit het opleidingsbudget;\n- deelnemers betalen niet per lening;\n- Nova gebruikt eigen apparaten en kan een partner inzetten bij pieken;\n- bruikbaar kunnen deelnemen is de beoogde waarde.\n\nVul de negen bouwblokken in. Markeer aanvullende aannames en toets minimaal drie relaties tussen bouwblokken. Beoordeel afzonderlijk of `geen extra software kopen` strijdig is met de propositie.\n\nVoeg één extra analyse toe: **welke aanname in jouw businessmodel heeft de grootste architectuurimpact wanneer zij onjuist blijkt?**\n\n### Beoordelingscriteria\n\n- Financier en ontvanger zijn onderscheiden.\n- Alle bouwblokken zijn concreet genoeg voor beoordeling.\n- Relaties zijn beredeneerd vanuit de value proposition.\n- Onvolledigheid en tegenstrijdigheid worden onderscheiden.\n- Aannames hebben toetsvragen.\n- Architectuurimpact van een kritieke aanname is beredeneerd.\n\n### Vrijgegeven voorbeeldredenering\n\nDe deelnemer ontvangt de bruikbaarheid, terwijl het opleidingsbudget financiert. Resources zijn apparaten, toegang en ondersteuning; activities omvatten beschikbaarheid plannen, gereedmaken en uitgifte. Kosten omvatten aanschaf/afschrijving, beheer en ondersteuning. Een partner kan piekcapaciteit leveren als afspraken, apparaten en toegang dat mogelijk maken. Geen nieuwe software is niet automatisch strijdig: onderzoek of bestaande reservering en werkwijze de propositie kunnen dragen."
+      }
+    ],
+    "quiz": [
+      {
+        "nr": 1,
+        "vraag": "Nova heeft deelnemers als gebruikers en een fonds als betaler. Wat moet het businessmodel zichtbaar maken?",
+        "opties": {
+          "A": "Alleen de laptopmerken.",
+          "B": "De verschillende waarde-, relatie- en financieringsrollen.",
+          "C": "Alleen de interne afdelingen.",
+          "D": "Gebruiker en betaler zijn altijd hetzelfde segment."
+        }
+      },
+      {
+        "nr": 2,
+        "vraag": "Welke combinatie bevat uitsluitend BMC-bouwblokken?",
+        "opties": {
+          "A": "Customer Segments, Value Propositions, Revenue Streams.",
+          "B": "Servers, tabellen, API-methoden.",
+          "C": "Architecture Vision, Implementation Governance, Change Management.",
+          "D": "Value streams, exitcriteria, capabilities."
+        }
+      },
+      {
+        "nr": 3,
+        "vraag": "Aurora belooft persoonlijke uitleg maar sluit expliciet alle menselijke ondersteuning uit. Wat kun je verantwoord concluderen?",
+        "opties": {
+          "A": "Alle digitale uitleg is onbruikbaar.",
+          "B": "De propositie is zeker winstgevend.",
+          "C": "Menselijke ondersteuning is altijd verplicht.",
+          "D": "Er is een interne spanning tussen belofte en gekozen inrichting."
+        }
+      },
+      {
+        "nr": 4,
+        "vraag": "Wat laat een ingevuld BMC op zichzelf nog niet zien?",
+        "opties": {
+          "A": "Dat de aannames over vraag, kosten en opbrengsten empirisch zijn bevestigd.",
+          "B": "Welke value proposition is voorgesteld.",
+          "C": "Welke partners in het voorstel voorkomen.",
+          "D": "Welke revenue streams zijn verondersteld."
+        }
+      }
+    ]
+  },
+  {
+    "source_module_id": 4,
+    "slug": "module-4-business-capabilities",
+    "title": "Business Capabilities",
+    "position": 4,
+    "is_required": true,
+    "is_published": false,
+    "content_version": "togaf-ba-rc2-consolidated-2026-09-03",
+    "level": "TOGAF Business Architecture examination readiness",
+    "study_load": null,
+    "case_study": "Aurora (uitgewerkt) en Nova (zelfstandig)",
+    "disclaimer": "Onafhankelijke EAW-zelfstudie; niet geaccrediteerd door The Open Group. TOGAF® is een geregistreerd handelsmerk van The Open Group.",
+    "chapters": [
+      {
+        "id": "m4-h1",
+        "titel": "Leerprestatie",
+        "tekst": "Na deze module kun je business capabilities definiëren, afbakenen, structureren en analyseren. Je onderscheidt capability van proces, organisatieonderdeel en applicatie, kunt people/processes/information/resources als realisatiecomponenten uitleggen, gebruikt heat mapping bewust en legt relaties naar value streams, processen en organisatie vast zonder één-op-éénrelaties te veronderstellen."
+      },
+      {
+        "id": "m4-h2",
+        "titel": "1. Een vermogen afbakenen",
+        "tekst": "Een business capability beschrijft een vermogen dat de organisatie nodig heeft om een doel of waarde te ondersteunen. Het gaat om wat de business in staat moet zijn te doen, los van één huidige medewerker, processtap of applicatie.\n\nNeem `Schade beoordelen`. In deze casus betekent dit dat Aurora relevante feiten en aanspraak kan vaststellen om een gemotiveerd claimbesluit te nemen. Betaling uitvoeren valt erbuiten. Dat kan vandaag in hetzelfde team gebeuren, maar het blijft een ander vermogen.\n\nRelatief stabiel betekent niet onveranderlijk. Nieuwe strategie, producten of regelgeving kunnen nieuwe capabilities vragen of grenzen veranderen. Een capabilitylabel alleen is onvoldoende; de definitie en grens moeten duidelijk zijn."
+      },
+      {
+        "id": "m4-h3",
+        "titel": "2. Capability, proces, organisatie en applicatie onderscheiden",
+        "tekst": "| Beschrijving | Interpretatie | Waarom |\n|---|---|---|\n| Schade beoordelen | Business capability | Vermogen om een onderbouwd oordeel te vormen. |\n| Expert raadplegen na een signaal | Procesactiviteit | Een gekozen manier om werk uit te voeren. |\n| Team Schade Expertise | Organisatieonderdeel | Een groep mensen die aan capabilities kan bijdragen. |\n| ClaimApp | Applicatie | Een middel dat delen van het werk ondersteunt. |\n\nDezelfde woorden kunnen in verschillende contexten iets anders betekenen. `Beoordeling` kan resultaat, activiteit of vermogen aanduiden. Vraag daarom altijd wat het model bedoelt en welke grens geldt.\n\nEen business function groepeert verwant werk of verantwoordelijkheid vanuit een gekozen organisatieperspectief. Een capabilitymodel probeert vermogens herkenbaar te houden wanneer organisatie of uitvoering verandert. Beide perspectieven kunnen elkaar aanvullen maar zijn niet universeel uitwisselbaar.\n\n**Aanvultaak.** Herschrijf `medewerker opent ClaimApp en controleert veld 7` als kandidaat-capability zonder de huidige uitvoering vast te zetten. Een mogelijke formulering is `relevante claiminformatie beoordelen`, maar ook die moet nog worden afgebakend: relevant waarvoor en met welk resultaat?"
+      },
+      {
+        "id": "m4-h4",
+        "titel": "3. Exam core — realisatiecomponenten van capabilities",
+        "tekst": "De TOGAF Series Guide Business Capabilities onderscheidt vier belangrijke componenten voor de realisatie van een capability:\n\n- **People** — mensen, rollen, kennis en vaardigheden;\n- **Processes** — werkwijzen en activiteiten;\n- **Information** — informatie die nodig is of wordt voortgebracht;\n- **Resources** — overige middelen die de capability ondersteunen.\n\nDeze componenten zijn niet de capability zelf. Aurora kan `Schade beoordelen` behouden wanneer processen, rollen, informatievoorziening of ondersteunende resources veranderen. Juist daardoor helpt capabilitydenken bij strategische verandering: de vraag wat de business moet kunnen blijft zichtbaar terwijl realisatie kan wijzigen."
+      },
+      {
+        "id": "m4-h5",
+        "titel": "4. Een capabilitycatalogus maken",
+        "tekst": "Voor Aurora leggen we per capability een identifier, naam, definitie en uitsluiting vast.\n\n| ID | Naam | Definitie | Buiten deze grens |\n|---|---|---|---|\n| C1 | Schade beoordelen | Feiten en aanspraak vaststellen voor een gemotiveerd claimbesluit. | Betaling uitvoeren. |\n| C2 | Schade uitkeren | Een vastgestelde geldelijke vergoeding correct uitvoeren en afwikkelen. | De aanspraak inhoudelijk opnieuw bepalen. |\n| C3 | Fraude detecteren | Signalen van mogelijke misleiding herkennen en gericht laten onderzoeken. | Een signaal zonder onderzoek als bewezen fraude behandelen. |\n| C4 | Schadeverzoeken innemen | Een verzoek herkenbaar vastleggen en naar behandeling geleiden. | De inhoudelijke claimbeoordeling afronden. |\n| C5 | Klantcommunicatie verzorgen | Begrijpelijke en herleidbare uitleg over status, besluit en vervolg mogelijk maken. | Eén communicatiekanaal gelijkstellen aan de hele capability. |\n\nDeze beperkte catalogus dekt alleen de oefenscope. Dat HR of polisproductbeheer niet wordt getoond, betekent niet dat die capabilities niet bestaan.\n\nC4 en C5 zijn kandidaat-capabilities binnen de oefening. In een echte repository moet worden onderzocht of hetzelfde vermogen al onder een ander label bestaat voordat een nieuwe capability wordt toegevoegd."
+      },
+      {
+        "id": "m4-h6",
+        "titel": "5. Capability mapping: top-down en bottom-up",
+        "tekst": "Een starterset van capabilities kan op verschillende manieren worden gevonden.\n\n**Top-down:** vertrek bijvoorbeeld vanuit strategie, businessmodel, value propositions en gewenste waarde. Vraag welke vermogens de organisatie nodig heeft om die richting te realiseren.\n\n**Bottom-up:** onderzoek bestaand werk, processen, services, teams en systemen en abstraheer daaruit stabielere vermogens.\n\nGeen van beide routes ontslaat de architect van normalisatie. Controleer doublures, definities, grenzen en consistent niveau. Een bottom-upmodel dat alleen huidige afdelingen hernoemt is geen capabilitymap; een top-downmodel met alleen ambitieuze labels zonder operationele betekenis evenmin."
+      },
+      {
+        "id": "m4-h7",
+        "titel": "6. Decompositie, stratificatie en leveling",
+        "tekst": "Bij decompositie verfijn je een capability in samenhangende deelvermogens. De kinderen moeten uitleggen wat nodig is voor de oudercapability zonder alleen een procesvolgorde, teams of applicaties te kopiëren.\n\nBinnen de oefening plaatsen we `C1 Schade beoordelen` als L2-capability. Een mogelijke L3-uitwerking:\n\n| ID | Deelvermogen | Bijdrage en grens |\n|---|---|---|\n| C1.1 | Schadefeiten vaststellen | Relevante feiten voldoende onderbouwen; nog geen dekkingsbesluit. |\n| C1.2 | Aanspraak bepalen | Feiten en polisgrondslag verbinden aan dekking en omvang. |\n| C1.3 | Besluit onderbouwen | Oordeel, gebruikte grondslag en motivering samenhangend vastleggen. |\n\nDeze indeling is een modelvoorstel, geen bewezen universele taxonomie. Vakdeskundigen kunnen bijvoorbeeld besluiten dat bedragbepaling apart moet worden gemodelleerd.\n\n**Stratificatie** helpt capabilities logisch groeperen naar gekozen categorieën of perspectieven. **Leveling** maakt de decompositiehiërarchie zichtbaar. Voeg geen extra niveau toe alleen omdat een tool dat kan; ieder niveau moet een analytische functie hebben.\n\n**Foutvoorbeeld.** `Maandagteam`, `Dinsdagteam` en `ClaimApp` zijn geen L3-capabilities onder Schade beoordelen. Ze mengen organisatie en middelen met het vermogen."
+      },
+      {
+        "id": "m4-h8",
+        "titel": "7. Heat mapping met expliciete beoordelingslens",
+        "tekst": "Een heat map legt een gekozen criterium over een capability map. Voorbeelden:\n\n- strategische bijdrage;\n- performance/effectiveness;\n- criticality;\n- risico;\n- veranderbehoefte.\n\nDe kleur is geen argument. Eerst moet duidelijk zijn **wat** wordt beoordeeld en op basis van welk bewijs.\n\nVoor deze oefening gebruiken we bijvoorbeeld geen officiële maturityschaal, maar fictieve beoordelingsankers voor geborgde uitvoering. Onbekend blijft een aparte status en wordt niet automatisch als laagste score ingevuld.\n\n| Capability | Fictief bewijs | Voorlopige conclusie | Wat ontbreekt? |\n|---|---|---|---|\n| C1 | Werkinstructie bestaat; slechts enkele dossiers onderzocht. | Werkwijze bestaat, organisatiebrede naleving onbekend. | Representatiever bewijs. |\n| C5 | In geselecteerde dossiers wacht uitleg na intern besluit. | Prestatieprobleem aannemelijk in deze selectie. | Omvang, oorzaken en ernst breder onderzoeken. |\n| C2 | Enkele betalingen mislukken en worden handmatig hersteld. | Herstel bestaat; eindresultaat vertraagt in die gevallen. | Oorzaak en impact analyseren. |\n\nDezelfde capability kan in een heat map op `strategische bijdrage` een andere kleur hebben dan op `performance`. Daarom moet de legenda altijd criterium en betekenis benoemen."
+      },
+      {
+        "id": "m4-h9",
+        "titel": "8. Relationship mapping",
+        "tekst": "Capabilities krijgen extra betekenis wanneer relaties met andere architectuurperspectieven zichtbaar worden. Belangrijke voorbeelden:\n\n- capability ↔ organization;\n- capability ↔ value stream;\n- capability ↔ business process.\n\n`C5 Klantcommunicatie verzorgen` kan bijvoorbeeld door meerdere teams worden gerealiseerd, aan meerdere value stages bijdragen en door verschillende processen worden uitgevoerd. Maak daarom geen automatische één-op-éénrelatie tussen capability en afdeling, capability en stage of capability en proces.\n\nIn module 5 wordt vooral capability ↔ value stream uitgewerkt. Module 6 verdiept capability ↔ information en organization."
+      },
+      {
+        "id": "m4-h10",
+        "titel": "9. Van capabilityanalyse naar prioriteit",
+        "tekst": "Een verdedigbare prioritering benoemt:\n\n- welk businessresultaat of welke stakeholderwaarde wordt geraakt;\n- welk bewijs beschikbaar is;\n- ernst en onzekerheid;\n- afhankelijkheden met andere capabilities;\n- uitvoerbaarheid van verandering.\n\nGebruik geen fictieve gewichten om schijnprecisie te creëren. Wanneer de gegevens onvoldoende zijn, kan gericht onderzoek zelf de eerste prioriteit zijn."
+      },
+      {
+        "id": "m4-h11",
+        "titel": "Retrieval checkpoint",
+        "tekst": "Beantwoord zonder terug te kijken:\n\n1. Waarom zijn people, processes, information en resources geen vier subcapabilities?\n2. Wanneer kan top-down identificatie nuttig zijn en wanneer bottom-up?\n3. Wat is het verschil tussen leveling en heat mapping?\n4. Waarom kan dezelfde capability in twee heat maps een andere kleur hebben?\n5. Welke drie relationship mappings moet je kunnen herkennen?\n6. Waarom is een applicatievervanging geen reden om automatisch een capability uit het model te verwijderen?"
+      },
+      {
+        "id": "m4-h12",
+        "titel": "Zelfstandige opdracht — Nova",
+        "tekst": "Maak een beperkte capabilitycatalogus voor Nova's leenlaptopdienst. Neem minimaal op:\n\n- middelen plannen;\n- apparaten gereedmaken;\n- toegang verzorgen;\n- deelnemers informeren.\n\nDecomponeer één capability tot bruikbare deelvermogens. Beschrijf voor één capability afzonderlijk:\n\n1. people/processes/information/resources;\n2. één gekozen heat-mapcriterium;\n3. minimaal twee relaties met andere perspectieven.\n\nFictief gegeven: bij drie onderzochte starts was een laptop aanwezig maar vereiste toegang werkte niet. De selectie is niet representatief. Formuleer een onderzoeksprioriteit zonder organisatiebrede percentages te verzinnen.\n\n### Beoordelingscriteria\n\n- Capabilities zijn onderscheiden van teams, handelingen en applicaties.\n- Definities hebben doel en afbakening.\n- Decompositie is samenhangend en vermijdt doublures.\n- Realisatiecomponenten zijn niet verward met capabilitylevels.\n- Onbekend bewijs wordt niet als lage score gepresenteerd.\n- Prioriteit volgt uit waarde, bewijs en afhankelijkheden.\n- Relationship mapping is inhoudelijk onderbouwd.\n\n### Vrijgegeven voorbeeldredenering\n\n`Toegang verzorgen` kan worden verfijnd in benodigde toegang bepalen, toegang beschikbaar maken en toegang verifiëren, mits de grenzen met registratie en beheer helder zijn. De drie gevallen wijzen op een te onderzoeken tekort rond bruikbare toegang, niet op een bewezen organisatiebrede foutkans. Onderzoek configuratie, accountstatus en overdracht voordat nieuwe reserveringssoftware als oplossing wordt gekozen."
+      }
+    ],
+    "quiz": [
+      {
+        "nr": 1,
+        "vraag": "Welke formulering benoemt het du…2637 tokens truncated…astgelegd en aan de verzekerde afgeleverd, inclusief relevante vervolgstap. Bij dekking zijn bedrag en betalingsafspraken bepaald.\n\n**Value item.** Bruikbare duidelijkheid over de uitkomst en de reden, zodat de verzekerde weet wat hij kan verwachten of doen.\n\n**Waarom deze grens?** Een intern besluitvinkje is onvoldoende. `Besluit gereed` en `stakeholder begrijpt wat is besloten` zijn verschillende toestanden. Aflevering is bovendien nog niet hetzelfde als aantoonbaar begrip; dat effect kan apart worden onderzocht.\n\n### S3 — Vergoeding gerealiseerd\n\n**Beschrijving.** Aurora voert de toegezegde geldelijke afhandeling uit en controleert of de vergoeding werkelijk is gerealiseerd.\n\n**Entry.** Er is een besluit tot vergoeding, de betalingsafspraak is duidelijk en gecontroleerde betaalgegevens zijn beschikbaar.\n\n**Exit.** Het correcte bedrag is volgens de gekozen bevestigingswijze bij de bedoelde ontvanger aangekomen; een mislukte betaling is opgelost. De verzekerde ontvangt afsluitinformatie. In een echte implementatie moeten financiële experts bepalen welk bewijs voldoende is voor ontvangst.\n\n**Value item.** De toegezegde financiële tegemoetkoming is beschikbaar, met duidelijkheid over afronding.\n\n**Waarom deze grens?** `Betaalbestand aangemaakt` meet intern werk. Het bewijst niet dat de stakeholder geld heeft ontvangen."
+      },
+      {
+        "id": "m5-h7",
+        "titel": "6. Afwijkende routes en negatieve uitkomsten",
+        "tekst": "Een value stream mag uitzonderingen niet verbergen om het model netjes te houden.\n\n| Situatie | Route | Betekenis van het einde |\n|---|---|---|\n| Claim met dekking | S1 → S2 → S3 | Eindwaarde gerealiseerd wanneer S3-exit is aangetoond. |\n| Geen dekking | S1 → S2 | Besluit en vervolgstap uitgelegd; S3 is niet van toepassing. |\n| Verzekerde trekt claim in | Stop bij bereikte stage | Afhandeling beëindigd; beoogde eindwaarde mogelijk niet gerealiseerd. |\n| Betaling mislukt | S1 → S2 → S3 blijft open | Interne betaalopdracht is geen gerealiseerde vergoeding. |\n| Fraudesignaal | Route binnen/naar verdieping van beoordeling | C3 kan bijdragen zonder automatisch een aparte value stage te zijn. |\n| Vervolg naar bezwaar | Einde van deze scope met expliciete vervolgverwijzing | Geen stilzwijgende claim dat de hele klantbehoefte is afgerond. |\n\nNegatieve uitkomsten kunnen nog steeds waarde bevatten. Een gemotiveerde afwijzing kan bijvoorbeeld duidelijkheid geven. Dat betekent niet dat de stakeholder tevreden is of een positief financieel resultaat ontvangt."
+      },
+      {
+        "id": "m5-h8",
+        "titel": "7. Foutanalyse — slechte stagegrenzen herkennen",
+        "tekst": "### Organogram als value stream\n\n`Contactcentrum → Backoffice → Finance` vertelt wie betrokken is, niet welke waarde de stakeholder na elke overgang ontvangt.\n\n### Processtatus als waarde\n\n`Gemeld → Beoordeeld → Uitgekeerd` kan bruikbaar lijken maar is zonder criteria dubbelzinnig. `Gemeld` kan betekenen dat de klant op verzenden heeft geklikt, dat Aurora de claim technisch heeft ontvangen of dat het verzoek voldoende herkenbaar is om te behandelen.\n\n### Activiteit als zelfstandige stage\n\n`Documenten opslaan` is in deze casus waarschijnlijk een ondersteunende activiteit. Het wordt alleen een zinvolle value stage wanneer in de gekozen enterprisecontext juist een betrouwbaar, vindbaar dossier de stakeholderwaarde vormt.\n\n### Te vaag eindcriterium\n\n`De klant is tevreden` is geen goed enig exitcriterium. Tevredenheid kan door veel factoren worden beïnvloed en is niet hetzelfde als het concrete waarderesultaat dat de stage beoogt te leveren."
+      },
+      {
+        "id": "m5-h9",
+        "titel": "8. Capability mapping naar value stages",
+        "tekst": "Capabilities verklaren welk vermogen nodig is om stages te realiseren. Dezelfde capability kan aan meerdere stages bijdragen.\n\n| Capability | S1 | S2 | S3 | Redenering |\n|---|---|---|---|---|\n| C4 Schadeverzoeken innemen | sterk | ondersteunend | — | Verzoek herkennen, vastleggen en naar behandeling leiden. |\n| C1 Schade beoordelen | beperkt | sterk | — | Feiten en aanspraak vaststellen en besluit onderbouwen. |\n| C3 Fraude detecteren | situationeel | situationeel | — | Alleen wanneer signalen nader onderzoek vragen. |\n| C5 Klantcommunicatie verzorgen | sterk | sterk | relevant | Ontvangst, uitleg, vervolg en afsluiting ondersteunen. |\n| C2 Schade uitkeren | — | voorbereidende relatie | sterk | Vastgestelde vergoeding uitvoeren en afwikkelen. |\n\nDe mapping maakt geen keuze over teams, processen of systemen. Zij zegt alleen dat het vermogen aantoonbaar nodig is voor het waardemoment."
+      },
+      {
+        "id": "m5-h10",
+        "titel": "9. Stage-capability heat mapping",
+        "tekst": "Na de mapping kun je één beoordelingslens toevoegen. Bijvoorbeeld: **veranderbehoefte**.\n\nGebruik dan niet simpelweg `rood = slechte capability`. De eenheid van analyse is de relatie tussen capability en stage binnen het gekozen criterium.\n\nVoorbeeld:\n\n| Relatie | Fictieve observatie | Voorlopige heat-mapinterpretatie |\n|---|---|---|\n| C5 × S1 | Ontvangstbevestiging werkt in onderzochte gevallen consistent. | Lage veranderbehoefte binnen dit criterium. |\n| C5 × S2 | In geselecteerde dossiers zit tijd tussen intern besluit en uitleg. | Hogere veranderbehoefte, oorzaak nog te onderzoeken. |\n| C2 × S3 | Enkele betalingen mislukken en worden handmatig hersteld. | Aandacht nodig; omvang en oorzaak onbekend. |\n\nEen andere lens, bijvoorbeeld `strategische criticality`, kan op dezelfde matrix andere kleuren geven. Daarom moeten criterium, bewijs en onzekerheid altijd zichtbaar blijven."
+      },
+      {
+        "id": "m5-h11",
+        "titel": "10. Value stream gebruiken voor architectuurbesluiten",
+        "tekst": "Een value stream helpt niet alleen tekenen; zij verandert de vraagstelling.\n\nWanneer S2 pas als afgerond geldt nadat besluit en vervolgstap zijn afgeleverd, wordt zichtbaar dat `intern besluit gereed` geen volledig businessresultaat is. Dat kan gevolgen hebben voor:\n\n- requirements;\n- statusdefinities;\n- informatieoverdracht;\n- verantwoordelijkheden;\n- performance-indicatoren;\n- applicatieondersteuning.\n\nWanneer S3 eindigt bij gerealiseerde ontvangst in plaats van `betaalopdracht verstuurd`, verschuift de architectuuraandacht naar foutafhandeling en bewijs van afronding.\n\nHet model maakt dus expliciet **wat je belangrijk genoeg vindt om als gerealiseerde waarde te tellen**."
+      },
+      {
+        "id": "m5-h12",
+        "titel": "11. Begeleid oefenen",
+        "tekst": "Een collega stelt de volgende stages voor:\n\n1. Claimformulier ingevuld\n2. Medewerker heeft beoordeeld\n3. Betaalbestand gemaakt\n\nVerbeter elke stage vanuit stakeholderwaarde.\n\nEen sterke uitwerking vraagt bij stage 1 of de verzekerde weet dat het verzoek in behandeling is. Bij stage 2 moet een gemotiveerd besluit en vervolgstap beschikbaar zijn. Bij stage 3 moet de afgesproken vergoeding werkelijk zijn gerealiseerd in plaats van alleen intern voorbereid."
+      },
+      {
+        "id": "m5-h13",
+        "titel": "Retrieval checkpoint",
+        "tekst": "Beantwoord zonder terug te kijken:\n\n1. Welke benadering kiest primair het perspectief van end-to-end stakeholderwaarde?\n2. Welke benadering richt zich vooral op deelnemers die samen waarde creëren of leveren?\n3. Waarom is een lean value stream niet hetzelfde als een Business Architecture value stream?\n4. Wat is het verschil tussen activiteit, resultaat en stakeholderwaarde?\n5. Wat laat capabilitymapping zien voordat een heat-mapcriterium wordt toegevoegd?\n6. Waarom kan dezelfde stage-capabilitymatrix onder twee criteria andere kleuren krijgen?\n7. Waarom kan een claim zonder dekking correct bij S2 eindigen zonder dat S3 `mislukt` is?"
+      },
+      {
+        "id": "m5-h14",
+        "titel": "Zelfstandige opdracht — Nova",
+        "tekst": "Modelleer een value stream voor Nova's leenlaptopdienst.\n\nDe positieve eindwaarde is **bruikbaar kunnen deelnemen**, niet alleen een gereserveerde of fysiek aanwezige laptop.\n\nWerk minimaal uit:\n\n- primaire stakeholder;\n- trigger en scope;\n- drie of vier value stages;\n- per stage: description, entry, exit en value item;\n- minimaal één afwijkende route;\n- mapping naar de capabilities uit module 4;\n- één stage-capability heat map met expliciet criterium;\n- een korte beslisnotitie: welk knelpunt verdient nader onderzoek en welk bewijs ontbreekt?\n\nFictief gegeven: in drie onderzochte starts was een laptop aanwezig maar werkte de vereiste toegang niet. De selectie is niet representatief.\n\n### Beoordelingscriteria\n\n- Stages zijn gebaseerd op stakeholderwaarde, niet op afdelingen of systeemstatussen.\n- Entry- en exitcriteria zijn concreet en onderscheiden intern gereed van stakeholderresultaat.\n- Value items zijn herkenbaar en niet gereduceerd tot activiteiten.\n- Afwijkende routes worden expliciet behandeld.\n- Capabilitymapping is inhoudelijk onderbouwd.\n- Heat mapping benoemt criterium, bewijs en onzekerheid.\n- De beslisnotitie verzint geen organisatiebrede percentages of oorzaken.\n\n### Vrijgegeven voorbeeldredenering\n\nEen mogelijke route is `Aanvraag herkenbaar → Geschikt apparaat en toegang voorbereid → Uitgifte gecontroleerd → Bruikbare deelname gestart`. Een reservering alleen is geen eindwaarde. Wanneer toegang ontbreekt, kan de fysieke uitgifte intern zijn afgerond terwijl de laatste stage openblijft. De drie onderzochte gevallen geven reden om toegang en overdracht te onderzoeken, niet om een organisatiebrede foutkans te claimen."
+      }
+    ],
+    "quiz": [
+      {
+        "nr": 1,
+        "vraag": "Wat is het primaire perspectief van een Business Architecture value stream?",
+        "opties": {
+          "A": "Alleen technische datastromen.",
+          "B": "Alleen kosten per activiteit.",
+          "C": "Interne afdelingsvolgorde.",
+          "D": "End-to-end waarderealisatie voor een stakeholder."
+        }
+      },
+      {
+        "nr": 2,
+        "vraag": "Welke uitspraak onderscheidt process en value stream het beste?",
+        "opties": {
+          "A": "Iedere value stage is verplicht één procesactiviteit.",
+          "B": "Een process beschrijft uitvoering; een value stream beschrijft waarderealisatie vanuit stakeholderperspectief.",
+          "C": "Een value stream is altijd hetzelfde proces met minder stappen.",
+          "D": "Processen mogen geen waarde ondersteunen."
+        }
+      },
+      {
+        "nr": 3,
+        "vraag": "Welke lens richt zich primair op partijen en relaties die samen waarde creëren en leveren?",
+        "opties": {
+          "A": "Lean value stream.",
+          "B": "Technology Architecture.",
+          "C": "Gap analysis.",
+          "D": "Value network."
+        }
+      },
+      {
+        "nr": 4,
+        "vraag": "Aurora heeft een betaalbestand aangemaakt maar de betaling is mislukt. Wat betekent dit voor S3?",
+        "opties": {
+          "A": "De hele value stream moet opnieuw bij S1 beginnen.",
+          "B": "S3 is niet van toepassing bij een besluit tot vergoeding.",
+          "C": "S3 is afgerond omdat intern werk gereed is.",
+          "D": "S3 blijft open omdat de beoogde vergoeding nog niet is gerealiseerd."
+        }
+      },
+      {
+        "nr": 5,
+        "vraag": "Een collega stelt `Backoffice` voor als value stage. Welke eerste vraag helpt het meest?",
+        "opties": {
+          "A": "Welke server gebruikt de afdeling?",
+          "B": "Welke zelfstandige stakeholderwaarde ontstaat bij het bereiken van die stagegrens?",
+          "C": "Hoeveel medewerkers heeft Backoffice?",
+          "D": "Welke kleur krijgt de stage?"
+        }
+      },
+      {
+        "nr": 6,
+        "vraag": "Wat voegt een stage-capability heat map toe aan een gewone capabilitymapping?",
+        "opties": {
+          "A": "Een automatisch procesmodel.",
+          "B": "Een bewijs dat alle rode relaties dezelfde oorzaak hebben.",
+          "C": "Een gekozen beoordelingslens op de relevante capability-stage relaties.",
+          "D": "Een verplichte nieuwe capability per stage."
+        }
+      },
+      {
+        "nr": 7,
+        "vraag": "Een claim wordt gemotiveerd afgewezen en de vervolgstap is duidelijk uitgelegd. Hoe rapporteer je dit in het oefenmodel?",
+        "opties": {
+          "A": "S3 moet als mislukt worden gemarkeerd.",
+          "B": "De value stream heeft geen waarde geleverd omdat geen geld is betaald.",
+          "C": "De afwijzing moet uit het model worden verwijderd.",
+          "D": "S1 en S2 kunnen afgerond zijn; S3 is niet van toepassing voor deze route."
+        }
+      }
+    ]
+  },
+  {
+    "source_module_id": 6,
+    "slug": "module-6-information-en-organization-mapping",
+    "title": "Information en Organization Mapping",
+    "position": 6,
+    "is_required": true,
+    "is_published": false,
+    "content_version": "togaf-ba-rc2-consolidated-2026-09-03",
+    "level": "TOGAF Business Architecture examination readiness",
+    "study_load": null,
+    "case_study": "Aurora (uitgewerkt) en Nova (zelfstandig)",
+    "disclaimer": "Onafhankelijke EAW-zelfstudie; niet geaccrediteerd door The Open Group. TOGAF® is een geregistreerd handelsmerk van The Open Group.",
+    "chapters": [
+      {
+        "id": "m6-h1",
+        "titel": "Leerprestatie",
+        "tekst": "Na deze module kun je businessinformatieconcepten en relaties modelleren, information maps onderscheiden van data models, organization maps onderscheiden van organization charts en beide technieken verbinden aan capabilities, value streams en ADM-toepassing. Je kunt een overdrachtsprobleem analyseren vanuit betekenis én verantwoordelijkheid zonder applicatievelden of organogrammen als volledige businessarchitectuur te behandelen."
+      },
+      {
+        "id": "m6-h2",
+        "titel": "1. Begin bij betekenis, niet bij schermvelden",
+        "tekst": "Information Mapping maakt relevante businessinformatie en samenhang expliciet. Het is niet alleen een lijst documenten en niet alleen input/output van processtappen. De techniek helpt stakeholders dezelfde businessbetekenis te gebruiken, los van één applicatie.\n\nBij Aurora gebruiken twee teams het woord `polis`. Het ene bedoelt de verzekeringsafspraak; het andere het pdf-document waarin een versie van die afspraak staat. Wanneer dat verschil niet wordt opgelost, kan een requirement als `de polis moet vindbaar zijn` twee verschillende betekenissen hebben.\n\n**Instapvraag.** Is een klantnummer hetzelfde als de klant? Nee. Een klantnummer is een identificerend gegeven binnen een context. De architect moet weten welk businessconcept wordt geïdentificeerd, welke relaties relevant zijn en wie dezelfde betekenis gebruikt."
+      },
+      {
+        "id": "m6-h3",
+        "titel": "2. Exam core A — Information Mapping",
+        "tekst": "### Wat is een information map?\n\nEen information map helpt zichtbaar maken welke betekenisvolle informatieconcepten de business nodig heeft, creëert of uitwisselt en hoe die concepten samenhangen met andere Business Architecture-perspectieven.\n\nDe nadruk ligt op businessbetekenis. Een information concept hoeft niet één-op-één gelijk te zijn aan een database-entiteit, document of berichtveld.\n\n### Waarom is Information Mapping nuttig?\n\nDe techniek kan helpen:\n\n- verschillende betekenissen voor hetzelfde woord zichtbaar maken;\n- informatiebehoeften van capabilities en value stages expliciteren;\n- overdrachtsproblemen analyseren;\n- verantwoordelijkheid voor betekenis en kwaliteit bespreekbaar maken;\n- Business Architecture verbinden met verdere Data Architecture.\n\n### Information map versus data model\n\nEen information map start vanuit zakelijke betekenis en relevante relaties. Een conceptueel of logisch data model kan die betekenis verder structureren in data-entiteiten, attributen, cardinaliteiten en regels. Een fysiek data model ligt dichter bij technische opslag.\n\nDe modellen kunnen op elkaar aansluiten, maar beantwoorden niet dezelfde vraag. Een businessconcept `Polis` is niet automatisch `POLIS_TABEL` en een pdf is niet automatisch het concept zelf.\n\n### Gebruik binnen de ADM\n\nIn Phase A kan informatiecontext al relevant zijn voor scope en concerns. In Phase B kan Information Mapping Business Architecture verdiepen, vooral wanneer businessinformatie een belangrijke factor in capabilities en value streams is. De techniek kan vervolgens de aansluiting naar Data Architecture ondersteunen. De benodigde diepgang wordt getailord op de architectuurvraag."
+      },
+      {
+        "id": "m6-h4",
+        "titel": "3. Aurora — information concepts en relaties",
+        "tekst": "De volgende definities zijn fictieve casusafspraken.\n\n| Concept | Betekenis in de oefening | Niet hetzelfde als |\n|---|---|---|\n| Verzekerde | Partij voor wie de claim in deze scope wordt behandeld. | Een toevallig account of e-mailadres. |\n| Polis | De verzekeringsafspraak waarop de beoordeling betrekking heeft. | Alleen het document waarin de afspraak staat. |\n| Polisversie | Herleidbare versie van relevante polisafspraken die voor een beoordeling wordt gebruikt. | Altijd de actuele schermweergave. |\n| Claim | Verzoek om schade onder een polis te beoordelen. | De eventuele betaling. |\n| Besluit | Vastgelegd oordeel over aanspraak, met motivering en grondslag. | Een onverklaard statusvinkje. |\n| Betaling | Uitvoering van een vastgestelde geldelijke vergoeding. | Het besluit dat vergoeding verschuldigd is. |\n| Toelichting | Begrijpelijke uitleg van besluit of vervolgstap. | Alleen een technisch verzendlog. |\n\n### Relaties in de oefenscope\n\nEen claim betreft in deze eenvoudige casus één polis. Een polis kan meerdere claims hebben. Een claim kan nog geen besluit hebben of achtereenvolgens meerdere besluiten. Ieder besluit verwijst naar de claim en de gebruikte polisversie. Een besluit kan aanleiding geven tot geen, één of meerdere betalingen. Eén besluit kan meerdere toelichtingen hebben, bijvoorbeeld oorspronkelijke uitleg en latere verduidelijking.\n\nDeze cardinaliteiten zijn casuskeuzes. In een echte organisatie moeten zij met domeinexperts worden gevalideerd.\n\nWaarom zo expliciet? Wanneer claim en betaling worden samengevoegd verdwijnen afgewezen claims uit het model. Wanneer een besluit alleen naar de actuele polis verwijst kan de historische grondslag verloren gaan. Wanneer `Toelichting` alleen een verzendstatus is, wordt begrijpelijkheid onzichtbaar."
+      },
+      {
+        "id": "m6-h5",
+        "titel": "4. Informatie verbinden aan value stages en capabilities",
+        "tekst": "| Value stage | Capability | Relevante informatie | Kwaliteitsvraag |\n|---|---|---|---|\n| S1 Verzoek in behandeling genomen | C4 Schadeverzoeken innemen | Claim, contact, polisverwijzing. | Is het verzoek herleidbaar en is duidelijk wat ontbreekt? |\n| S2 Aanspraak verduidelijkt | C1 Schade beoordelen | Feiten, claim, gebruikte polisversie, besluit. | Is de grondslag passend en motivering herleidbaar? |\n| S2 Aanspraak verduidelijkt | C5 Klantcommunicatie verzorgen | Besluit, toelichting, afleverinformatie. | Wat bewijst aflevering en wat bewijst begrip? |\n| S3 Vergoeding gerealiseerd | C2 Schade uitkeren | Besluit, betalingsafspraak, betaling, bevestiging. | Kloppen bedrag en ontvanger en is realisatie aangetoond? |\n\nEen CRUD-matrix kan later helpen wie informatie creëert of gebruikt, maar begin niet met letters. Stel eerst vast welk concept en welke verantwoordelijkheid worden bedoeld.\n\n**Aanvultaak.** Requirement: `bewaar het polisdocument bij de claim`. Wat is nog onzeker? Of dat document de gebruikte polisversie bevat, of besluit en grondslag herleidbaar blijven en of het document de relevante businessbetekenis voldoende vertegenwoordigt."
+      },
+      {
+        "id": "m6-h6",
+        "titel": "5. Exam core B — Organization Mapping",
+        "tekst": "### Wat is een organization map?\n\nEen organization map is een architectuurrepresentatie van relevante organisatie-entiteiten en relaties. Zij kan formele structuur tonen, maar ook bijdragen, verantwoordelijkheden, afhankelijkheden en relaties met andere architectuurperspectieven.\n\n### Organization map versus organization chart\n\nEen traditioneel organization chart toont primair formele hiërarchie: wie rapporteert aan wie en hoe organisatie-eenheden zijn gegroepeerd.\n\nEen organization map kan breder analyseren:\n\n- welke organisatieonderdelen aan capabilities bijdragen;\n- welke partijen in value stages betrokken zijn;\n- waar besluitbevoegdheid ligt;\n- waar overdrachten of afhankelijkheden ontstaan;\n- welke externe partijen architectuurrelevant zijn.\n\nEen organogram kan dus input zijn, maar is niet automatisch voldoende voor architectuuranalyse.\n\n### Relatie met andere architectuurperspectieven\n\nOrganization Mapping kan organisatie-eenheden verbinden aan capabilities, value streams, processen en information concepts. Waar relevant kunnen ook relaties naar applicatie- of technologiedomeinen worden onderzocht. Teken alleen relaties die een architectuurvraag ondersteunen; een volledig spinnenweb is geen kwaliteitsdoel.\n\n### Gebruik binnen de ADM\n\nIn Phase A helpt een organization map stakeholders, scope en relevante organisatiecontext begrijpen. In Phase B kan de map worden verdiept om baseline- en targetverantwoordelijkheden en relaties te analyseren. De techniek ondersteunt de ADM en is niet automatisch een verplicht standaarddeliverable op dezelfde diepte voor iedere opdracht."
+      },
+      {
+        "id": "m6-h7",
+        "titel": "6. Aurora — organisatiebijdragen en verantwoordelijkheid",
+        "tekst": "De volgende inrichting is fictief.\n\n| Organisatieonderdeel | Bijdrage | Verantwoordelijkheid die moet worden afgesproken |\n|---|---|---|\n| Team Schade | C1 beoordelen en inhoud besluit. | Wie mag besluiten en bewaakt grondslag? |\n| Klantondersteuning | C5 uitleg over status en vervolg. | Wie borgt tijdige en begrijpelijke aflevering? |\n| Betalingsbeheer | C2 geldelijke afwikkeling. | Wie constateert en herstelt mislukte betaling? |\n| Extern expertisebureau | Specialistische bijdrage aan C1.1 feiten vaststellen. | Wie vraagt onderzoek aan, accepteert resultaat en blijft verantwoordelijk voor het besluit? |\n\nEen relatie tussen team en capability betekent niet dat het team automatisch exclusieve eigenaar is. C5 kan door meerdere organisatieonderdelen worden gerealiseerd. Kies bijdrage, besluitbevoegdheid en resultaatverantwoordelijkheid daarom afzonderlijk.\n\nEen RACI of andere verantwoordelijkhedenmatrix kan helpen, maar is geen universele verplichte oplossing."
+      },
+      {
+        "id": "m6-h8",
+        "titel": "7. Eén overdrachtsprobleem met twee mappings analyseren",
+        "tekst": "**Fictief knelpunt.** Team Schade noemt een dossier intern gereed wanneer het besluit is opgeslagen. Klantondersteuning krijgt niet in alle onderzochte gevallen de gebruikte grondslag of voldoende toelichting mee. Beide teams kunnen hun eigen taakstatus halen terwijl de verzekerde S2 nog niet bereikt.\n\nLeg nu information map en organization map over elkaar:\n\n- welk concept moet bij de overdracht behouden blijven?\n- wie is verantwoordelijk voor de inhoud van het besluit?\n- wie is verantwoordelijk voor begrijpelijke aflevering?\n- wanneer gaat een inhoudelijke vraag terug naar Team Schade?\n- welk bewijs laat zien dat de overdracht werkelijk werkt?\n\nEen sterke verbeterafspraak kan zijn dat de overdracht naar Klantondersteuning een gemotiveerd besluit met herleidbare grondslag en vervolgstap bevat. Dit is een voorstel om te toetsen; zonder kennis van bestaande mandaten mag het niet als feitelijke huidige inrichting worden gepresenteerd.\n\n**Foutvoorbeeld.** `Iedere afdeling krijgt een eigen klantbegrip en claimnummer, dan zijn modellen netjes gescheiden.` Verschillende identificaties kunnen bestaan, maar zonder expliciete semantische relaties neemt het risico op misverstanden toe."
+      },
+      {
+        "id": "m6-h9",
+        "titel": "8. Begrip, data, organisatie en verantwoordelijkheid uit elkaar houden",
+        "tekst": "Veel architectuurfouten ontstaan doordat vier dingen door elkaar lopen:\n\n1. **businessbetekenis** — wat betekent Claim of Polis?\n2. **datarepresentatie** — hoe wordt die betekenis vastgelegd?\n3. **organisatiebijdrage** — wie gebruikt of creëert informatie?\n4. **verantwoordelijkheid** — wie beslist of borgt het resultaat?\n\nEen applicatieveld kan correct gevuld zijn terwijl de businessdefinitie onduidelijk blijft. Een team kan formeel verantwoordelijk zijn maar de benodigde informatie niet ontvangen. Daarom moet de architect de lagen kunnen verbinden zonder ze gelijk te stellen."
+      },
+      {
+        "id": "m6-h10",
+        "titel": "Retrieval checkpoint",
+        "tekst": "Beantwoord zonder terug te kijken:\n\n1. Waarom is een information map niet hetzelfde als een fysiek data model?\n2. Welke relatie kan een information concept hebben met een capability en value stage?\n3. Wat toont een organization chart meestal wél, maar waarom is dat niet de volledige bedoeling van organization mapping?\n4. Waarom kan dezelfde organisatie-eenheid aan meerdere capabilities of stages bijdragen?\n5. Hoe kunnen Information Mapping en Organization Mapping samen een overdrachtsprobleem verklaren?\n6. Wat is het verschil tussen bijdrage, besluitbevoegdheid en resultaatverantwoordelijkheid?"
+      },
+      {
+        "id": "m6-h11",
+        "titel": "Zelfstandige opdracht — Nova",
+        "tekst": "Maak voor Nova:\n\n### Information map\n\nGebruik minimaal:\n\n- Deelnemer;\n- Aanvraag;\n- Reservering;\n- Apparaat;\n- Toegangsrecht;\n- Uitgifte.\n\nDefinieer begrippen en relaties die nodig zijn om **bruikbare uitgifte** vast te stellen. Markeer aanvullende cardinaliteiten als casusafspraak wanneer ze niet gegeven zijn.\n\n### Organization map\n\nNeem minimaal op:\n\n- Opleidingsadministratie;\n- Middelenbeheer;\n- IT-ondersteuning;\n- eventueel externe uitgiftepartner.\n\nLeg bijdragen, verantwoordelijkheden en overdrachten vast.\n\n### Gecombineerde analyse\n\nOnderzoek het geval waarin een apparaat correct is gereserveerd en fysiek aanwezig is, maar toegang ontbreekt. Toon minimaal één inconsistentie die zichtbaar wordt wanneer information- en organization-map naast elkaar worden gelegd. Label die als feit, hypothese of te valideren aanname.\n\n### Beoordelingscriteria\n\n- Businessconcepten zijn onderscheiden van documenten, velden en technische identifiers.\n- Relaties zijn uitgelegd en aanvullende aannames herkenbaar.\n- Informatiebehoeften sluiten aan op het waardemoment.\n- Organisatiebijdrage en besluit-/resultaatverantwoordelijkheid zijn onderscheiden.\n- De verbetering verbindt betekenis, overdracht en stakeholderresultaat.\n- Feiten, hypotheses en aannames zijn expliciet gelabeld.\n\n### Vrijgegeven voorbeeldredenering\n\nEen `Reservering` koppelt in een mogelijke uitwerking deelnemer, studiedag en gereserveerd hulpmiddel; `Uitgifte` legt de daadwerkelijke overdracht vast. `Toegangsrecht` is niet hetzelfde als een gereserveerd apparaat. Middelenbeheer kan apparaatbeschikbaarheid verzorgen, IT ondersteunt werkende toegang en de administratie verifieert deelname. Zonder expliciete gezamenlijke controle kan ieder team afzonderlijk klaar zijn terwijl de deelnemer niet kan beginnen."
+      }
+    ],
+    "quiz": [
+      {
+        "nr": 1,
+        "vraag": "Welke beschrijving past het beste bij een businessinformation concept?",
+        "opties": {
+          "A": "Het bestand polis-2026.pdf.",
+          "B": "Een SQL-index op polisnummer.",
+          "C": "Polis als zakelijke afspraak met afgesproken betekenis en relaties.",
+          "D": "De kleur van een polisvenster."
+        }
+      },
+      {
+        "nr": 2,
+        "vraag": "Waarom legt Aurora de gebruikte polisversie bij een besluit vast?",
+        "opties": {
+          "A": "Om geen besluitreden meer te hoeven vastleggen.",
+          "B": "Om de grondslag van dat besluit later te kunnen herleiden.",
+          "C": "Om iedere toekomstige poliswijziging te verbieden.",
+          "D": "Omdat een pdf altijd de enige betrouwbare bron is."
+        }
+      },
+      {
+        "nr": 3,
+        "vraag": "Wat is het beste onderscheid tussen information map en logisch data model?",
+        "opties": {
+          "A": "Een information map focust op businessbetekenis en relevante relaties; een logisch data model structureert data preciezer voor verdere informatiearchitectuur.",
+          "B": "Ze zijn per definitie exact hetzelfde.",
+          "C": "Een information map bevat alleen applicaties.",
+          "D": "Een logisch data model bevat alleen organisatiestructuur."
+        }
+      },
+      {
+        "nr": 4,
+        "vraag": "Wat voegt Organization Mapping toe aan een traditioneel organogram?",
+        "opties": {
+          "A": "Alleen andere namen voor dezelfde vakken.",
+          "B": "Inzicht in architectuurrelevante bijdragen, verantwoordelijkheden en relaties.",
+          "C": "Een garantie dat alle teams voldoende capaciteit hebben.",
+          "D": "Een automatisch reorganisatiebesluit."
+        }
+      },
+      {
+        "nr": 5,
+        "vraag": "Schade beslist; Klantondersteuning verzorgt uitleg. Wat moet expliciet worden gemaakt?",
+        "opties": {
+          "A": "Welke informatie wordt overgedragen en wie inhoud, aflevering en vervolgvragen borgt.",
+          "B": "Dat de applicatie automatisch alle verantwoordelijkheid overneemt.",
+          "C": "Alleen wie hiërarchisch hoger staat.",
+          "D": "Dat maar één team mag bestaan."
+        }
+      },
+      {
+        "nr": 6,
+        "vraag": "Waarom kan een organization map in Phase A anders worden gebruikt dan in Phase B?",
+        "opties": {
+          "A": "Organization Mapping mag alleen in Phase A worden gebruikt.",
+          "B": "Phase B gebruikt geen businessorganisaties.",
+          "C": "De ADM verbiedt hergebruik van modellen tussen fasen.",
+          "D": "Phase A gebruikt haar vooral voor high-level scope/stakeholders/context; Phase B kan verantwoordelijkheden en baseline/targetrelaties verder verdiepen."
+        }
+      }
+    ]
+  },
+  {
+    "source_module_id": 7,
+    "slug": "module-7-togaf-business-scenarios",
+    "title": "TOGAF Business Scenarios",
+    "position": 7,
+    "is_required": true,
+    "is_published": false,
+    "content_version": "togaf-ba-rc2-consolidated-2026-09-03",
+    "level": "TOGAF Business Architecture examination readiness",
+    "study_load": null,
+    "case_study": "Aurora (uitgewerkt) en Nova (zelfstandig)",
+    "disclaimer": "Onafhankelijke EAW-zelfstudie; niet geaccrediteerd door The Open Group. TOGAF® is een geregistreerd handelsmerk van The Open Group.",
+    "chapters": [
+      {
+        "id": "m7-h1",
+        "titel": "Leerprestatie",
+        "tekst": "Na deze module kun je een Business Scenario opbouwen uit probleem, business- en technische omgeving, doelen, actoren, rollen, gewenste uitkomsten en requirements. Je kunt een scenario gebruiken om requirements af te leiden zonder oorzaken of oplossingen te verzinnen en uitleggen hoe Business Scenarios in Phase A, Phase B en Requirements Management kunnen worden ingezet."
+      },
+      {
+        "id": "m7-h2",
+        "titel": "1. Een scenario gebruiken om requirements te vinden",
+        "tekst": "Een Business Scenario beschrijft een betekenisvolle businesssituatie in haar omgeving, met betrokken actoren, hun rollen en gewenste uitkomsten. Het helpt businessbehoeften vertalen naar architectuurrequirements.\n\nHet is meer dan een kort verhaaltje en niet hetzelfde als één scherminteractie. De techniek dwingt context af: welk probleem speelt, voor wie, in welke omgeving, welke uitkomst wordt gezocht en welke requirements volgen daaruit?\n\n**Instapvraag.** `Aurora moet een nieuw klantportaal bouwen` is geen neutrale probleemomschrijving. Zij bevat al een oplossingskeuze. Begin bij wat de verzekerde of medewerker niet kan en welk bewijs daarvoor bestaat."
+      },
+      {
+        "id": "m7-h3",
+        "titel": "2. Exam core — waarom en waar Business Scenarios worden gebruikt",
+        "tekst": "### Meerwaarde\n\nBusiness Scenarios helpen requirements concreter maken door situatie, actoren en gewenste uitkomsten met elkaar te verbinden. Een requirement als `de klant moet tijdig geïnformeerd worden` wordt sterker wanneer duidelijk is in welke situatie, voor welke actor, met welk resultaat en onder welke omstandigheden dat geldt.\n\n### Phase A — prominent gebruik\n\nDe TOGAF Series Guide Business Scenarios positioneert de techniek prominent in **Phase A — Architecture Vision**. Daar kan zij helpen businessrequirements te ontdekken en documenteren en consensus met management en stakeholders over de veranderingsopgave te ondersteunen.\n\n### Phase B — iteratieve verdieping\n\nDe techniek kan ook in **Phase B — Business Architecture** worden gebruikt wanneer een situatie op meer detailniveau moet worden uitgewerkt en aanvullende requirements ontstaan.\n\n### Requirements Management en andere fasen\n\nOmdat requirements door de hele ADM relevant blijven, kan een Business Scenario ook binnen Requirements Management of andere fasen worden gebruikt wanneer requirements moeten worden afgeleid, verfijnd of opnieuw gevalideerd.\n\nOnthoud dus niet `Business Scenario = alleen Phase A`. Onthoud: **Phase A is de prominentste inzet; de techniek kan iteratief breder worden gebruikt.**"
+      },
+      {
+        "id": "m7-h4",
+        "titel": "3. Relatie met eerdere Business Architecture-technieken",
+        "tekst": "Een Business Scenario staat niet los van capabilities, value streams, information en organization mapping.\n\n**Value streams** helpen bepalen welk stakeholderresultaat relevant is en op welk waardemoment een probleem zichtbaar wordt.\n\n**Capabilities** helpen benoemen welke vermogens nodig zijn om de situatie succesvol te ondersteunen.\n\n**Information Mapping** helpt bepalen welke betekenisvolle informatie nodig is.\n\n**Organization Mapping** helpt actoren, bijdragen, mandaten en overdrachten expliciet maken.\n\nHet scenario verbindt die perspectieven rond één concrete probleemsituatie."
+      },
+      {
+        "id": "m7-h5",
+        "titel": "4. Aurora — probleem, scope en omgeving",
+        "tekst": "We gebruiken de fictieve dossierselectie uit de value-streammodule. In een geselecteerde set dossiers is vastgesteld dat in meerdere gevallen tijd zat tussen een intern gereed besluit en aflevering van begrijpelijke uitleg. De selectie is niet willekeurig. Oorzaak en organisatiebrede omvang zijn dus niet vastgesteld.\n\n### Probleemomschrijving\n\nIn de onderzochte gevallen levert een intern gereed besluit nog niet tijdig de bedoelde duidelijkheid voor de verzekerde. We onderzoeken de overgang van besluit naar uitleg.\n\nDe formulering is bewust beperkt. Zij claimt niet dat de oorzaak een applicatiekoppeling, capaciteitstekort of fout proces is.\n\n### Scope\n\nEenvoudige geldelijke claimafhandeling, vanaf een intern gereed besluit tot relevante uitleg. Reparatie en bezwaar vallen buiten deze eerste scenarioanalyse. Betalingsproblemen bij S3 zijn verwant maar worden niet zonder bewijs aan dezelfde oorzaak gekoppeld.\n\n### Businessomgeving\n\nTeam Schade neemt een besluit. Klantondersteuning helpt bij uitleg. Een expertisebureau kan feiten aanleveren. Definitieve mandaten en huidige overdrachtsafspraken zijn nog niet volledig bekend en blijven onderzoekspunten.\n\n### Technische omgeving\n\nEr zijn voorzieningen voor claimvastlegging en communicatie. De precieze integratie, versieherkomst en foutafhandeling zijn in deze casus niet vastgesteld. Benoem daarom benodigde functies en informatie zonder een niet-onderzochte applicatiearchitectuur als feit te presenteren."
+      },
+      {
+        "id": "m7-h6",
+        "titel": "5. Doelen en actoren concreet maken",
+        "tekst": "Een doel moet helpen bepalen of de verandering werkt. Alleen labels als `SMART` toevoegen maakt een doel niet automatisch goed.\n\n### Fictieve pilotafspraak\n\nVoor deze oefening spreken we af dat gedurende een pilot wordt vastgelegd wanneer een besluit intern gereed is en wanneer relevante uitleg is afgeleverd. Verschillen zonder bekende vervolgactie krijgen een toegewezen onderzoekseigenaar. Dit is een gekozen pilotafspraak, geen gemeten huidige norm.\n\nDe pilot kan aflevering meetbaar maken, maar bewijst nog geen begrijpelijkheid. Dat vraagt een aanvullende proef, bijvoorbeeld of betrokken verzekerden na ontvangst kunnen uitleggen wat is besloten en welke vervolgstap mogelijk is.\n\n| Actor | Rol | Informatie of resultaat |\n|---|---|---|\n| Verzekerde | Ontvangt uitleg en stelt zo nodig vragen. | Besluit, reden en vervolgstap. |\n| Schadebehandelaar | Onderbouwt besluit en beantwoordt inhoudelijke vragen. | Herleidbaar oordeel en grondslag. |\n| Klantondersteuner | Verzorgt uitleg en signaleert ontbrekende informatie. | Bruikbare toelichting en vervolgactie. |\n| Communicatievoorziening | Ondersteunt aflevering en registratie. | Afleverstatus; dit bewijst geen begrip. |\n| Dossiervoorziening | Ondersteunt vastlegging en raadplegen. | Besluit met gebruikte informatie. |\n\nMenselijke en systeemactoren hebben verschillende rollen. Een systeemstatus is geen zelfstandig bewijs dat een menselijke ontvanger de inhoud heeft begrepen."
+      },
+      {
+        "id": "m7-h7",
+        "titel": "6. Requirements afleiden met herkomst en verificatie",
+        "tekst": "We behouden dezelfde casusrequirements door de leerlijn heen.\n\n| ID | Requirement | Herkomst | Verificatie in de oefening |\n|---|---|---|---|\n| R-01 | Een besluit is herleidbaar tot de gebruikte polisgrondslag. | Betrouwbare en uitlegbare besluitvorming. | Bij geselecteerde besluiten de gebruikte grondslag terugvinden en vergelijken. |\n| R-02 | De overdracht naar Klantondersteuning bevat besluit, motivering en toepasselijke vervolgstap. | Kloof tussen intern gereed en bruikbare uitleg. | Concrete overdrachten volgen en ontbrekende onderdelen registreren. |\n| R-03 | Een niet-afgeleverde uitleg blijft herkenbaar open met toegewezen vervolgactie. | Voorkomen dat intern gereed het klantresultaat verbergt. | Afleverfout simuleren en herstel/eigenaarschap controleren. |\n| R-04 | Begrijpelijkheid wordt afzonderlijk onderzocht van technische aflevering. | Afleveren is niet gelijk aan begrijpen. | Gebruikersproef met vooraf afgesproken methode. |\n\nDe requirements schrijven nog geen portaal voor. Een gewijzigde werkwijze kan een deel realiseren; een applicatieaanpassing kan nodig blijken. Eerst requirements en bewijs, daarna oplossingskeuze.\n\n**Aanvultaak.** Verbeter `het systeem moet gebruiksvriendelijk zijn`. Benoem welke actor welke taak moet kunnen uitvoeren, in welke context en welk bewijs voldoende is. Bijvoorbeeld: een behandelaar kan tijdens een klantvraag het besluit en de gebruikte grondslag samen terugvinden. Daarna moet nog een passende acceptatiemethode worden afgesproken."
+      },
+      {
+        "id": "m7-h8",
+        "titel": "7. Uitzonderingen en validatie",
+        "tekst": "Een scenario wordt sterker wanneer afwijkende situaties worden behandeld.\n\nBij Aurora kan:\n\n- uitleg niet worden afgeleverd;\n- de verzekerde een inhoudelijke vraag stellen;\n- informatie ontbreken;\n- een besluit later worden herzien;\n- de route buiten scope naar bezwaar gaan.\n\nBenoem per situatie welke actor handelt en hoe eerdere besluiten herleidbaar blijven.\n\nScenario-validatie vraagt betrokkenen of zij probleem, omgeving, rollen en gewenste uitkomsten herkennen. Een door één auteur goedgekeurde tekst is geen bewijs van stakeholderconsensus. Daarom blijft een didactisch scenario een ontwerpvoorstel totdat echte betrokkenen het valideren.\n\n**Interne inconsistentie.** Wanneer het scenario zegt dat Klantondersteuning inhoudelijke besluiten mag wijzigen terwijl elders alleen Team Schade die bevoegdheid heeft, moeten die afspraken expliciet worden opgelost. Laat tegenstrijdige rolafspraken niet naast elkaar bestaan."
+      },
+      {
+        "id": "m7-h9",
+        "titel": "8. Scenario, requirements en versiebeheer",
+        "tekst": "Wanneer scenario, scope of actoren veranderen, moeten afgeleide requirements worden gecontroleerd. Anders kan een requirement achterblijven bij een gewijzigde context.\n\nTraceer daarom minimaal:\n\n**observatie → scenario-element → stakeholderuitkomst → requirement → verificatie**\n\nVoor professionele architectuur kun je daar capabilities, value stages, informatieconcepten en organisatieverantwoordelijkheid aan toevoegen."
+      },
+      {
+        "id": "m7-h10",
+        "titel": "Retrieval checkpoint",
+        "tekst": "Beantwoord zonder terug te kijken:\n\n1. Waarom is een Business Scenario meer dan een user story van één actor?\n2. In welke ADM-fase wordt de techniek prominent gebruikt?\n3. Waarom kan zij ook in Phase B of Requirements Management terugkomen?\n4. Hoe helpt een value stream bij het afbakenen van een scenario?\n5. Hoe helpen capabilities bij scenarioanalyse zonder direct een oplossing te kiezen?"
+      },
+      {
+        "id": "m7-h11",
+        "titel": "Zelfstandige opdracht — Nova",
+        "tekst": "Schrijf een Business Scenario voor het geval waarin een deelnemer een gereserveerde laptop ophaalt maar geen werkende toegang heeft.\n\nWerk uit:\n\n- probleemomschrijving;\n- scope;\n- business- en technische omgeving;\n- menselijke en systeemactoren;\n- rollen;\n- een expliciet als ontwerpaanname gemarkeerd pilotdoel;\n- requirements met herkomst en verificatie;\n- uitzonderingen;\n- validatievragen.\n\nKies nog geen leverancier of nieuwe website als verplichte oplossing.\n\nVoeg één trace toe:\n\n**scenario-observatie → business requirement → betrokken capability/value stage → nog te nemen architectuurbesluit**\n\nLabel per schakel of zij feitelijk onderbouwd, afgeleid of nog te valideren is.\n\n### Beoordelingscriteria\n\n- Probleem, oorzaakshypothese en oplossing zijn onderscheiden.\n- Omgeving en actoren zijn concreet; onbekende feiten zijn gemarkeerd.\n- Doelen kunnen worden onderzocht en numerieke afspraken zijn als gekozen doel herkenbaar.\n- Requirements hebben herkomst en verificatiewijze.\n- Uitzonderingen en rolconflicten zijn behandeld.\n- Traceability naar eerdere Business Architecture-elementen is zichtbaar.\n\n### Vrijgegeven voorbeeldredenering\n\nDe positieve uitkomst is bruikbare deelname, niet alleen fysieke uitgifte. Middelenbeheer draagt het apparaat over; IT ondersteunt toegang; de deelnemer probeert de vereiste leeromgeving. Een pilot kan als ontwerpafspraak toegang bij proefuitgifte controleren en mislukkingen met eigenaar registreren. Requirements betreffen herleidbare reservering, werkend toegangsrecht en herstelroute. Onderzoek eerst bestaande voorzieningen en overdrachten voordat nieuwe software wordt voorgeschreven."
+      }
+    ],
+    "quiz": [
+      {
+        "nr": 1,
+        "vraag": "Wat ontbreekt in het scenario `we bouwen een portaal met drie schermen`?",
+        "opties": {
+          "A": "Een verbod op uitzonderingen.",
+          "B": "Alleen het lettertype.",
+          "C": "Een onderbouwd probleem, omgeving, actoren en gewenste uitkomsten.",
+          "D": "Een vast aantal architecten."
+        }
+      },
+      {
+        "nr": 2,
+        "vraag": "Waar worden Business Scenarios volgens de Series Guide prominent ingezet?",
+        "opties": {
+          "A": "Uitsluitend buiten de ADM.",
+          "B": "Phase A — Architecture Vision.",
+          "C": "Alleen Phase D.",
+          "D": "Alleen na implementatie."
+        }
+      },
+      {
+        "nr": 3,
+        "vraag": "Waarom is een afleverstatus onvoldoende als bewijs dat R-04 is gerealiseerd?",
+        "opties": {
+          "A": "Omdat alleen handmatige communicatie geldig is.",
+          "B": "Omdat Business Scenarios geen requirements mogen bevatten.",
+          "C": "Omdat technische aflevering niet automatisch begrip door de verzekerde bewijst.",
+          "D": "Omdat systemen nooit informatie mogen afleveren."
+        }
+      }
+    ]
+  },
+  {
+    "source_module_id": 8,
+    "slug": "module-8-integratie-van-baseline-naar-target",
+    "title": "Integratie van baseline naar target",
+    "position": 8,
+    "is_required": true,
+    "is_published": false,
+    "content_version": "togaf-ba-rc2-consolidated-2026-09-03",
+    "level": "TOGAF Business Architecture examination readiness",
+    "study_load": null,
+    "case_study": "Aurora (uitgewerkt) en Nova (zelfstandig)",
+    "disclaimer": "Onafhankelijke EAW-zelfstudie; niet geaccrediteerd door The Open Group. TOGAF® is een geregistreerd handelsmerk van The Open Group.",
+    "chapters": [
+      {
+        "id": "m8-h1",
+        "titel": "Leerprestatie",
+        "tekst": "Na deze module kun je Business Architecture-technieken in Phase A en Phase B positioneren, baseline en target op vergelijkbare kenmerken beschrijven, gaps afleiden, alternatieven en transities beoordelen en één requirement herleidbaar verbinden van stakeholderbehoefte tot verificatie. Je levert een samenhangend architectuurdossier op waarin aannames, evidence en resterende onzekerheden zichtbaar blijven."
+      },
+      {
+        "id": "m8-h2",
+        "titel": "1. Eén architectuurdossier rond één veranderingsvraag",
+        "tekst": "Een businessmodel, capability map en value stream naast elkaar leggen is nog geen integratie. De modellen moeten dezelfde scope, begrippen en relevante relaties gebruiken en samen een besluit ondersteunen.\n\nVoor Aurora blijft de centrale vraag: hoe krijgt de verzekerde bij eenvoudige claims bruikbare duidelijkheid en hoe wordt een toegezegde geldelijke vergoeding aantoonbaar gerealiseerd?\n\nDoor de leerlijn heen zijn dezelfde codes gebruikt:\n\n- capabilities C1–C5;\n- value stages S1–S3;\n- information concepts Claim, Polis, Polisversie, Besluit, Toelichting en Betaling;\n- requirements R-01 t/m R-04.\n\nDeze codes zijn lescodes en geen bewijs van een complete enterprise repository."
+      },
+      {
+        "id": "m8-h3",
+        "titel": "2. Exam core — Business Architecture in Phase A en Phase B",
+        "tekst": "De syllabus vraagt expliciet dat je kunt uitleggen hoe Business Architecture-technieken in Phase A en Phase B worden toegepast.\n\n| Techniek/concept | Phase A — Architecture Vision | Phase B — Business Architecture |\n|---|---|---|\n| Business capabilities | High-level scope, benodigde vermogens en belangrijke verandergebieden zichtbaar maken. | Capabilities verder analyseren, baseline/target vergelijken en gaps/prioriteiten begrijpen. |\n| Value streams | Stakeholderwaarde en relevante high-level waardestroom voor de visie zichtbaar maken. | Value stages verder modelleren en aan capabilities koppelen. |\n| Organization maps | Relevante organisatiecontext en stakeholders helpen afbakenen. | Verantwoordelijkheden, bijdragen en baseline/targetrelaties verdiepen. |\n| Information maps | Informatiecontext en belangrijke businessbegrippen kunnen helpen verduidelijken. | Businessinformatie en relaties verder analyseren en aansluiting naar Data Architecture ondersteunen. |\n| Business modeling | Strategische/businessmodelcontext voor de visie zichtbaar maken. | Implicaties voor capabilities, value streams, organisatie en informatie verder uitwerken. |\n\nNiet iedere opdracht gebruikt ieder model op dezelfde diepte. Tailoring blijft nodig.\n\n### Phase A — visie en scope op hoofdlijnen\n\nPhase A helpt de veranderingsopgave kaderen: waarom verandering nodig is, welke stakeholders en concerns relevant zijn, wat de scope is en welke richting de Architecture Vision heeft. Business Architecture-concepten ondersteunen die visie zonder dat de volledige Phase B-analyse al af hoeft te zijn.\n\n### Phase B — Business Architecture ontwikkelen\n\nIn Phase B worden relevante baseline- en targetkenmerken verder uitgewerkt, Business Architecture-technieken toegepast en gaps vastgesteld. De modellen worden niet gemaakt om een methodische checklist af te vinken, maar om samenhang en besluitvorming te ondersteunen."
+      },
+      {
+        "id": "m8-h4",
+        "titel": "3. Baseline en target vergelijkbaar maken",
+        "tekst": "Een zuivere gap vraagt dat baseline en target dezelfde soort kenmerken beschrijven. `Baseline: medewerkers werken handmatig` en `Target: klant krijgt binnen een afgesproken tijd uitleg` zijn niet direct vergelijkbaar: de eerste uitspraak gaat over uitvoering, de tweede over een resultaat.\n\nVoor Aurora gebruiken we de volgende fictieve oefenvergelijking:\n\n| Kenmerk | Baseline in oefencasus | Targetvoorstel | Bewijs/beperking |\n|---|---|---|---|\n| Gereedcriterium S2 | Intern besluit kan gereed heten vóór uitleg is afgeleverd. | Besluit plus relevante uitleg en vervolgstap horen bij de afgesproken S2-exit. | Dossierselectie laat kloof zien; organisatiebrede omvang onbekend. |\n| Grondslag | In onderzochte gevallen niet altijd eenvoudig herleidbaar. | Ieder besluit verwijst herleidbaar naar gebruikte polisgrondslag. | Werkwijze en informatie nog in echte situatie te toetsen. |\n| Overdracht | Teams hanteren eigen taakgrenzen. | Overdracht bevat afgesproken inhoud en toegewezen vervolgactie. | Definitieve mandaten nog te valideren. |\n| Betaalafronding S3 | Verzonden opdracht kan intern als gereed worden gezien. | Afgesproken bewijs van correcte ontvangst plus afsluitinformatie. | Financiële experts moeten geschikt bewijs bepalen. |\n| Meting | Interne taakstatus en stakeholderresultaat niet volledig gescheiden. | Verschillende waardemomenten en afwijkende uitkomsten afzonderlijk zichtbaar. | Meetbaarheid bewijst nog geen verbetering. |\n\nEen baseline hoeft niet perfect volledig te zijn, maar moet voldoende betrouwbaar zijn voor het besluit waarvoor zij wordt gebruikt. Markeer onzekerheid en het risico daarvan."
+      },
+      {
+        "id": "m8-h5",
+        "titel": "4. Gaps afleiden",
+        "tekst": "Een gap beschrijft een relevant verschil dat voor de targetarchitectuur moet worden overbrugd. Maak duidelijk of iets wordt behouden, gewijzigd, toegevoegd of beëindigd.\n\n| Gap | Geraakte samenhang | Type verandering | Mogelijke maatregel |\n|---|---|---|---|\n| G1 Intern gereed maskeert ontbrekende uitleg | S2, C1, C5, Besluit, Toelichting, R-02 | Gewijzigde grens, informatie en verantwoordelijkheid | Overdracht en statusdefinitie aanscherpen; uitvoering toetsen. |\n| G2 Gebruikte grondslag onvoldoende herleidbaar | C1.2/C1.3, Polisversie, Besluit, R-01 | Verbeterde informatieborging | Versierelatie vastleggen en raadplegen mogelijk maken. |\n| G3 Mislukte betaling verdwijnt uit afrondingsbeeld | S3, C2, Betaling | Gewijzigde status en herstelafspraak | Afwijkende uitkomst openhouden en actief opvolgen. |\n\nNiet elk verschil vraagt een nieuwe capability. Een bestaand vermogen kan een andere realisatie, informatievoorziening of performance nodig hebben.\n\n**Aanvultaak.** `C1 ontbreekt in de target, want straks beoordeelt een systeem.` Verbeter deze redenering. Het beoordelingsvermogen blijft nodig; alleen de realisatie kan veranderen. Onderzoek verantwoordelijkheid, kennis, informatie en controles in de target."
+      },
+      {
+        "id": "m8-h6",
+        "titel": "5. Van gap naar requirements en architectuurbesluit",
+        "tekst": "Neem G1. De trace is:\n\n1. stakeholderconcern: de verzekerde heeft bruikbare duidelijkheid nodig;\n2. value stage: S2 Aanspraak verduidelijkt;\n3. capabilities: C1 en C5;\n4. information concepts: Besluit, Polisversie, Toelichting;\n5. organization: Team Schade en Klantondersteuning;\n6. scenario: intern gereed besluit levert nog niet altijd bruikbare uitleg;\n7. requirement R-02: overdracht bevat besluit, motivering en toepasselijke vervolgstap;\n8. gap G1: huidige gereedstatus en overdracht sluiten niet aantoonbaar aan op target;\n9. verificatie: concrete cases volgen en controleren of overdracht en uitleg voldoen.\n\nDat is traceability. Een lijst documentnamen zonder inhoudelijke relaties is dat niet."
+      },
+      {
+        "id": "m8-h7",
+        "titel": "6. Alternatieven eerlijk beoordelen",
+        "tekst": "We vergelijken twee ontwerpopties zonder fictieve baten of kosten te verzinnen.\n\n| Aspect | Optie A — eerst werkwijze en informatie verbeteren | Optie B — tegelijk applicatievervanging |\n|---|---|---|\n| Beoogde bijdrage | Heldere overdracht, status en grondslag met bestaande middelen beproeven. | Verbeteringen combineren met nieuwe technische ondersteuning. |\n| Afhankelijkheden | Beschikbare registratie en passende verantwoordelijkheden. | Daarnaast selectie, migratie, integratie en invoering van nieuwe applicatie. |\n| Belangrijk risico | Bestaande middelen ondersteunen de targetafspraken mogelijk onvoldoende. | Grotere verandering combineert meerdere onzekerheden en afhankelijkheden. |\n| Benodigd bewijs | Kan proefwerkwijze de targetcriteria realiseren? | Zijn benodigde functies, migratie en uitvoerbaarheid aangetoond? |\n\nEen voorlopige voorkeur voor optie A kan verdedigbaar zijn **als** bestaande voorzieningen de kritieke targetafspraken kunnen ondersteunen. Dat is een conditioneel besluit, geen universele voorkeur voor kleine veranderingen.\n\nArchitectuur moet ook ongewenste effecten onderzoeken. Een snellere lokale taak is geen verbetering wanneer fouten of werk naar een andere stage verschuiven."
+      },
+      {
+        "id": "m8-h8",
+        "titel": "7. Transitiearchitectuur — een tussenstap moet zelfstandig werken",
+        "tekst": "Een transitiearchitectuur is meer dan een datum tussen baseline en target. Een tussenstap moet binnen haar scope zelfstandig bruikbaar zijn.\n\nVoor G1 kan een pilottransitie bijvoorbeeld eisen dat:\n\n- rollen voor besluit en uitleg duidelijk zijn;\n- R-02 in de overdracht wordt ondersteund;\n- benodigde information concepts beschikbaar zijn;\n- een mislukte aflevering herkenbaar open blijft;\n- foutafhandeling en terugkoppeling bestaan;\n- historie niet wordt verwijderd door nieuwe statusbetekenis.\n\nEen transitie die alleen `nieuwe status invoeren op 1 oktober` zegt, beschrijft geen werkbare architectuur."
+      },
+      {
+        "id": "m8-h9",
+        "titel": "8. Integriteitscontrole over alle modellen",
+        "tekst": "Voer vóór het eindbesluit vijf controles uit.\n\n### Scopeconsistentie\n\nHebben businessmodel, capabilities, value stream, mappings en scenario dezelfde relevante claimscope? Wanneer een model bezwaar omvat en een ander niet, is dat expliciet?\n\n### Begripsconsistentie\n\nBetekenen `Besluit`, `Polisversie`, `Toelichting` en `Betaling` overal hetzelfde?\n\n### Identifierconsistentie\n\nWorden C1–C5, S1–S3 en R-01–R-04 hergebruikt zonder nieuwe betekenis aan dezelfde code te geven?\n\n### Bewijsconsistentie\n\nWorden fictieve observaties niet ineens als organisatiebrede feiten gepresenteerd?\n\n### Besluitconsistentie\n\nVolgt de gekozen maatregel werkelijk uit de gaps en requirements, of is een voorkeursoplossing achteraf in de modellen geschreven?"
+      },
+      {
+        "id": "m8-h10",
+        "titel": "9. Executive architectuurnotitie",
+        "tekst": "Een goed einddossier moet niet alleen voor architecten leesbaar zijn. Maak daarom een executive samenvatting van maximaal één pagina met:\n\n- de veranderingsvraag en scope;\n- de belangrijkste stakeholderwaarde;\n- de kerncapabilities;\n- de belangrijkste informatie- en organisatieverandering;\n- de aantoonbare gaps;\n- de beoordeelde opties;\n- het voorlopige besluit;\n- onzekerheden en bewijs dat nog ontbreekt.\n\nDe detailmodellen blijven beschikbaar als onderbouwing. De samenvatting vervangt die niet."
+      },
+      {
+        "id": "m8-h11",
+        "titel": "Retrieval checkpoint",
+        "tekst": "Beantwoord zonder terug te kijken:\n\n1. Waarom is het onjuist om Phase A te behandelen als volledig uitgewerkte Business Architecture?\n2. Welke drie Business Architecture-concepten zijn expliciet relevant voor de Architecture Vision in Phase A?\n3. Wat is het doel van verdere Business Architecture-uitwerking in Phase B?\n4. Waarom moet baseline en target op vergelijkbare kenmerken worden beschreven?\n5. Waarom kan dezelfde capability in Phase A en Phase B voorkomen met ander detailniveau?\n6. Welke fout maak je wanneer je van één capabilitygap direct naar `vervang applicatie X` springt?"
+      },
+      {
+        "id": "m8-h12",
+        "titel": "Zelfstandige eindopdracht — Nova",
+        "tekst": "Maak een geïntegreerd architectuurdossier voor bruikbare leenlaptops. Hergebruik je eerdere Nova-uitwerkingen.\n\n### Vereist\n\n- veranderingsvraag en scope;\n- relevante businessmodelaannames;\n- capabilitycatalogus en minimaal één decompositie;\n- value stream met stages, criteria en afwijkende route;\n- information map;\n- organization map inclusief externe uitgiftepartner;\n- Business Scenario met requirements;\n- vergelijkbare baseline en target;\n- minimaal drie gaps;\n- twee veranderopties;\n- één zelfstandig werkbare transitiearchitectuur;\n- één requirement volledig traceren van stakeholderbehoefte tot verificatie;\n- executive samenvatting van maximaal één pagina.\n\n### Beoordelingscriteria\n\n- Scope en begrippen blijven consistent tussen modellen.\n- Baseline en target vergelijken dezelfde kenmerken.\n- Gaps volgen uit aantoonbare verschillen.\n- Capabilities en hun realisatie zijn onderscheiden.\n- Alternatieven en afhankelijkheden zijn eerlijk beoordeeld.\n- De transitie is zelfstandig bruikbaar met rollen, informatie en herstel.\n- Het besluit is traceerbaar naar requirements en bewijs.\n- Onzekerheden en aannames blijven zichtbaar.\n- De executive samenvatting ondersteunt besluitvorming zonder bewijs weg te laten.\n\n### Vrijgegeven voorbeeldredenering\n\nBij Nova blijft `bruikbaar kunnen deelnemen` het positieve eindresultaat. Een reservering is een noodzakelijke tussenuitkomst, geen eindwaarde. Een gap kan liggen tussen een gereserveerd apparaat en gecontroleerde toegang bij uitgifte. Optie A verbetert de gezamenlijke uitgiftecontrole; optie B vervangt daarnaast reserveringssoftware. Onderzoek eerst welk tekort de mislukte starts verklaart. Een partnerpilot is alleen zelfstandig bruikbaar wanneer reservering, identiteit, toegang en storingsopvolging samen zijn geregeld."
+      }
+    ],
+    "quiz": [
+      {
+        "nr": 1,
+        "vraag": "Wat maakt een gap analysis inhoudelijk bruikbaar?",
+        "opties": {
+          "A": "De baseline overslaan om sneller te plannen.",
+          "B": "Vergelijkbare baseline- en targetkenmerken met expliciete verschillen en bewijs.",
+          "C": "Alleen twee diagrammen met verschillende kleuren.",
+          "D": "Iedere targetcapability als volledig nieuw bestempelen."
+        }
+      },
+      {
+        "nr": 2,
+        "vraag": "Welke vraag toetst of een transitiearchitectuur werkbaar is?",
+        "opties": {
+          "A": "Heeft het plaatje minder vakken dan de target?",
+          "B": "Kunnen rollen, informatie en uitzonderingsafhandeling tijdens de tussenstap de afgesproken dienst leveren?",
+          "C": "Staat er een einddatum in de titel?",
+          "D": "Worden alle historische gegevens meteen verwijderd?"
+        }
+      },
+      {
+        "nr": 3,
+        "vraag": "Wat is een kernverschil tussen Phase A en Phase B voor Business Architecture?",
+        "opties": {
+          "A": "Er is geen betekenisvol verschil.",
+          "B": "Phase A kadert visie, scope en high-level architectuur; Phase B ontwikkelt de Business Architecture verder en analyseert baseline, target en gaps.",
+          "C": "Phase A is alleen technologie en Phase B alleen finance.",
+          "D": "Phase B mag geen capabilities of value streams gebruiken."
+        }
+      }
+    ]
+  }
+]

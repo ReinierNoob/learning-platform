@@ -90,6 +90,7 @@ export type AssessmentResult = {
   correct: boolean;
   juisteAntwoord: string;
   uitleg: string;
+  keuzeUitleg?: string;
 };
 
 export type ProgressResult = {

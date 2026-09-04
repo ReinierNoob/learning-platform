@@ -1,27 +1,25 @@
-name: Solution Architecture physical UX E2E
+name: TOGAF Business Architecture rc2 physical UX E2E
 
 on:
   pull_request:
     branches: [main]
     paths:
-      - '.github/workflows/solution-architecture-physical-ux-e2e.yml'
+      - '.github/workflows/togaf-refactor-physical-ux-e2e.yml'
       - '.github/workflows/vercel-preview.yml'
-      - 'scripts/verify-environment-contract.mjs'
       - 'package.json'
-      - 'e2e/solution-architecture-physical-ux.spec.ts'
+      - 'e2e/togaf-business-architecture-rc2.spec.ts'
+      - 'app/globals.css'
       - 'app/leren/**'
-      - 'app/api/presenter-media/**'
-      - 'components/adaptive/**'
-      - 'content/solution-architecture-presenter-**'
-      - 'lib/solution-architecture-presenter-**'
-      - 'lib/solution-architecture-module-**'
+      - 'app/api/grade-quiz/**'
+      - 'content/togaf-business-architecture-rc2/**'
+      - 'lib/platform.ts'
 
 permissions:
   contents: read
   id-token: write
 
 concurrency:
-  group: solution-architecture-physical-ux-${{ github.event.pull_request.number }}
+  group: togaf-ba-rc2-physical-ux-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 jobs:
@@ -48,47 +46,7 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
-      - name: Configure branch-scoped adaptive preview contract
-        shell: bash
-        run: |
-          set -euo pipefail
-          test -n "$VERCEL_TOKEN" -a -n "$PR_HEAD_REF" || { echo '::error::Vercel token or PR head ref missing'; exit 1; }
-          node <<'NODE'
-          const fs = require('fs');
-          const branch = process.env.PR_HEAD_REF;
-          const adaptiveKeys = [
-            'EAW_ADAPTIVE_MODULE1_IN_LEARNING',
-            'EAW_ADAPTIVE_MODULE2_IN_LEARNING',
-            'EAW_ADAPTIVE_MODULE3_IN_LEARNING',
-            'EAW_ADAPTIVE_MODULE4_IN_LEARNING',
-            'EAW_ADAPTIVE_MODULE5_IN_LEARNING',
-            'EAW_ADAPTIVE_MODULE6_IN_LEARNING',
-            'EAW_ADAPTIVE_MODULE7_IN_LEARNING',
-            'EAW_ADAPTIVE_MODULE8_IN_LEARNING',
-            'EAW_ADAPTIVE_MODULE9_IN_LEARNING',
-            'EAW_ADAPTIVE_MODULE10_IN_LEARNING',
-          ];
-          fs.writeFileSync('/tmp/adaptive-env.json', JSON.stringify(
-            adaptiveKeys.map((key) => ({
-              key,
-              value: 'true',
-              type: 'plain',
-              target: ['preview'],
-              gitBranch: branch,
-              comment: 'Solution Architecture physical UX/release preview contract',
-            })),
-          ));
-          NODE
-          STATUS="$(curl --silent --show-error --output /tmp/adaptive-env-response.json --write-out '%{http_code}' \
-            --request POST \
-            --url "https://api.vercel.com/v10/projects/$VERCEL_PROJECT_ID/env?upsert=true&teamId=$VERCEL_TEAM_ID" \
-            --header "Authorization: Bearer $VERCEL_TOKEN" \
-            --header 'Content-Type: application/json' \
-            --data-binary @/tmp/adaptive-env.json)"
-          case "$STATUS" in 200|201) ;; *) cat /tmp/adaptive-env-response.json; echo "::error::Adaptive branch env update failed (HTTP $STATUS)"; exit 1 ;; esac
-          echo "Adaptive preview flags bound to branch: $PR_HEAD_REF"
-
-      - name: Resolve current EAW UX bootstrap target from Vercel SoT (branch-specific)
+      - name: Resolve branch-specific EAW UX bootstrap target from Vercel SoT
         shell: bash
         run: |
           set -euo pipefail
@@ -123,7 +81,7 @@ jobs:
             console.error(`::error::Branch Preview EAW_SUPABASE_PUBLISHABLE_KEY must resolve to exactly one Vercel entry; found ${publishableKeys.length}`);
             process.exit(1);
           }
-          fs.appendFileSync(process.env.GITHUB_ENV, `UX_BOOTSTRAP_URL=${values[0]}/functions/v1/github-ux-e2e-bootstrap\n`);
+          fs.appendFileSync(process.env.GITHUB_ENV, `UX_BOOTSTRAP_URL=${values[0]}/functions/v1/github-togaf-ux-e2e-bootstrap\n`);
           console.log('Physical UX bootstrap target resolved from branch-specific Vercel EAW runtime SoT.');
           NODE
           rm -f /tmp/ux-envs.json
@@ -147,7 +105,7 @@ jobs:
               remoteUrl: 'https://github.com/ReinierNoob/learning-platform',
               commitRef: process.env.PR_HEAD_REF,
               commitSha: process.env.PR_HEAD_SHA,
-              commitMessage: 'Solution Architecture physical UX exact-head preview',
+              commitMessage: 'TOGAF Business Architecture rc2 physical UX exact-head preview',
               ci: true,
               ciType: 'github-actions',
               ciGitRepoVisibility: 'public',
@@ -275,15 +233,15 @@ jobs:
           NODE
 
       - name: Run physical browser gate on exact Vercel preview
-        run: npx playwright test e2e/solution-architecture-physical-ux.spec.ts --workers=1 --reporter=line
+        run: npx playwright test e2e/togaf-business-architecture-rc2.spec.ts --workers=1 --reporter=line
 
       - name: Upload physical UX evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: solution-architecture-physical-ux-evidence
+          name: togaf-business-architecture-rc2-physical-ux-evidence
           path: |
-            artifacts/solution-architecture-ux/**
+            artifacts/togaf-business-architecture-rc2/**
             playwright-report/**
             test-results/**
           if-no-files-found: warn

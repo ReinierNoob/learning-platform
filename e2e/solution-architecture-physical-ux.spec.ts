@@ -113,7 +113,7 @@ async function verifyPresenter(page: Page, moduleId: number, name: 'Eva' | 'Alex
       }
     };
     node.muted = true;
-    try { await node.play(); } catch {}
+    void node.play().catch(() => undefined);
     await waitUntil(() => node.readyState >= 2 && Number.isFinite(node.duration) && node.duration > 0);
     await waitUntil(() => node.currentTime > 0.05);
     const track = node.textTracks?.[0];
@@ -264,6 +264,7 @@ test('Solution Architecture complete physical learner experience', async ({ brow
 
   const moduleResults: ModuleResult[] = [];
   for (let module = 1; module <= 10; module += 1) {
+    console.log(`[solution-ux] module ${module} started`);
     const moduleUrl = `${baseURL}/leren/${slug}/module/${module}`;
     if (module > 1) await navigateFromDocument(page, moduleUrl);
     else await page.waitForLoadState('networkidle');
@@ -285,6 +286,7 @@ test('Solution Architecture complete physical learner experience', async ({ brow
       await page.screenshot({ path: `${artifactsDir}/desktop-module-${module}.png`, fullPage: true });
     }
     moduleResults.push({ module, eva, alexander, horizontalOverflow: Math.max(overflowStart, overflowEnd), visualLabel });
+    console.log(`[solution-ux] module ${module} completed`);
   }
 
   await navigateFromDocument(page, `${baseURL}/leren/${slug}/module/1`);

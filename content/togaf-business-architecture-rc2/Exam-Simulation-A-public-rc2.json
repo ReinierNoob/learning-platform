@@ -1,0 +1,454 @@
+{
+  "assessment_id": "ogba-101-mock-rc2-a",
+  "items": [
+    {
+      "domain": "IC",
+      "nr": 1,
+      "options": {
+        "A": "Alleen juridische entiteit",
+        "B": "Altijd één afdeling",
+        "C": "Scope die besluit en samenhang omvat",
+        "D": "Alleen interne partijen"
+      },
+      "question": "Welke enterprisegrens is het bruikbaarst?"
+    },
+    {
+      "domain": "IC",
+      "nr": 2,
+      "options": {
+        "A": "Altijd maximaal",
+        "B": "Alleen technisch",
+        "C": "Passend bij besluit en stakeholder",
+        "D": "Eén model voor iedereen"
+      },
+      "question": "Hoe kies je architectuurdetail?"
+    },
+    {
+      "domain": "IC",
+      "nr": 3,
+      "options": {
+        "A": "Repository ordent; ADM bewaart",
+        "B": "Metamodel bewaart; Continuum bestuurt",
+        "C": "Continuum ordent; Repository beheert",
+        "D": "Beide zijn gelijk"
+      },
+      "question": "Welke combinatie is juist?"
+    },
+    {
+      "domain": "IC",
+      "nr": 4,
+      "options": {
+        "A": "Typen elementen en relaties",
+        "B": "Een targetoplossing",
+        "C": "Toegangsrechten",
+        "D": "Projectprioriteit"
+      },
+      "question": "Wat beschrijft een Enterprise Metamodel?"
+    },
+    {
+      "domain": "IC",
+      "nr": 5,
+      "options": {
+        "A": "Agile stoppen",
+        "B": "TOGAF ongewijzigd invoeren",
+        "C": "Doelen en interfaces expliciteren",
+        "D": "TOGAF alleen als woordenlijst"
+      },
+      "question": "Hoe combineer je TOGAF met agile?"
+    },
+    {
+      "domain": "IC",
+      "nr": 6,
+      "options": {
+        "A": "Beide gaps",
+        "B": "Beide risico’s",
+        "C": "Omgekeerd",
+        "D": "Voorziening is gap; beschikbaarheid risico"
+      },
+      "question": "Baseline mist een voorziening; leverancier is mogelijk niet beschikbaar. Wat is juist?"
+    },
+    {
+      "domain": "ADM",
+      "nr": 7,
+      "options": {
+        "A": "Iteratie",
+        "B": "Beëindigd requirementsbeheer",
+        "C": "Ongeldige visie",
+        "D": "Verboden tailoring"
+      },
+      "question": "Een fase wordt opnieuw uitgevoerd na nieuwe informatie. Wat toont dit?"
+    },
+    {
+      "domain": "ADM",
+      "nr": 8,
+      "options": {
+        "A": "Technisch tegenover zakelijk",
+        "B": "Nooit meer wijzigen",
+        "C": "Alleen Phase G",
+        "D": "Formeel beoordeeld en aanvaard"
+      },
+      "question": "Wat betekent approved tegenover draft?"
+    },
+    {
+      "domain": "ADM",
+      "nr": 9,
+      "options": {
+        "A": "Negeren",
+        "B": "Scope stil vergroten",
+        "C": "Via Requirements Management beoordelen",
+        "D": "Wachten tot H"
+      },
+      "question": "Een requirement botst in Phase C met scope. Wat doe je?"
+    },
+    {
+      "domain": "ADM",
+      "nr": 10,
+      "options": {
+        "A": "Repository vervangen",
+        "B": "Risico’s elimineren",
+        "C": "Scope automatiseren",
+        "D": "Controleerbare trade-offs"
+      },
+      "question": "Waarom alternatieven met dezelfde criteria beoordelen?"
+    },
+    {
+      "domain": "ADM",
+      "nr": 11,
+      "options": {
+        "A": "Migratie prioriteren en plannen",
+        "B": "Visie formuleren",
+        "C": "Business Architecture maken",
+        "D": "Implementatie bewaken"
+      },
+      "question": "Wat past primair bij Phase F?"
+    },
+    {
+      "domain": "BM",
+      "nr": 12,
+      "options": {
+        "A": "Model bewezen",
+        "B": "Aannames nog toetsen",
+        "C": "Propositie verwijderen",
+        "D": "Geen architectuur nodig"
+      },
+      "question": "Een BMC bevat geen marktbewijs. Conclusie?"
+    },
+    {
+      "domain": "BM",
+      "nr": 13,
+      "options": {
+        "A": "Meerdere passende vormen",
+        "B": "Alleen BMC",
+        "C": "Alleen organogram",
+        "D": "Alleen datamodel"
+      },
+      "question": "Welke representatie mag een businessmodel hebben?"
+    },
+    {
+      "domain": "BM",
+      "nr": 14,
+      "options": {
+        "A": "Lineaire implementatie",
+        "B": "Gap analysis",
+        "C": "Organization Mapping",
+        "D": "Businessmodelinnovatie"
+      },
+      "question": "Hypothese testen en bijstellen is?"
+    },
+    {
+      "domain": "BM",
+      "nr": 15,
+      "options": {
+        "A": "BA werkt capabilities en inrichting verder uit",
+        "B": "Alleen financieel",
+        "C": "Alleen voor IT",
+        "D": "TOGAF verbiedt het"
+      },
+      "question": "Waarom vervangt een businessmodel Business Architecture niet?"
+    },
+    {
+      "domain": "BC",
+      "nr": 16,
+      "options": {
+        "A": "Klantvragen beantwoorden",
+        "B": "Servicedesk Noord",
+        "C": "CRM",
+        "D": "Vraag doorsturen"
+      },
+      "question": "Welke naam is een capability?"
+    },
+    {
+      "domain": "BC",
+      "nr": 17,
+      "options": {
+        "A": "Alleen top-down",
+        "B": "Gecombineerd",
+        "C": "Alleen bottom-up",
+        "D": "Technology-first"
+      },
+      "question": "Strategie én bestaand werk onderzoeken is?"
+    },
+    {
+      "domain": "BC",
+      "nr": 18,
+      "options": {
+        "A": "Zelfde kleur",
+        "B": "Eén team elk",
+        "C": "Eén processtap elk",
+        "D": "Onderscheid, volledigheid en niveau"
+      },
+      "question": "Wat controleer je bij subcapabilities?"
+    },
+    {
+      "domain": "BC",
+      "nr": 19,
+      "options": {
+        "A": "Nee, andere criteria",
+        "B": "Ja",
+        "C": "Groen sluit verandering uit",
+        "D": "Legenda onnodig"
+      },
+      "question": "Rood op veranderbehoefte, groen op performance: strijdig?"
+    },
+    {
+      "domain": "BC",
+      "nr": 20,
+      "options": {
+        "A": "Alleen hiërarchie",
+        "B": "Procesvolgorde",
+        "C": "Relaties en afhankelijkheden",
+        "D": "Rapportagelijn"
+      },
+      "question": "Wat toont relationship mapping?"
+    },
+    {
+      "domain": "BC",
+      "nr": 21,
+      "options": {
+        "A": "People, processes, information, resources",
+        "B": "Vision, mission, goals, measures",
+        "C": "Fasen A-D",
+        "D": "Value, stage, item, stakeholder"
+      },
+      "question": "Welke zijn realisatiecomponenten?"
+    },
+    {
+      "domain": "VS",
+      "nr": 22,
+      "options": {
+        "A": "Afdeling",
+        "B": "Elke activiteit",
+        "C": "Applicatiemodule",
+        "D": "Betekenisvolle toename stakeholderwaarde"
+      },
+      "question": "Wat is een value stage?"
+    },
+    {
+      "domain": "VS",
+      "nr": 23,
+      "options": {
+        "A": "BA value stream",
+        "B": "Lean value stream",
+        "C": "Value network",
+        "D": "Continuum"
+      },
+      "question": "Welke lens onderzoekt wachttijd en verspilling?"
+    },
+    {
+      "domain": "VS",
+      "nr": 24,
+      "options": {
+        "A": "Welke stages?",
+        "B": "Welke activiteit duurt langst?",
+        "C": "Welke capability is zwak?",
+        "D": "Welke partijen en relaties?"
+      },
+      "question": "Welke vraag hoort bij value network?"
+    },
+    {
+      "domain": "VS",
+      "nr": 25,
+      "options": {
+        "A": "Stage gereed",
+        "B": "Hernoem tot proces",
+        "C": "Eerdere stages vervallen",
+        "D": "Nog geen bewezen stakeholderwaarde"
+      },
+      "question": "Intern gereed, klant ontving niets. Betekenis?"
+    },
+    {
+      "domain": "VS",
+      "nr": 26,
+      "options": {
+        "A": "Eén afdeling per stage",
+        "B": "Benodigde vermogens per stage tonen",
+        "C": "Processen vervangen",
+        "D": "Organogram genereren"
+      },
+      "question": "Waarom capabilities aan stages koppelen?"
+    },
+    {
+      "domain": "VS",
+      "nr": 27,
+      "options": {
+        "A": "Nieuwe capability per rood vak",
+        "B": "Vaste TOGAF-kleuren",
+        "C": "Criterium en legenda",
+        "D": "Identiek proces"
+      },
+      "question": "Wat vereist een stage-capability heat map?"
+    },
+    {
+      "domain": "VS",
+      "nr": 28,
+      "options": {
+        "A": "Alles mislukt",
+        "B": "Als betaling",
+        "C": "Buiten model",
+        "D": "Alternatieve route met geleverde waarde"
+      },
+      "question": "Hoe modelleer je een gemotiveerde afwijzing?"
+    },
+    {
+      "domain": "BS",
+      "nr": 29,
+      "options": {
+        "A": "Techniek te laat",
+        "B": "ADM onbruikbaar",
+        "C": "Oplossing gekozen vóór probleem en uitkomst",
+        "D": "Capabilities worden processen"
+      },
+      "question": "Scenario start met gekozen chatbot. Grootste risico?"
+    },
+    {
+      "domain": "BS",
+      "nr": 30,
+      "options": {
+        "A": "Technologiestandaarden kiezen",
+        "B": "Probleem, actoren, omgeving en uitkomst concretiseren",
+        "C": "Migratie vastleggen",
+        "D": "Metamodel vervangen"
+      },
+      "question": "Hoe helpt een scenario Phase A?"
+    },
+    {
+      "domain": "BS",
+      "nr": 31,
+      "options": {
+        "A": "Passende begripstoets",
+        "B": "E-mail verzonden",
+        "C": "Document geopend",
+        "D": "Aannemen bij duidelijke taal"
+      },
+      "question": "Hoe bewijs je dat een klant een besluit begrijpt?"
+    },
+    {
+      "domain": "IM",
+      "nr": 32,
+      "options": {
+        "A": "Tabellen en sleutels",
+        "B": "Zakelijke concepten en relaties",
+        "C": "Vervanger van alle datamodellen",
+        "D": "Alleen interfaces"
+      },
+      "question": "Wat is een information map?"
+    },
+    {
+      "domain": "IM",
+      "nr": 33,
+      "options": {
+        "A": "Benodigde informatie zichtbaar maken",
+        "B": "Database per capability",
+        "C": "Waarde vervangen door volume",
+        "D": "Processen verwijderen"
+      },
+      "question": "Waarom informatie aan stages/capabilities koppelen?"
+    },
+    {
+      "domain": "IM",
+      "nr": 34,
+      "options": {
+        "A": "Altijd technischer",
+        "B": "Datamodel heeft geen relaties",
+        "C": "Geen verschil",
+        "D": "Meer focus op businessbetekenis"
+      },
+      "question": "Information map versus logisch datamodel?"
+    },
+    {
+      "domain": "OM",
+      "nr": 35,
+      "options": {
+        "A": "Rapportagelijn",
+        "B": "Aantal medewerkers",
+        "C": "Bijdragen en verantwoordelijkheden",
+        "D": "Salarisschalen"
+      },
+      "question": "Wat toont Organization Mapping extra ten opzichte van een organogram?"
+    },
+    {
+      "domain": "OM",
+      "nr": 36,
+      "options": {
+        "A": "Grootste team",
+        "B": "Bijdragen, overdrachten, eigenaarschap",
+        "C": "Alle functietitels",
+        "D": "Kleur"
+      },
+      "question": "Twee teams delen klantcommunicatie. Wat expliciteren?"
+    },
+    {
+      "domain": "OM",
+      "nr": 37,
+      "options": {
+        "A": "Techniek versus geen organisatie",
+        "B": "Slechts één fase",
+        "C": "High-level scope versus verdieping baseline/target",
+        "D": "Geen verschil"
+      },
+      "question": "Gebruik in Phase A versus B?"
+    },
+    {
+      "domain": "AP",
+      "nr": 38,
+      "options": {
+        "A": "Laagste decompositie",
+        "B": "High-level visie en scope",
+        "C": "Implementatie",
+        "D": "Migratiegoedkeuring"
+      },
+      "question": "Capabilities in Phase A dienen vooral voor?"
+    },
+    {
+      "domain": "AP",
+      "nr": 39,
+      "options": {
+        "A": "Businesscase kopiëren",
+        "B": "Baseline, target en gaps uitwerken",
+        "C": "Afwijkingen goedkeuren",
+        "D": "Technologie zonder context"
+      },
+      "question": "Wat past bij Phase B?"
+    },
+    {
+      "domain": "AP",
+      "nr": 40,
+      "options": {
+        "A": "Kleurschema",
+        "B": "Traceability en besluitintegriteit",
+        "C": "Implementatie",
+        "D": "Nieuw businessmodel"
+      },
+      "question": "Targetadvies zonder relatie met requirements en gaps mist?"
+    }
+  ],
+  "notice": "Origineel voor deze training opgesteld; geen officiële examenvragen van The Open Group.",
+  "pass_percentage": 60,
+  "pass_score": 24,
+  "question_count": 40,
+  "randomize_options": false,
+  "randomize_questions": true,
+  "time_limit_minutes": 60,
+  "title": "TOGAF Business Architecture Foundation — Exam Simulation A",
+  "version": "2026-09-03-rc2"
+}
